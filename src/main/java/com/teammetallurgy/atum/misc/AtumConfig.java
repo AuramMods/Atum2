@@ -1,10 +1,6 @@
 package com.teammetallurgy.atum.misc;
 
-import com.electronwill.nightconfig.core.file.FileConfig;
 import net.minecraftforge.common.ForgeConfigSpec;
-import net.minecraftforge.fml.loading.FMLPaths;
-
-import java.io.File;
 
 public class AtumConfig {
     public static final ForgeConfigSpec.Builder BUILDER = new ForgeConfigSpec.Builder();
@@ -13,6 +9,7 @@ public class AtumConfig {
     public static final Sandstorm SANDSTORM = new Sandstorm(BUILDER);
     public static final Mobs MOBS = new Mobs(BUILDER);
     public static final WorldGen WORLD_GEN = new WorldGen(BUILDER);
+    public static final ModIntegration MOD_INTEGRATION = new ModIntegration(BUILDER);
 
     public static class General {
         public static final String GENERAL = "general";
@@ -124,33 +121,14 @@ public class AtumConfig {
     public static class ModIntegration {
         public static final String MOD_INTEGRATION = "mod integration";
 
-        public ModIntegration(ForgeConfigSpec.Builder builder, String modName, boolean defaultValue) {
+        public final ForgeConfigSpec.BooleanValue theOneProbe;
+
+        ModIntegration(ForgeConfigSpec.Builder builder) {
             builder.push(MOD_INTEGRATION);
-            builder.define(modName, defaultValue);
+            this.theOneProbe = builder.define("theoneprobe", true);
             builder.pop();
         }
     }
 
-    public static ForgeConfigSpec spec = BUILDER.build();
-
-    public static class Helper {
-        private static final FileConfig CONFIG_FILE = FileConfig.of(new File(FMLPaths.CONFIGDIR.get().toFile(), "atum-common.toml"));
-
-        public static <T> T get(String category, String subCategory, String value) {
-            return get(category + "." + subCategory, value);
-        }
-
-        public static <T> T get(String category, String value) {
-            return get(category + "." + value);
-        }
-
-        public static <T> T get(String category) {
-            CONFIG_FILE.load();
-            return CONFIG_FILE.get(category);
-        }
-
-        public static String getSubConfig(String category, String subCategory) {
-            return category + "." + subCategory;
-        }
-    }
+    public static final ForgeConfigSpec spec = BUILDER.build();
 }

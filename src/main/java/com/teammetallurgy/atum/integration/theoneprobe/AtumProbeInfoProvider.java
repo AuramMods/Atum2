@@ -4,15 +4,12 @@ import com.teammetallurgy.atum.Atum;
 import com.teammetallurgy.atum.blocks.base.DoorAtumBlock;
 import mcjty.theoneprobe.api.*;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.registries.ForgeRegistries;
 import org.apache.commons.lang3.StringUtils;
 
-import java.util.Objects;
 
 import static mcjty.theoneprobe.api.IProbeConfig.ConfigMode.EXTENDED;
 import static mcjty.theoneprobe.api.IProbeConfig.ConfigMode.NORMAL;
@@ -25,15 +22,13 @@ public class AtumProbeInfoProvider implements IBlockDisplayOverride {
         IProbeConfig config = TOPSupport.getProbeConfig();
 
         if (mode != ProbeMode.DEBUG && !this.show(mode, config.getShowSilverfish())) {
-            if (blockState.getBlock() instanceof DoorAtumBlock) {
-                ResourceLocation location = Objects.requireNonNull(ForgeRegistries.BLOCKS.getKey(blockState.getBlock()));
-                if (location.toString().contains("limestone")) {
-                    location = new ResourceLocation(location.toString().replace("_door", ""));
-                    ItemStack door = new ItemStack(ForgeRegistries.ITEMS.getValue(location));
+            if (blockState.getBlock() instanceof DoorAtumBlock door) {
+                ItemStack disguise = door.getDisguise();
+                if (!disguise.isEmpty()) {
                     probeInfo.horizontal()
-                            .item(door)
+                            .item(disguise)
                             .vertical()
-                            .itemLabel(door)
+                            .itemLabel(disguise)
                             .text(Component.literal(MODNAME + StringUtils.capitalize(Atum.MOD_ID)));
                     return true;
                 }

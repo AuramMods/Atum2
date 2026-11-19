@@ -16,14 +16,14 @@ public class IntegrationHandler {
     private HashMap<String, Class<? extends IModIntegration>> mods = new HashMap<>();
 
     public void addSupport() {
-        addSupport(TOPSupport.THE_ONE_PROBE, TOPSupport.class, true);
+        addSupport(TOPSupport.THE_ONE_PROBE, TOPSupport.class);
     }
 
     public void init() {
         List<String> enabledModSupport = mods.keySet().stream().filter(IntegrationHandler::getConfigValue).collect(Collectors.toList());
         this.mods.entrySet().stream().filter(entry -> enabledModSupport.contains(entry.getKey()) && ModList.get().isLoaded(entry.getKey())).forEach(entry -> {
             try {
-                this.integratedMods.add(entry.getValue().newInstance());
+                this.integratedMods.add(entry.getValue().getDeclaredConstructor().newInstance());
             } catch (Exception e) {
                 Atum.LOG.error("Failed to load mod integration handler");
                 e.printStackTrace();
@@ -31,13 +31,12 @@ public class IntegrationHandler {
         });
     }
 
-    private void addSupport(String modID, Class<? extends IModIntegration> modClass, boolean defaultValue) {
+    private void addSupport(String modID, Class<? extends IModIntegration> modClass) {
         this.mods.put(modID, modClass);
-        new AtumConfig.ModIntegration(AtumConfig.BUILDER, modID, defaultValue); //Write config
     }
 
     public static boolean getConfigValue(String modID) {
-        return AtumConfig.Helper.get(AtumConfig.ModIntegration.MOD_INTEGRATION, modID);
+        return TOPSupport.THE_ONE_PROBE.equals(modID) && AtumConfig.MOD_INTEGRATION.theOneProbe.get();
     }
 
     public void setup() {

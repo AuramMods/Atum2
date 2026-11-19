@@ -65,7 +65,7 @@ public class QuernRecipeCategory implements IRecipeCategory<QuernRecipe> {
 
         ClientLevel clientLevel = Minecraft.getInstance().level;
         if (clientLevel != null) {
-            builder.addSlot(RecipeIngredientRole.INPUT, 61, 11).addItemStack(recipe.getResultItem(clientLevel.registryAccess())).addTooltipCallback((recipeSlotView, tooltip) -> { // Output
+            builder.addSlot(RecipeIngredientRole.OUTPUT, 61, 11).addItemStack(recipe.getResultItem(clientLevel.registryAccess())).addTooltipCallback((recipeSlotView, tooltip) -> {
                 boolean showAdvanced = Minecraft.getInstance().options.advancedItemTooltips || Screen.hasShiftDown();
                 if (showAdvanced) {
                     tooltip.add(Component.translatable("jei.tooltip.recipe.id", recipe.getId()).withStyle(ChatFormatting.DARK_GRAY));

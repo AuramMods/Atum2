@@ -1409,6 +1409,10 @@
   "gui.atum.rotations": "x%s",
   "jei.item.atum.emmer_dough": "Crafted by combining Emmer Flour with water",
 
+  "config.jade.plugin_atum": "Atum 2",
+  "config.jade.plugin_atum.hide_limestone_doors": "Hide Limestone Doors",
+  "config.jade.plugin_atum.date_growth": "Date Growth",
+
   "_comment": "Just Tips support",
   "atum.tip.title": "Atum Tip",
   "atum.tip.you_will_die": "You will die.",
