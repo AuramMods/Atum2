@@ -44,6 +44,20 @@ minecraft {
 }
 
 sourceSets.main.resources.srcDir 'src/generated/resources'
+sourceSets {
+    migration {
+        compileClasspath += sourceSets.main.compileClasspath
+        runtimeClasspath += sourceSets.main.output + sourceSets.main.runtimeClasspath
+    }
+}
+
+tasks.register('migrateLegacyWorld', JavaExec) {
+    group = 'atum'
+    description = 'Copy a Minecraft 1.16.5 Atum save for use with the Forge 1.20.1 port.'
+    classpath = sourceSets.migration.runtimeClasspath
+    mainClass = 'com.teammetallurgy.atum.misc.migration.LegacyWorldMigration'
+    javaLauncher = javaToolchains.launcherFor(java.toolchain)
+}
 
 repositories {
     maven {

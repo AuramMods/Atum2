@@ -2,6 +2,16 @@
 
 Download on [CurseForge](https://minecraft.curseforge.com/projects/atum)
 
+## Upgrade a 1.16.5 Atum world
+
+Close the world in Minecraft 1.16.5 and keep a backup. From a checkout of this port with Java 17 installed, run the migration task with the original save directory followed by a new destination in an existing directory.
+
+```sh
+./gradlew migrateLegacyWorld --args='"/path/to/old save" "/path/to/new save"'
+```
+
+The tool copies the save, replaces Atum's legacy dimension generator in the copy, and moves legacy chunk entities into the entity files Minecraft 1.20.1 reads. Start Forge 1.20.1 with Atum and Curios using the converted directory. Minecraft upgrades the chunks as it reads them and generates unexplored chunks using the port's world generation.
+
 How to get Atum 2 through maven
 ---
 Add to your build.gradle:
