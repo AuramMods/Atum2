@@ -14,9 +14,11 @@ import net.minecraft.world.entity.ai.village.poi.PoiManager;
 import net.minecraft.world.entity.ai.village.poi.PoiRecord;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.portal.PortalInfo;
+import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.common.util.ITeleporter;
 
@@ -31,54 +33,37 @@ public class TeleporterAtum implements ITeleporter {
 
     @Override
     public Entity placeEntity(Entity entity, ServerLevel currentWorld, ServerLevel destWorld, float yaw, Function<Boolean, Entity> repositionEntity) {
-        Entity movedEntity = repositionEntity.apply(false);
-        if (!placeInPortal(destWorld, entity, yaw)) {
-            makePortal(destWorld, movedEntity);
-            placeInPortal(destWorld, movedEntity, yaw);
-            return movedEntity;
-        } else {
-            placeInPortal(destWorld, movedEntity, yaw);
-            return movedEntity;
-        }
+        return repositionEntity.apply(false);
     }
 
     public boolean placeInPortal(ServerLevel level, Entity entity, float yaw) {
-        PortalInfo portalInfo = this.getPortalInfo(entity, level, null);
-        if (portalInfo == null) {
+        PortalInfo portal = this.getPortalInfo(entity, level, null);
+        if (portal == null) {
             return false;
-        } else {
-            Vec3 vec3d1 = portalInfo.pos;
-            Vec3 vec3d2 = portalInfo.speed;
-            entity.setDeltaMovement(vec3d2);
-            entity.setYRot(yaw + portalInfo.yRot);
-            entity.moveTo(vec3d1.x, vec3d1.y + 1, vec3d1.z);
-            return true;
         }
+        entity.setDeltaMovement(portal.speed);
+        entity.moveTo(portal.pos.x, portal.pos.y, portal.pos.z, yaw, portal.xRot);
+        return true;
     }
 
     @Override
     @Nullable
     public PortalInfo getPortalInfo(Entity entity, ServerLevel destWorld, Function<ServerLevel, PortalInfo> defaultPortalInfo) {
-        Optional<BlockUtil.FoundRectangle> result = teleporterResult(destWorld, entity.blockPosition());
-        if (result.isPresent()) {
-            BlockPos startPos = result.get().minCorner;
-            return new PortalInfo(new Vec3(startPos.getX(), startPos.getY(), startPos.getZ()), entity.getDeltaMovement(), entity.getYRot(), entity.getXRot());
-        } else {
-            return new PortalInfo(entity.position(), Vec3.ZERO, entity.getYRot(), entity.getXRot());
-        }
+        return getPortalInfoAt(destWorld, entity.blockPosition(), entity.getYRot(), entity.getXRot());
     }
 
-    protected Optional<BlockUtil.FoundRectangle> teleporterResult(ServerLevel serverLevel, BlockPos pos) {
-        Optional<BlockUtil.FoundRectangle> optional = getExistingPortal(serverLevel, pos);
-        if (optional.isPresent()) {
-            return optional;
-        } else {
-            Optional<BlockUtil.FoundRectangle> optional1 = createPortal(serverLevel, pos);
-            if (!optional1.isPresent()) {
-                Atum.LOG.error("Unable to create a portal, likely target out of worldborder");
-            }
-            return optional1;
-        }
+    @Nullable
+    PortalInfo getPortalInfoAt(ServerLevel level, BlockPos target, float yaw, float pitch) {
+        return teleporterResult(level, target).map(portal -> {
+            BlockPos corner = portal.minCorner;
+            Vec3 landing = new Vec3(corner.getX() + portal.axis1Size / 2.0,
+                    corner.getY() + 1.0, corner.getZ() + portal.axis2Size / 2.0);
+            return new PortalInfo(landing, Vec3.ZERO, yaw, pitch);
+        }).orElse(null);
+    }
+
+    protected Optional<BlockUtil.FoundRectangle> teleporterResult(ServerLevel level, BlockPos pos) {
+        return getExistingPortal(level, pos).or(() -> createPortal(level, pos));
     }
 
     public Optional<BlockUtil.FoundRectangle> getExistingPortal(ServerLevel serverLevel, BlockPos pos) {
@@ -105,46 +90,38 @@ public class TeleporterAtum implements ITeleporter {
     }
 
     public Optional<BlockUtil.FoundRectangle> createPortal(Level level, BlockPos pos) {
+        if (!level.getWorldBorder().isWithinBounds(pos.offset(-2, 0, -2))
+                || !level.getWorldBorder().isWithinBounds(pos.offset(2, 0, 2))) {
+            return Optional.empty();
+        }
+        int top = level.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, pos.getX(), pos.getZ());
+        pos = new BlockPos(pos.getX(), Mth.clamp(top - 1, level.getMinBuildHeight(), level.getMaxBuildHeight() - 4), pos.getZ());
         BlockState portalState = AtumBlocks.PORTAL.get().defaultBlockState();
-        BlockState sandState;
-
-        while (pos.getY() > 1 && level.isEmptyBlock(pos)) {
-            pos = pos.below();
-        }
-
-        while (!level.isEmptyBlock(pos.above()) && (level.getBlockState(pos).getBlock() != AtumBlocks.STRANGE_SAND.get() || level.getBlockState(pos).getBlock() != Blocks.GRASS)) {
-            pos = pos.above();
-        }
-
-        if (level.dimension() == Level.OVERWORLD) {
-            sandState = Blocks.SANDSTONE.defaultBlockState();
-        } else {
-            sandState = AtumBlocks.LIMESTONE_BRICK_LARGE.get().defaultBlockState();
-        }
-
+        BlockState frame = level.dimension().equals(Level.OVERWORLD)
+                ? Blocks.SANDSTONE.defaultBlockState() : AtumBlocks.LIMESTONE_BRICK_LARGE.get().defaultBlockState();
 
         //Bottom layers
         for (BlockPos basePos : BlockPos.MutableBlockPos.betweenClosed(pos.offset(-2, 0, -2), pos.offset(2, 1, 2))) {
-            level.setBlock(basePos, sandState, 2);
+            level.setBlock(basePos, frame, Block.UPDATE_CLIENTS);
         }
 
         //Pillars
         for (int y = 2; y < 4; y++) {
-            level.setBlock(pos.offset(-2, y, -2), sandState, 2);
-            level.setBlock(pos.offset(2, y, -2), sandState, 2);
-            level.setBlock(pos.offset(-2, y, 2), sandState, 2);
-            level.setBlock(pos.offset(2, y, 2), sandState, 2);
+            level.setBlock(pos.offset(-2, y, -2), frame, Block.UPDATE_CLIENTS);
+            level.setBlock(pos.offset(2, y, -2), frame, Block.UPDATE_CLIENTS);
+            level.setBlock(pos.offset(-2, y, 2), frame, Block.UPDATE_CLIENTS);
+            level.setBlock(pos.offset(2, y, 2), frame, Block.UPDATE_CLIENTS);
         }
 
         //Portal blocks
         for (BlockPos portalPos : BlockPos.MutableBlockPos.betweenClosed(pos.offset(-1, 1, -1), pos.offset(1, 1, 1))) {
-            level.setBlock(portalPos, portalState, 2);
+            level.setBlock(portalPos, portalState, Block.UPDATE_CLIENTS);
         }
 
         //Set air above portal blocks
         for (BlockPos airPos : BlockPos.MutableBlockPos.betweenClosed(pos.offset(-2, 2, -1), pos.offset(2, 3, 1))) {
-            level.setBlock(airPos, Blocks.AIR.defaultBlockState(), 2);
+            level.setBlock(airPos, Blocks.AIR.defaultBlockState(), Block.UPDATE_CLIENTS);
         }
-        return Optional.of(new BlockUtil.FoundRectangle(pos.immutable(), 3, 3));
+        return Optional.of(new BlockUtil.FoundRectangle(pos.offset(-1, 1, -1), 3, 3));
     }
 }

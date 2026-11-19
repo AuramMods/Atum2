@@ -61,23 +61,16 @@ public class PortalBlock extends HalfTransparentBlock {
     }
 
     public boolean trySpawnPortal(Level level, BlockPos pos) {
-        Size size = new Size(level, pos);
-
-        if (size.isValid()) {
-            size.placePortalBlocks();
-            level.playSound(null, pos, SoundEvents.END_PORTAL_SPAWN, SoundSource.BLOCKS, 0.7F, 1.0F);
-            return true;
-        } else {
-            Size size1 = new Size(level, pos);
-
-            if (size1.isValid()) {
-                size1.placePortalBlocks();
-                level.playSound(null, pos, SoundEvents.END_PORTAL_SPAWN, SoundSource.BLOCKS, 1.0F, 1.0F);
-                return true;
-            } else {
-                return false;
-            }
+        if (!level.getFluidState(pos).is(FluidTags.WATER)) {
+            return false;
         }
+        Size size = new Size(level, pos);
+        if (!size.isValid()) {
+            return false;
+        }
+        size.placePortalBlocks();
+        level.playSound(null, pos, SoundEvents.END_PORTAL_SPAWN, SoundSource.BLOCKS, 0.7F, 1.0F);
+        return true;
     }
 
     @Override
@@ -93,8 +86,8 @@ public class PortalBlock extends HalfTransparentBlock {
 
     @Override
     public void entityInside(@Nonnull BlockState state, @Nonnull Level level, @Nonnull BlockPos pos, @Nonnull Entity entity) {
-        if (level instanceof ServerLevel) {
-           changeDimension((ServerLevel) level, entity, new TeleporterAtum());
+        if (level instanceof ServerLevel serverLevel) {
+            changeDimension(serverLevel, entity, TeleporterAtum.INSTANCE);
         }
     }
 
@@ -107,10 +100,13 @@ public class PortalBlock extends HalfTransparentBlock {
             }
             if (player.portalCooldown <= 0) {
                 player.level().getProfiler().push("portal");
-                player.changeDimension(destWorld, teleporter);
-                player.portalCooldown = 300; //Set portal cooldown
-                player.level().getProfiler().pop();
+                try {
+                    player.changeDimension(destWorld, teleporter);
+                } finally {
+                    serverLevel.getProfiler().pop();
+                }
             }
+            player.setPortalCooldown();
         }
     }
 
@@ -220,7 +216,7 @@ public class PortalBlock extends HalfTransparentBlock {
         }
 
         boolean isEmptyBlock(BlockState state) {
-            return state.getFluidState().is(FluidTags.WATER);
+            return state.is(AtumBlocks.PORTAL.get()) || state.getFluidState().is(FluidTags.WATER);
         }
 
         boolean isSandBlock(BlockState state) {
