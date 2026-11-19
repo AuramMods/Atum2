@@ -60,10 +60,10 @@ public class Atum {
     public static final WoodType PALM = WoodType.register(new WoodType("atum_palm", AtumBlockSetType.PALM));
     public static final WoodType DEADWOOD = WoodType.register(new WoodType("atum_deadwood", AtumBlockSetType.DEADWOOD));
     public static final DeferredRegister<AtumVillagerProfession> ATUM_PROFESSION_DEFERRED = DeferredRegister
-            .create(new ResourceLocation(MOD_ID, "atum_villager"), Atum.MOD_ID);
+            .create(new ResourceLocation(MOD_ID, "villager_profession"), MOD_ID);
     public static Supplier<IForgeRegistry<AtumVillagerProfession>> villagerProfession = ATUM_PROFESSION_DEFERRED
             .makeRegistry(() -> new RegistryBuilder<AtumVillagerProfession>()
-                    .setName(new ResourceLocation(Atum.MOD_ID, "villager_profession")).setMaxID(Integer.MAX_VALUE >> 5)
+                    .setMaxID(Integer.MAX_VALUE >> 5)
                     .allowModification());
 
     public Atum() {

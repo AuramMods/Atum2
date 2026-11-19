@@ -229,6 +229,7 @@ pip-log.txt
 src/generated/
 build/
 run/
+/logs/
 eclipse/
 CREDITS-fml.txt
 forge-*-*-changelog.txt

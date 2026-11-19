@@ -10,7 +10,7 @@ Close the world in Minecraft 1.16.5 and keep a backup. From a checkout of this p
 ./gradlew migrateLegacyWorld --args='"/path/to/old save" "/path/to/new save"'
 ```
 
-The tool copies the save, replaces Atum's legacy dimension generator in the copy, and moves legacy chunk entities into the entity files Minecraft 1.20.1 reads. Start Forge 1.20.1 with Atum and Curios using the converted directory. Minecraft upgrades the chunks as it reads them and generates unexplored chunks using the port's world generation.
+The tool copies the save, replaces Atum's legacy dimension generator, preserves Atum biome and mob spawner data, and moves legacy chunk entities into the entity files Minecraft 1.20.1 reads. Start Forge 1.20.1 with Atum and Curios using the converted directory. Unexplored chunks use the port's world generation.
 
 How to get Atum 2 through maven
 ---

@@ -68,7 +68,7 @@ public final class LegacyWorldMigration {
         Path staging = Files.createTempDirectory(destination.getParent(), ".atum-migration-");
         try {
             copyWorld(source, staging);
-            long entities = migrateEntities(staging);
+            long entities = migrateRegions(staging, new LegacyAtumChunkMigration(level));
             NbtIo.writeCompressed(level, staging.resolve("level.dat").toFile());
             Files.move(staging, destination);
             System.out.printf("Copied %d legacy entities and migrated the Atum dimension to %s%n", entities, destination);
@@ -111,7 +111,7 @@ public final class LegacyWorldMigration {
         }
     }
 
-    private static long migrateEntities(Path world) throws IOException {
+    private static long migrateRegions(Path world, LegacyAtumChunkMigration biomeMigration) throws IOException {
         long total = 0;
         try (var paths = Files.find(world, Integer.MAX_VALUE, (path, attributes) -> attributes.isRegularFile()
                 && isDimensionRegion(world.relativize(path)))) {
@@ -120,7 +120,9 @@ public final class LegacyWorldMigration {
                 if (coordinates.matches()) {
                     int x = Integer.parseInt(coordinates.group(1)) * REGION_SIZE;
                     int z = Integer.parseInt(coordinates.group(2)) * REGION_SIZE;
-                    total += migrateRegion(region, x, z);
+                    LegacyAtumChunkMigration atum = region.getParent().equals(world.resolve("dimensions/atum/atum/region"))
+                            ? biomeMigration : null;
+                    total += migrateRegion(region, x, z, atum);
                 }
             }
         }
@@ -140,7 +142,7 @@ public final class LegacyWorldMigration {
         };
     }
 
-    private static int migrateRegion(Path source, int originX, int originZ) throws IOException {
+    private static int migrateRegion(Path source, int originX, int originZ, LegacyAtumChunkMigration biomeMigration) throws IOException {
         int entityCount = 0;
         RegionFile outputRegion = null;
         try (var region = new RegionFile(source, source.getParent(), false)) {
@@ -150,16 +152,20 @@ public final class LegacyWorldMigration {
                     if (!region.hasChunk(position)) {
                         continue;
                     }
+                    CompoundTag old;
                     try (var input = region.getChunkDataInputStream(position)) {
                         if (input == null) {
                             throw new IOException("Cannot read chunk " + position + " in " + source);
                         }
-                        CompoundTag old = NbtIo.read(input);
-                        ListTag entities = old.getCompound("Level").getList("Entities", Tag.TAG_COMPOUND);
-                        int dataVersion = old.getInt("DataVersion");
-                        if (entities.isEmpty() || dataVersion > DATA_VERSION_1_16_5) {
-                            continue;
-                        }
+                        old = NbtIo.read(input);
+                    }
+                    int dataVersion = old.getInt("DataVersion");
+                    if (dataVersion > DATA_VERSION_1_16_5) {
+                        continue;
+                    }
+
+                    ListTag entities = old.getCompound("Level").getList("Entities", Tag.TAG_COMPOUND);
+                    if (!entities.isEmpty()) {
                         if (outputRegion == null) {
                             Path directory = Files.createDirectories(source.getParent().resolveSibling("entities"));
                             outputRegion = new RegionFile(directory.resolve(source.getFileName()), directory, false);
@@ -173,10 +179,20 @@ public final class LegacyWorldMigration {
                         chunk.put("Entities", entities);
                         chunk.putIntArray("Position", new int[] {x, z});
                         chunk.putInt("DataVersion", dataVersion);
-                        try (var output = outputRegion.getChunkDataOutputStream(position)) {
-                            NbtIo.write(chunk, output);
-                        }
+                        writeChunk(outputRegion, position, chunk);
+                        old.getCompound("Level").remove("Entities");
                         entityCount += entities.size();
+                    }
+
+                    if (biomeMigration != null) {
+                        var upgraded = biomeMigration.upgrade(old, dataVersion);
+                        if (upgraded.isPresent()) {
+                            writeChunk(region, position, upgraded.get());
+                            continue;
+                        }
+                    }
+                    if (!entities.isEmpty()) {
+                        writeChunk(region, position, old);
                     }
                 }
             }
@@ -186,5 +202,11 @@ public final class LegacyWorldMigration {
             }
         }
         return entityCount;
+    }
+
+    private static void writeChunk(RegionFile region, ChunkPos position, CompoundTag data) throws IOException {
+        try (var output = region.getChunkDataOutputStream(position)) {
+            NbtIo.write(data, output);
+        }
     }
 }
