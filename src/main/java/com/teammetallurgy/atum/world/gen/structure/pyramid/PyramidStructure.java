@@ -60,7 +60,7 @@ public class PyramidStructure extends AtumStructure {
         BlockPos pos = this.getLowestYIn5by5BoxOffset7Blocks(generationContext, rotation);
         int yChance = Mth.nextInt(generationContext.random(), 7, 14);
         BlockPos pyramidPos = new BlockPos(pos.getX(), pos.getY() - yChance, pos.getZ());
-        return pyramidPos.getY() > 55 ? Optional.empty() : onTopOfChunkCenter(generationContext, Heightmap.Types.WORLD_SURFACE_WG, (piecesBuilder) -> {
+        return pos.getY() <= 55 ? Optional.empty() : onTopOfChunkCenter(generationContext, Heightmap.Types.WORLD_SURFACE_WG, (piecesBuilder) -> {
              PyramidPieces.addComponents(piecesBuilder, templateManager, PYRAMID, pyramidPos, rotation);
         });
     }

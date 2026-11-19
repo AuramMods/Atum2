@@ -1,5 +1,13 @@
 {
+  "replace": false,
   "values": [
-    "atum:strange_sands"
+    "atum:dense_woods",
+    "atum:sparse_woods",
+    "atum:sand_plains",
+    "atum:strange_sands",
+    "atum:sand_dunes",
+    "atum:sand_hills",
+    "atum:limestone_mountains",
+    "atum:dead_oasis"
   ]
 }

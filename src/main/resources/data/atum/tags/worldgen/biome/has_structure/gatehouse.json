@@ -1,5 +1,9 @@
 {
+  "replace": false,
   "values": [
+    "atum:dense_woods",
+    "atum:sparse_woods",
+    "atum:sand_plains",
     "atum:strange_sands"
   ]
 }

@@ -1,0 +1,11 @@
+{
+  "replace": false,
+  "values": [
+    "#atum:base_stone_atum",
+    "atum:sand",
+    "atum:limestone_gravel",
+    "atum:limestone_cracked",
+    "atum:fertile_soil",
+    "atum:marl"
+  ]
+}

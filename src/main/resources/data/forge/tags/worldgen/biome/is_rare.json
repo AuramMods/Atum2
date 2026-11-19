@@ -1,5 +1,8 @@
 {
+  "replace": false,
   "values": [
-    "atum:oasis"
+    "atum:limestone_crags",
+    "atum:oasis",
+    "atum:dead_oasis"
   ]
 }
