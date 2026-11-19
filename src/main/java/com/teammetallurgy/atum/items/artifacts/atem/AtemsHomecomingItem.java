@@ -1,33 +1,35 @@
 package com.teammetallurgy.atum.items.artifacts.atem;
 
-import com.teammetallurgy.atum.Atum;
 import com.teammetallurgy.atum.api.God;
 import com.teammetallurgy.atum.api.IArtifact;
 import com.teammetallurgy.atum.init.AtumItems;
 import com.teammetallurgy.atum.init.AtumParticles;
 import com.teammetallurgy.atum.misc.SpawnHelper;
-import com.teammetallurgy.atum.world.DimensionHelper;
-import net.minecraft.enchantment.Enchantment;
-import net.minecraft.enchantment.Enchantments;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Rarity;
-import net.minecraft.util.*;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.world.World;
-import net.minecraft.world.server.ServerWorld;
+import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.util.Mth;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Rarity;
+import net.minecraft.world.item.enchantment.Enchantment;
+import net.minecraft.world.item.enchantment.Enchantments;
+import net.minecraft.world.level.Level;
 
 import javax.annotation.Nonnull;
-import java.util.*;
+import java.util.AbstractMap;
 
 public class AtemsHomecomingItem extends Item implements IArtifact {
 
     public AtemsHomecomingItem() {
-        super(new Item.Properties().maxDamage(20).group(Atum.GROUP).rarity(Rarity.RARE));
+        super(new Item.Properties().durability(20).rarity(Rarity.RARE));
     }
 
     @Override
@@ -41,55 +43,55 @@ public class AtemsHomecomingItem extends Item implements IArtifact {
     }
 
     @Override
-    public int getItemEnchantability(@Nonnull ItemStack stack) {
+    public int getEnchantmentValue(@Nonnull ItemStack stack) {
         return 1;
     }
 
     @Override
-    public boolean getIsRepairable(@Nonnull ItemStack toRepair, @Nonnull ItemStack repair) {
-        return repair.getItem() == AtumItems.NEBU_INGOT;
+    public boolean isValidRepairItem(@Nonnull ItemStack toRepair, @Nonnull ItemStack repair) {
+        return repair.getItem() == AtumItems.NEBU_INGOT.get();
     }
 
     @Override
     @Nonnull
-    public ActionResult<ItemStack> onItemRightClick(@Nonnull World world, PlayerEntity player, @Nonnull Hand hand) {
-        ItemStack heldStack = player.getHeldItem(hand);
+    public InteractionResultHolder<ItemStack> use(@Nonnull Level level, Player player, @Nonnull InteractionHand hand) {
+        ItemStack heldStack = player.getItemInHand(hand);
 
-        if (recall(world, player) != null) {
+        if (recall(level, player) != null) {
             if (!player.isCreative()) {
-                heldStack.damageItem(1, player, (e) -> {
-                    e.sendBreakAnimation(hand);
+                heldStack.hurtAndBreak(1, player, (e) -> {
+                    e.broadcastBreakEvent(hand);
                 });
             }
         }
 
-        return new ActionResult<>(ActionResultType.PASS, heldStack);
+        return new InteractionResultHolder<>(InteractionResult.PASS, heldStack);
     }
 
-    public static BlockPos recall(World world, PlayerEntity player) {
-        if (!(world instanceof ServerWorld) || !(player instanceof ServerPlayerEntity)) return null;
-        ServerWorld serverWorld = (ServerWorld) world;
-        ServerPlayerEntity serverPlayer = (ServerPlayerEntity) player;
-        AbstractMap.SimpleEntry<ServerWorld, BlockPos> pair = SpawnHelper.validateAndGetSpawnPoint(serverWorld, serverPlayer, 2);
-        ServerWorld spawnWorld = pair.getKey();
+    public static BlockPos recall(Level level, Player player) {
+        if (!(level instanceof ServerLevel serverLevel) ||
+                !(player instanceof ServerPlayer serverPlayer))
+            return null;
+        AbstractMap.SimpleEntry<ServerLevel, BlockPos> pair = SpawnHelper.validateAndGetSpawnPoint(serverLevel, serverPlayer, 2);
+        ServerLevel spawnLevel = pair.getKey();
         BlockPos spawnPos = pair.getValue();
 
-        playTeleportEffects(world, player);
-        serverPlayer.teleport(spawnWorld, spawnPos.getX() + 0.5, spawnPos.getY(), spawnPos.getZ() + 0.5, player.rotationYaw, player.rotationPitch);
-        playTeleportEffects(spawnWorld, player);
+        playTeleportEffects(level, player);
+        serverPlayer.teleportTo(spawnLevel, spawnPos.getX() + 0.5, spawnPos.getY(), spawnPos.getZ() + 0.5, player.getYRot(), player.getXRot());
+        playTeleportEffects(spawnLevel, player);
         return spawnPos;
     }
 
-    private static void playTeleportEffects(World world, Entity entity) {
-        if (world instanceof ServerWorld) {
-            float timesRandom = world.rand.nextFloat() * 4.0F;
-            float cosRandom = world.rand.nextFloat() * ((float) Math.PI * 2F);
-            double x = MathHelper.cos(cosRandom) * timesRandom;
-            double y = 0.01D + (world.rand.nextDouble() * 0.5D);
-            double z = MathHelper.sin(cosRandom) * timesRandom;
-            ServerWorld serverWorld = (ServerWorld) world;
-            serverWorld.spawnParticle(AtumParticles.LIGHT_SPARKLE, entity.getPosX() + x * 0.1D, entity.getPosY() + 0.3D, entity.getPosZ() + z * 0.1D, 250, 0.25D, y, 0.25D, 0.005D);
+    private static void playTeleportEffects(Level level, Entity entity) {
+        if (level instanceof ServerLevel serverLevel) {
+            float timesRandom = serverLevel.random.nextFloat() * 4.0F;
+            float cosRandom = serverLevel.random.nextFloat() * ((float) Math.PI * 2F);
+            double x = Mth.cos(cosRandom) * timesRandom;
+            double y = 0.01D + (serverLevel.random.nextDouble() * 0.5D);
+            double z = Mth.sin(cosRandom) * timesRandom;
+            BlockPos pos = entity.blockPosition();
+            serverLevel.sendParticles(AtumParticles.LIGHT_SPARKLE.get(), entity.getX() + x * 0.1D, entity.getY() + 0.3D, entity.getZ() + z * 0.1D, 250, 0.25D, y, 0.25D, 0.005D);
+            serverLevel.playSound(null, pos.getX(), pos.getY(), pos.getZ(), SoundEvents.SHULKER_TELEPORT, SoundSource.PLAYERS, 1.0F, 1.0F);
         }
-        world.playSound(null, entity.getPosition(), SoundEvents.ENTITY_SHULKER_TELEPORT, SoundCategory.PLAYERS, 1.0F, 1.0F);
     }
 }

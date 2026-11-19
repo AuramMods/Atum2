@@ -1,17 +1,16 @@
 package com.teammetallurgy.atum.items.artifacts.osiris;
 
-import com.teammetallurgy.atum.Atum;
-import com.teammetallurgy.atum.api.AtumMats;
 import com.teammetallurgy.atum.api.God;
 import com.teammetallurgy.atum.api.IArtifact;
-import net.minecraft.item.HoeItem;
-import net.minecraft.item.Item;
-import net.minecraft.item.Rarity;
+import com.teammetallurgy.atum.api.material.AtumMaterialTiers;
+import net.minecraft.world.item.HoeItem;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.Rarity;
 
 public class OsirisBlessingItem extends HoeItem implements IArtifact {
 
     public OsirisBlessingItem() {
-        super(AtumMats.NEBU, -3, 0.0F, new Item.Properties().rarity(Rarity.RARE).group(Atum.GROUP));
+        super(AtumMaterialTiers.NEBU, -3, 0.0F, new Item.Properties().rarity(Rarity.RARE));
     }
 
     @Override

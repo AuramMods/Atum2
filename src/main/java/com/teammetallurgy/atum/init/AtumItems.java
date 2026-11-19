@@ -1,8 +1,9 @@
 package com.teammetallurgy.atum.init;
 
 import com.teammetallurgy.atum.Atum;
-import com.teammetallurgy.atum.api.AtumMats;
 import com.teammetallurgy.atum.api.God;
+import com.teammetallurgy.atum.api.material.AtumArmorMaterials;
+import com.teammetallurgy.atum.api.material.AtumMaterialTiers;
 import com.teammetallurgy.atum.items.*;
 import com.teammetallurgy.atum.items.artifacts.anput.AnputsGroundingItem;
 import com.teammetallurgy.atum.items.artifacts.anput.AnputsHungerItem;
@@ -40,203 +41,263 @@ import com.teammetallurgy.atum.items.food.EmmerFlourItem;
 import com.teammetallurgy.atum.items.food.FishItem;
 import com.teammetallurgy.atum.items.food.QuailEggItem;
 import com.teammetallurgy.atum.items.tools.*;
-import net.minecraft.block.ComposterBlock;
-import net.minecraft.inventory.EquipmentSlotType;
-import net.minecraft.item.*;
-import net.minecraft.potion.EffectInstance;
-import net.minecraft.potion.Effects;
-import net.minecraftforge.registries.ObjectHolder;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.food.FoodProperties;
+import net.minecraft.world.food.Foods;
+import net.minecraft.world.item.*;
+import net.minecraft.world.level.block.ComposterBlock;
+import net.minecraftforge.registries.DeferredRegister;
+import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraftforge.registries.RegistryObject;
 
-import static com.teammetallurgy.atum.misc.AtumRegistry.*;
+import javax.annotation.Nonnull;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.function.Supplier;
 
-@ObjectHolder(value = Atum.MOD_ID)
 public class AtumItems {
-    public static final Item VILLAGER_SPAWN_EGG = registerItem(new VillagerSpawnEggItem(), "villager_spawn_egg");
-    public static final Item PALM_STICK = registerItem(new SimpleItem(), "palm_stick");
-    public static final Item DEADWOOD_STICK = registerItem(new SimpleItem(), "deadwood_stick");
-    public static final Item DUST_BONE_STICK = registerItem(new SimpleItem(), "dusty_bone_stick");
-    public static final Item KHNUMITE = registerItem(new SimpleItem(), "khnumite");
-    public static final Item DIRTY_COIN = registerItem(new CoinItem(), "coin_dirty");
-    public static final Item GOLD_COIN = registerItem(new CoinItem(), "coin_gold");
-    public static final Item NEBU_DROP = registerItem(new SimpleItem(), "nebu_drop");
-    public static final Item NEBU_INGOT = registerItem(new SimpleItem(), "nebu_ingot");
-    public static final RelicItem IDOL_RELICS = registerRelic(RelicItem.Type.IDOL);
-    public static final RelicItem IDOL_NECKLACES = registerRelic(RelicItem.Type.NECKLACE);
-    public static final RelicItem IDOL_RINGS = registerRelic(RelicItem.Type.RING);
-    public static final RelicItem IDOL_BROOCHES = registerRelic(RelicItem.Type.BROOCH);
-    public static final RelicItem IDOL_BRACELETS = registerRelic(RelicItem.Type.BRACELET);
-    public static final Item EFREET_HEART = registerItem(new SimpleItem(), "efreet_heart");
-    public static final Item SCARAB = registerItem(new ScarabItem(), "scarab");
-    public static final Item ANPUT_GODSHARD = registerItem(new GodshardItem(God.ANPUT), "anput_godshard");
-    public static final Item ANUBIS_GODSHARD = registerItem(new GodshardItem(God.ANUBIS), "anubis_godshard");
-    public static final Item ATEM_GODSHARD = registerItem(new GodshardItem(God.ATEM), "atem_godshard");
-    public static final Item GEB_GODSHARD = registerItem(new GodshardItem(God.GEB), "geb_godshard");
-    public static final Item HORUS_GODSHARD = registerItem(new GodshardItem(God.HORUS), "horus_godshard");
-    public static final Item ISIS_GODSHARD = registerItem(new GodshardItem(God.ISIS), "isis_godshard");
-    public static final Item MONTU_GODSHARD = registerItem(new GodshardItem(God.MONTU), "montu_godshard");
-    public static final Item NEPTHYS_GODSHARD = registerItem(new GodshardItem(God.NEPTHYS), "nepthys_godshard");
-    public static final Item NUIT_GODSHARD = registerItem(new GodshardItem(God.NUIT), "nuit_godshard");
-    public static final Item OSIRIS_GODSHARD = registerItem(new GodshardItem(God.OSIRIS), "osiris_godshard");
-    public static final Item PTAH_GODSHARD = registerItem(new GodshardItem(God.PTAH), "ptah_godshard");
-    public static final Item RA_GODSHARD = registerItem(new GodshardItem(God.RA), "ra_godshard");
-    public static final Item SETH_GODSHARD = registerItem(new GodshardItem(God.SETH), "seth_godshard");
-    public static final Item SHU_GODSHARD = registerItem(new GodshardItem(God.SHU), "shu_godshard");
-    public static final Item TEFNUT_GODSHARD = registerItem(new GodshardItem(God.TEFNUT), "tefnut_godshard");
-    public static final Item IDOL_OF_LABOR = registerItem(new IdolOfLaborItem(), "idol_of_labor");
-    public static final BaseBowItem SHORT_BOW = (BaseBowItem) registerItem(new BaseBowItem(new Item.Properties().maxDamage(384)), "short_bow");
-    public static final Item LIMESTONE_SHOVEL = registerItem(new ShovelItem(AtumMats.LIMESTONE, 1.2F, -3.0F, new Item.Properties().group(Atum.GROUP)), "limestone_shovel");
-    public static final Item LIMESTONE_PICKAXE = registerItem(new PickaxeItem(AtumMats.LIMESTONE, 1, -2.8F, new Item.Properties().group(Atum.GROUP)), "limestone_pickaxe");
-    public static final Item LIMESTONE_AXE = registerItem(new AxeItem(AtumMats.LIMESTONE, 7.0F, -3.2F, new Item.Properties().group(Atum.GROUP)), "limestone_axe");
-    public static final Item LIMESTONE_SWORD = registerItem(new SwordItem(AtumMats.LIMESTONE, 3, -2.4F, new Item.Properties().group(Atum.GROUP)), "limestone_sword");
-    public static final Item LIMESTONE_HOE = registerItem(new HoeItem(AtumMats.LIMESTONE, -1, -1.8F, new Item.Properties().group(Atum.GROUP)), "limestone_hoe");
-    public static final Item NEBU_HAMMER = registerItem(new NebuHammerItem(), "nebu_hammer");
-    public static final Item DAGGER_IRON = registerItem(new DaggerItem(ItemTier.IRON), "iron_dagger");
-    public static final Item POISON_DAGGER = registerItem(new PoisonDaggerItem(), "dagger_poison");
-    public static final Item SCIMITAR_IRON = registerItem(new SwordItem(ItemTier.IRON, 3, -2.4F, new Item.Properties().group(Atum.GROUP)), "iron_scimitar");
-    public static final Item GREATSWORD_IRON = registerItem(new GreatswordItem(ItemTier.IRON), "iron_greatsword");
-    public static final Item CLUB_IRON = registerItem(new ClubItem(ItemTier.IRON), "iron_club");
-    public static final Item KHOPESH_IRON = registerItem(new KhopeshItem(ItemTier.IRON), "iron_khopesh");
-    public static final Item STONEGUARD_SWORD = registerItem(new SwordItem(AtumMats.KHNUMITE, 3, -2.4F, new Item.Properties().group(Atum.GROUP)), "stoneguard_sword");
-    public static final Item STONEGUARD_GREATSWORD = registerItem(new GreatswordItem(AtumMats.KHNUMITE), "stoneguard_greatsword");
-    public static final Item STONEGUARD_CLUB = registerItem(new ClubItem(AtumMats.KHNUMITE), "stoneguard_club");
-    public static final Item STONEGUARD_KHOPESH = registerItem(new KhopeshItem(AtumMats.KHNUMITE), "stoneguard_khopesh");
-    public static final Item STONEGUARD_SHIELD = registerItem(new AtumShieldItem(90).setRepairItem(KHNUMITE), "stoneguard_shield");
-    public static final Item BRIGAND_SHIELD = registerItem(new AtumShieldItem(150), "brigand_shield");
-    public static final Item SCEPTER_ANPUT = registerScepter(God.ANPUT);
-    public static final Item SCEPTER_ANUBIS = registerScepter(God.ANUBIS);
-    public static final Item SCEPTER_ATEM = registerScepter(God.ATEM);
-    public static final Item SCEPTER_GEB = registerScepter(God.GEB);
-    public static final Item SCEPTER_HORUS = registerScepter(God.HORUS);
-    public static final Item SCEPTER_ISIS = registerScepter(God.ISIS);
-    public static final Item SCEPTER_MONTU = registerScepter(God.MONTU);
-    public static final Item SCEPTER_NEPTHYS = registerScepter(God.NEPTHYS);
-    public static final Item SCEPTER_NUIT = registerScepter(God.NUIT);
-    public static final Item SCEPTER_OSIRIS = registerScepter(God.OSIRIS);
-    public static final Item SCEPTER_PTAH = registerScepter(God.PTAH);
-    public static final Item SCEPTER_RA = registerScepter(God.RA);
-    public static final Item SCEPTER_SETH = registerScepter(God.SETH);
-    public static final Item SCEPTER_SHU = registerScepter(God.SHU);
-    public static final Item SCEPTER_TEFNUT = registerScepter(God.TEFNUT);
-    public static final AnputsGroundingItem ANPUTS_GROUNDING = (AnputsGroundingItem) registerItem(new AnputsGroundingItem(), "anputs_grounding");
-    public static final Item ANPUTS_HUNGER = registerItem(new AnputsHungerItem(), "anputs_hunger");
-    public static final Item ANUBIS_WRATH = registerItem(new AnubisWrathItem(), "anubis_wrath");
-    public static final Item EYES_OF_ATEM = registerItem(new AtemArmor(EquipmentSlotType.HEAD), "eyes_of_atem");
-    public static final Item BODY_OF_ATEM = registerItem(new AtemArmor(EquipmentSlotType.CHEST), "body_of_atem");
-    public static final Item LEGS_OF_ATEM = registerItem(new AtemArmor(EquipmentSlotType.LEGS), "legs_of_atem");
-    public static final Item FEET_OF_ATEM = registerItem(new AtemArmor(EquipmentSlotType.FEET), "feet_of_atem");
-    public static final Item ATEMS_BOUNTY = registerItem(new AtemsBountyItem(), "atems_bounty");
-    public static final Item ATEMS_HOMECOMING = registerItem(new AtemsHomecomingItem(), "atems_homecoming");
-    public static final Item ATEMS_PROTECTION = registerItem(new AtemsProtectionItem(), "atems_protection");
-    public static final Item ATEMS_WILL = registerItem(new AtemsWillItem(), "atems_will");
-    public static final Item GEBS_MIGHT = registerItem(new GebsMightItem(), "gebs_might");
-    public static final Item GEBS_TOIL = registerItem(new GebsToilItem(), "gebs_toil");
-    public static final Item GEBS_UNDOING = registerItem(new GebsUndoingItem(), "gebs_undoing");
-    public static final Item HORUS_ASCENSION = registerItem(new HorusAscensionItem(), "horus_ascension");
-    public static final HorusSoaringItem HORUS_SOARING = (HorusSoaringItem) registerItem(new HorusSoaringItem(), "horus_soaring");
-    public static final IsisDivisionItem ISIS_DIVISION = (IsisDivisionItem) registerItem(new IsisDivisionItem(), "isis_division");
-    public static final Item ISIS_HEALING = registerItem(new IsisHealingItem(), "isis_healing");
-    public static final MontusBlastItem MONTUS_BLAST = (MontusBlastItem) registerItem(new MontusBlastItem(), "montus_blast");
-    public static final Item MONTUS_STRIKE = registerItem(new MontusStrikeItem(), "montus_strike");
-    public static final Item NEPTHYS_BANISHING = registerItem(new NepthysBanishingItem(), "nepthys_banishing");
-    //public static final Item NEPTHYS_CONSECRATION = registerItem(new NepthysConsecrationItem(), "nepthys_consecration");
-    public static final Item NEPTHYS_GUARD = registerItem(new NepthysGuardItem(), "nepthys_guard");
-    public static final Item NUITS_IRE = registerItem(new NuitsIreItem(), "nuits_ire");
-    public static final Item NUITS_QUARTER = registerItem(new NuitsQuarterItem(), "nuits_quarter");
-    public static final Item NUITS_VANISHING = registerItem(new NuitsVanishingItem(), "nuits_vanishing");
-    public static final Item OSIRIS_BLESSING = registerItem(new OsirisBlessingItem(), "osiris_blessing");
-    public static final Item OSIRIS_MERCY = registerItem(new OsirisMercyItem(), "osiris_mercy");
-    public static final Item PTAHS_DECADENCE = registerItem(new PtahsDecadenceItem(), "ptahs_decadence");
-    public static final Item HALO_OF_RA = registerItem(new RaArmor(EquipmentSlotType.HEAD), "halo_of_ra");
-    public static final Item BODY_OF_RA = registerItem(new RaArmor(EquipmentSlotType.CHEST), "body_of_ra");
-    public static final Item LEGS_OF_RA = registerItem(new RaArmor(EquipmentSlotType.LEGS), "legs_of_ra");
-    public static final Item FEET_OF_RA = registerItem(new RaArmor(EquipmentSlotType.FEET), "feet_of_ra");
-    public static final RasFuryItem RAS_FURY = (RasFuryItem) registerItem(new RasFuryItem(), "ras_fury");
-    public static final Item RAS_STEP = registerItem(new RasStep(), "ras_step");
-    public static final Item SETHS_STING = registerItem(new SethsStingItem(), "seths_sting");
-    public static final SethsVenomItem SETHS_VENOM = (SethsVenomItem) registerItem(new SethsVenomItem(), "seths_venom");
-    public static final ShusBreathItem SHUS_BREATH = (ShusBreathItem) registerItem(new ShusBreathItem(), "shus_breath");
-    public static final Item SHUS_EXILE = registerItem(new ShusExileItem(), "shus_exile");
-    public static final Item SHUS_SWIFTNESS = registerItem(new ShusSwiftnessItem(), "shus_swiftness");
-    public static final Item TEFNUTS_CALL = registerItem(new TefnutsCallItem(), "tefnuts_call");
-    public static final TefnutsRainItem TEFNUTS_RAIN = (TefnutsRainItem) registerItem(new TefnutsRainItem(), "tefnuts_rain");
-    public static final Item MUMMY_HELMET = registerItem(new TexturedArmorItem(AtumMats.MUMMY_ARMOR, "mummy_armor", EquipmentSlotType.HEAD), "mummy_helmet");
-    public static final Item MUMMY_CHEST = registerItem(new TexturedArmorItem(AtumMats.MUMMY_ARMOR, "mummy_armor", EquipmentSlotType.CHEST), "mummy_chest");
-    public static final Item MUMMY_LEGS = registerItem(new TexturedArmorItem(AtumMats.MUMMY_ARMOR, "mummy_armor", EquipmentSlotType.LEGS), "mummy_legs");
-    public static final Item MUMMY_BOOTS = registerItem(new TexturedArmorItem(AtumMats.MUMMY_ARMOR, "mummy_armor", EquipmentSlotType.FEET), "mummy_boots");
-    public static final Item WANDERER_HELMET = registerItem(new WandererDyeableArmor(AtumMats.WANDERER_ARMOR, "wanderer_armor", EquipmentSlotType.HEAD), "wanderer_helmet");
-    public static final Item WANDERER_CHEST = registerItem(new WandererDyeableArmor(AtumMats.WANDERER_ARMOR, "wanderer_armor", EquipmentSlotType.CHEST), "wanderer_chest");
-    public static final Item WANDERER_LEGS = registerItem(new WandererDyeableArmor(AtumMats.WANDERER_ARMOR, "wanderer_armor", EquipmentSlotType.LEGS), "wanderer_legs");
-    public static final Item WANDERER_BOOTS = registerItem(new WandererDyeableArmor(AtumMats.WANDERER_ARMOR, "wanderer_armor", EquipmentSlotType.FEET), "wanderer_boots");
-    public static final Item DESERT_HELMET_IRON = registerItem(new WandererDyeableArmor(ArmorMaterial.IRON, "desert_iron_armor", EquipmentSlotType.HEAD).setDamageModifier(10), "desert_helmet_iron");
-    public static final Item DESERT_CHEST_IRON = registerItem(new WandererDyeableArmor(ArmorMaterial.IRON, "desert_iron_armor", EquipmentSlotType.CHEST).setDamageModifier(10), "desert_chest_iron");
-    public static final Item DESERT_LEGS_IRON = registerItem(new WandererDyeableArmor(ArmorMaterial.IRON, "desert_iron_armor", EquipmentSlotType.LEGS).setDamageModifier(10), "desert_legs_iron");
-    public static final Item DESERT_BOOTS_IRON = registerItem(new WandererDyeableArmor(ArmorMaterial.IRON, "desert_iron_armor", EquipmentSlotType.FEET).setDamageModifier(10), "desert_boots_iron");
-    public static final Item DESERT_HELMET_GOLD = registerItem(new WandererDyeableArmor(ArmorMaterial.GOLD, "desert_gold_armor", EquipmentSlotType.HEAD).setDamageModifier(20), "desert_helmet_gold");
-    public static final Item DESERT_CHEST_GOLD = registerItem(new WandererDyeableArmor(ArmorMaterial.GOLD, "desert_gold_armor", EquipmentSlotType.CHEST).setDamageModifier(20), "desert_chest_gold");
-    public static final Item DESERT_LEGS_GOLD = registerItem(new WandererDyeableArmor(ArmorMaterial.GOLD, "desert_gold_armor", EquipmentSlotType.LEGS).setDamageModifier(20), "desert_legs_gold");
-    public static final Item DESERT_BOOTS_GOLD = registerItem(new WandererDyeableArmor(ArmorMaterial.GOLD, "desert_gold_armor", EquipmentSlotType.FEET).setDamageModifier(20), "desert_boots_gold");
-    public static final Item DESERT_HELMET_DIAMOND = registerItem(new WandererDyeableArmor(ArmorMaterial.DIAMOND, "desert_diamond_armor", EquipmentSlotType.HEAD).setDamageModifier(15), "desert_helmet_diamond");
-    public static final Item DESERT_CHEST_DIAMOND = registerItem(new WandererDyeableArmor(ArmorMaterial.DIAMOND, "desert_diamond_armor", EquipmentSlotType.CHEST).setDamageModifier(15), "desert_chest_diamond");
-    public static final Item DESERT_LEGS_DIAMOND = registerItem(new WandererDyeableArmor(ArmorMaterial.DIAMOND, "desert_diamond_armor", EquipmentSlotType.LEGS).setDamageModifier(15), "desert_legs_diamond");
-    public static final Item DESERT_BOOTS_DIAMOND = registerItem(new WandererDyeableArmor(ArmorMaterial.DIAMOND, "desert_diamond_armor", EquipmentSlotType.FEET).setDamageModifier(15), "desert_boots_diamond");
-    public static final Item DESERT_WOLF_IRON_ARMOR = registerItem(new NonStackableItem(), "desert_wolf_iron_armor");
-    public static final Item DESERT_WOLF_GOLD_ARMOR = registerItem(new NonStackableItem(), "desert_wolf_gold_armor");
-    public static final Item DESERT_WOLF_DIAMOND_ARMOR = registerItem(new NonStackableItem(), "desert_wolf_diamond_armor");
-    public static final Item CAMEL_IRON_ARMOR = registerItem(new NonStackableItem(), "camel_iron_armor");
-    public static final Item CAMEL_GOLD_ARMOR = registerItem(new NonStackableItem(), "camel_gold_armor");
-    public static final Item CAMEL_DIAMOND_ARMOR = registerItem(new NonStackableItem(), "camel_diamond_armor");
-    public static final Item SCROLL = registerItem(new SimpleItem(), "scroll");
-    public static final Item SCRAP = registerItem(new SimpleItem(), "cloth_scrap");
-    public static final Item LINEN_BANDAGE = registerItem(new LinenBandageItem(), "linen_bandage");
-    public static final Item LINEN_THREAD = registerItem(new SimpleItem(), "linen_thread");
-    public static final Item LINEN_CLOTH = registerItem(new SimpleItem(), "linen_cloth");
-    public static final Item PAPYRUS_PLANT = registerItem(new BlockItem(AtumBlocks.PAPYRUS, new Item.Properties().group(Atum.GROUP)), "papyrus_plant");
-    public static final Item FLAX_SEEDS = registerItem(new BlockNamedItem(AtumBlocks.FLAX, new Item.Properties().group(Atum.GROUP)), "flax_seeds");
-    public static final Item FLAX = registerItem(new SimpleItem(), "flax");
-    public static final Item OPHIDIAN_TONGUE_FLOWER = registerItem(new SimpleItem(), "ophidian_tongue_flower");
-    public static final Item ANPUTS_FINGERS_SPORES = registerItem(new BlockNamedItem(AtumBlocks.ANPUTS_FINGERS, new Item.Properties().group(Atum.GROUP)), "anputs_fingers_spores");
-    public static final Item EMMER_SEEDS = registerItem(new BlockNamedItem(AtumBlocks.EMMER_WHEAT, new Item.Properties().group(Atum.GROUP)), "emmer_seeds");
-    public static final Item EMMER_EAR = registerItem(new SimpleItem(), "emmer");
-    public static final Item EMMER_FLOUR = registerItem(new EmmerFlourItem(), "emmer_flour");
-    public static final Item EMMER_DOUGH = registerItem(new SimpleItem(), "emmer_dough");
-    public static final Item EMMER_BREAD = registerItem(new Item(new Item.Properties().food(AtumFoods.EMMER_BREAD).group(Atum.GROUP)), "emmer_bread");
-    public static final Item QUAIL_EGG = registerItem(new QuailEggItem(), "quail_egg");
-    public static final Item CAMEL_RAW = registerItem(new Item(new Item.Properties().food(AtumFoods.CAMEL_RAW).group(Atum.GROUP)), "camel");
-    public static final Item CAMEL_COOKED = registerItem(new Item(new Item.Properties().food(AtumFoods.CAMEL_COOKED).group(Atum.GROUP)), "camel_cooked");
-    public static final Item QUAIL_RAW = registerItem(new Item(new Item.Properties().food(AtumFoods.QUAIL_RAW).group(Atum.GROUP)), "quail");
-    public static final Item QUAIL_COOKED = registerItem(new Item(new Item.Properties().food(AtumFoods.QUAIL_COOKED).group(Atum.GROUP)), "quail_cooked");
-    public static final Item DATE = registerItem(new Item(new Item.Properties().food(Foods.APPLE).group(Atum.GROUP)), "date");
-    public static final Item GLISTERING_DATE = registerItem(new SimpleItem(), "glistering_date");
-    public static final Item GOLDEN_DATE = registerItem(new Item(new Item.Properties().food(AtumFoods.GOLDEN_DATE).group(Atum.GROUP)), "golden_date");
-    public static final Item ENCHANTED_GOLDEN_DATE = registerItem(new EnchantedGoldenAppleItem(new Item.Properties().food(AtumFoods.ENCHANTED_GOLDEN_DATE).group(Atum.GROUP)), "golden_date_enchanted");
-    public static final Item ECTOPLASM = registerItem(new SimpleItem(), "ectoplasm");
-    public static final Item MANDIBLES = registerItem(new SimpleItem(), "mandibles");
-    public static final Item DUSTY_BONE = registerItem(new SimpleItem(), "dusty_bone");
-    public static final Item WOLF_PELT = registerItem(new SimpleItem(), "wolf_pelt");
-    public static final Item FERTILE_SOIL_PILE = registerItem(new SimpleItem(), "fertile_soil_pile");
-    public static final Item FORSAKEN_FISH = registerItem(new FishItem(FishItem.FishType.FORSAKEN), "fish_forsaken");
-    public static final Item MUMMIFIED_FISH = registerItem(new FishItem(FishItem.FishType.MUMMIFIED), "fish_mummified");
-    public static final Item JEWELED_FISH = registerItem(new FishItem(FishItem.FishType.JEWELED), "fish_jeweled");
-    public static final Item SKELETAL_FISH = registerItem(new FishItem(FishItem.FishType.SKELETAL), "fish_skeletal");
-    public static final Item CRUNCHY_SCARAB = registerItem(new CrunchyScarabItem(new Item.Properties().food(AtumFoods.CRUNCHY_SCARAB)), "crunchy_scarab");
-    public static final Item CRUNCHY_GOLD_SCARAB = registerItem(new CrunchyScarabItem(new Item.Properties().food(AtumFoods.CRUNCHY_GOLD_SCARAB)), "crunchy_golden_scarab");
+    public static final Collection<RegistryObject<Item>> ITEMS_FOR_TAB_LIST = new ArrayList<>();
+    public static final DeferredRegister<Item> ITEM_DEFERRED = DeferredRegister.create(ForgeRegistries.ITEMS, Atum.MOD_ID);
+    public static final RegistryObject<Item> VILLAGER_SPAWN_EGG = registerItemWithTab(VillagerSpawnEggItem::new, "villager_spawn_egg");
+    public static final RegistryObject<Item> PALM_STICK = registerItemWithTab(SimpleItem::new, "palm_stick");
+    public static final RegistryObject<Item> DEADWOOD_STICK = registerItemWithTab(SimpleItem::new, "deadwood_stick");
+    public static final RegistryObject<Item> DUST_BONE_STICK = registerItemWithTab(SimpleItem::new, "dusty_bone_stick");
+    public static final RegistryObject<Item> KHNUMITE = registerItemWithTab(SimpleItem::new, "khnumite");
+    public static final RegistryObject<Item> DIRTY_COIN = registerItemWithTab(CoinItem::new, "coin_dirty");
+    public static final RegistryObject<Item> GOLD_COIN = registerItemWithTab(CoinItem::new, "coin_gold");
+    public static final RegistryObject<Item> NEBU_DROP = registerItemWithTab(SimpleItem::new, "nebu_drop");
+    public static final RegistryObject<Item> NEBU_INGOT = registerItemWithTab(SimpleItem::new, "nebu_ingot");
+    public static final RegistryObject<Item> IDOL_RELICS = registerRelic(RelicItem.Type.IDOL);
+    public static final RegistryObject<Item> IDOL_NECKLACES = registerRelic(RelicItem.Type.NECKLACE);
+    public static final RegistryObject<Item> IDOL_RINGS = registerRelic(RelicItem.Type.RING);
+    public static final RegistryObject<Item> IDOL_BROOCHES = registerRelic(RelicItem.Type.BROOCH);
+    public static final RegistryObject<Item> IDOL_BRACELETS = registerRelic(RelicItem.Type.BRACELET);
+    public static final RegistryObject<Item> EFREET_HEART = registerItemWithTab(SimpleItem::new, "efreet_heart");
+    public static final RegistryObject<Item> SCARAB = registerItemWithTab(ScarabItem::new, "scarab");
+    public static final RegistryObject<Item> ANPUT_GODSHARD = registerItemWithTab(() -> new GodshardItem(God.ANPUT), "anput_godshard");
+    public static final RegistryObject<Item> ANUBIS_GODSHARD = registerItemWithTab(() -> new GodshardItem(God.ANUBIS), "anubis_godshard");
+    public static final RegistryObject<Item> ATEM_GODSHARD = registerItemWithTab(() -> new GodshardItem(God.ATEM), "atem_godshard");
+    public static final RegistryObject<Item> GEB_GODSHARD = registerItemWithTab(() -> new GodshardItem(God.GEB), "geb_godshard");
+    public static final RegistryObject<Item> HORUS_GODSHARD = registerItemWithTab(() -> new GodshardItem(God.HORUS), "horus_godshard");
+    public static final RegistryObject<Item> ISIS_GODSHARD = registerItemWithTab(() -> new GodshardItem(God.ISIS), "isis_godshard");
+    public static final RegistryObject<Item> MONTU_GODSHARD = registerItemWithTab(() -> new GodshardItem(God.MONTU), "montu_godshard");
+    public static final RegistryObject<Item> NEPTHYS_GODSHARD = registerItemWithTab(() -> new GodshardItem(God.NEPTHYS), "nepthys_godshard");
+    public static final RegistryObject<Item> NUIT_GODSHARD = registerItemWithTab(() -> new GodshardItem(God.NUIT), "nuit_godshard");
+    public static final RegistryObject<Item> OSIRIS_GODSHARD = registerItemWithTab(() -> new GodshardItem(God.OSIRIS), "osiris_godshard");
+    public static final RegistryObject<Item> PTAH_GODSHARD = registerItemWithTab(() -> new GodshardItem(God.PTAH), "ptah_godshard");
+    public static final RegistryObject<Item> RA_GODSHARD = registerItemWithTab(() -> new GodshardItem(God.RA), "ra_godshard");
+    public static final RegistryObject<Item> SETH_GODSHARD = registerItemWithTab(() -> new GodshardItem(God.SETH), "seth_godshard");
+    public static final RegistryObject<Item> SHU_GODSHARD = registerItemWithTab(() -> new GodshardItem(God.SHU), "shu_godshard");
+    public static final RegistryObject<Item> TEFNUT_GODSHARD = registerItemWithTab(() -> new GodshardItem(God.TEFNUT), "tefnut_godshard");
+    public static final RegistryObject<Item> IDOL_OF_LABOR = registerItemWithTab(IdolOfLaborItem::new, "idol_of_labor");
+    public static final RegistryObject<Item> SHORT_BOW = registerItemWithTab(() -> new BaseBowItem(new Item.Properties().durability(384), AtumItems.LINEN_THREAD), "short_bow");
+    public static final RegistryObject<Item> LIMESTONE_SHOVEL = registerItemWithTab(() -> new ShovelItem(AtumMaterialTiers.LIMESTONE, 1.2F, -3.0F, new Item.Properties()), "limestone_shovel");
+    public static final RegistryObject<Item> LIMESTONE_PICKAXE = registerItemWithTab(() -> new PickaxeItem(AtumMaterialTiers.LIMESTONE, 1, -2.8F, new Item.Properties()), "limestone_pickaxe");
+    public static final RegistryObject<Item> LIMESTONE_AXE = registerItemWithTab(() -> new AxeItem(AtumMaterialTiers.LIMESTONE, 7.0F, -3.2F, new Item.Properties()), "limestone_axe");
+    public static final RegistryObject<Item> LIMESTONE_SWORD = registerItemWithTab(() -> new SwordItem(AtumMaterialTiers.LIMESTONE, 3, -2.4F, new Item.Properties()), "limestone_sword");
+    public static final RegistryObject<Item> LIMESTONE_HOE = registerItemWithTab(() -> new HoeItem(AtumMaterialTiers.LIMESTONE, -1, -1.8F, new Item.Properties()), "limestone_hoe");
+    public static final RegistryObject<Item> NEBU_HAMMER = registerItemWithTab(NebuHammerItem::new, "nebu_hammer");
+    public static final RegistryObject<Item> DAGGER_IRON = registerItemWithTab(() -> new DaggerItem(Tiers.IRON), "iron_dagger");
+    public static final RegistryObject<Item> POISON_DAGGER = registerItemWithTab(() -> new PoisonDaggerItem(), "dagger_poison");
+    public static final RegistryObject<Item> SCIMITAR_IRON = registerItemWithTab(() -> new SwordItem(Tiers.IRON, 3, -2.4F, new Item.Properties()), "iron_scimitar");
+    public static final RegistryObject<Item> GREATSWORD_IRON = registerItemWithTab(() -> new GreatswordItem(Tiers.IRON), "iron_greatsword");
+    public static final RegistryObject<Item> CLUB_IRON = registerItemWithTab(() -> new ClubItem(Tiers.IRON), "iron_club");
+    public static final RegistryObject<Item> KHOPESH_IRON = registerItemWithTab(() -> new KhopeshItem(Tiers.IRON), "iron_khopesh");
+    public static final RegistryObject<Item> STONEGUARD_SWORD = registerItemWithTab(() -> new SwordItem(AtumMaterialTiers.KHNUMITE, 3, -2.4F, new Item.Properties()), "stoneguard_sword");
+    public static final RegistryObject<Item> STONEGUARD_GREATSWORD = registerItemWithTab(() -> new GreatswordItem(AtumMaterialTiers.KHNUMITE), "stoneguard_greatsword");
+    public static final RegistryObject<Item> STONEGUARD_CLUB = registerItemWithTab(() -> new ClubItem(AtumMaterialTiers.KHNUMITE), "stoneguard_club");
+    public static final RegistryObject<Item> STONEGUARD_KHOPESH = registerItemWithTab(() -> new KhopeshItem(AtumMaterialTiers.KHNUMITE), "stoneguard_khopesh");
+    public static final RegistryObject<Item> STONEGUARD_SHIELD = registerItemWithTab(() -> new AtumShieldItem(90).setRepairItem(KHNUMITE.get()), "stoneguard_shield");
+    public static final RegistryObject<Item> BRIGAND_SHIELD = registerItemWithTab(() -> new AtumShieldItem(150), "brigand_shield");
+    public static final RegistryObject<Item> SCEPTER_ANPUT = registerScepter(God.ANPUT);
+    public static final RegistryObject<Item> SCEPTER_ANUBIS = registerScepter(God.ANUBIS);
+    public static final RegistryObject<Item> SCEPTER_ATEM = registerScepter(God.ATEM);
+    public static final RegistryObject<Item> SCEPTER_GEB = registerScepter(God.GEB);
+    public static final RegistryObject<Item> SCEPTER_HORUS = registerScepter(God.HORUS);
+    public static final RegistryObject<Item> SCEPTER_ISIS = registerScepter(God.ISIS);
+    public static final RegistryObject<Item> SCEPTER_MONTU = registerScepter(God.MONTU);
+    public static final RegistryObject<Item> SCEPTER_NEPTHYS = registerScepter(God.NEPTHYS);
+    public static final RegistryObject<Item> SCEPTER_NUIT = registerScepter(God.NUIT);
+    public static final RegistryObject<Item> SCEPTER_OSIRIS = registerScepter(God.OSIRIS);
+    public static final RegistryObject<Item> SCEPTER_PTAH = registerScepter(God.PTAH);
+    public static final RegistryObject<Item> SCEPTER_RA = registerScepter(God.RA);
+    public static final RegistryObject<Item> SCEPTER_SETH = registerScepter(God.SETH);
+    public static final RegistryObject<Item> SCEPTER_SHU = registerScepter(God.SHU);
+    public static final RegistryObject<Item> SCEPTER_TEFNUT = registerScepter(God.TEFNUT);
+    public static final RegistryObject<Item> ANPUTS_GROUNDING = registerItemWithTab(AnputsGroundingItem::new, "anputs_grounding");
+    public static final RegistryObject<Item> ANPUTS_HUNGER = registerItemWithTab(AnputsHungerItem::new, "anputs_hunger");
+    public static final RegistryObject<Item> ANUBIS_WRATH = registerItemWithTab(AnubisWrathItem::new, "anubis_wrath");
+    public static final RegistryObject<Item> EYES_OF_ATEM = registerItemWithTab(() -> new AtemArmor(ArmorItem.Type.HELMET), "eyes_of_atem");
+    public static final RegistryObject<Item> BODY_OF_ATEM = registerItemWithTab(() ->new AtemArmor(ArmorItem.Type.CHESTPLATE), "body_of_atem");
+    public static final RegistryObject<Item> LEGS_OF_ATEM = registerItemWithTab(() ->new AtemArmor(ArmorItem.Type.LEGGINGS), "legs_of_atem");
+    public static final RegistryObject<Item> FEET_OF_ATEM = registerItemWithTab(() ->new AtemArmor(ArmorItem.Type.BOOTS), "feet_of_atem");
+    public static final RegistryObject<Item> ATEMS_BOUNTY = registerItemWithTab(AtemsBountyItem::new, "atems_bounty");
+    public static final RegistryObject<Item> ATEMS_HOMECOMING = registerItemWithTab(AtemsHomecomingItem::new, "atems_homecoming");
+    public static final RegistryObject<Item> ATEMS_PROTECTION = registerItemWithTab(AtemsProtectionItem::new, "atems_protection");
+    public static final RegistryObject<Item> ATEMS_WILL = registerItemWithTab(AtemsWillItem::new, "atems_will");
+    public static final RegistryObject<Item> GEBS_MIGHT = registerItemWithTab(GebsMightItem::new, "gebs_might");
+    public static final RegistryObject<Item> GEBS_TOIL = registerItemWithTab(GebsToilItem::new, "gebs_toil");
+    public static final RegistryObject<Item> GEBS_UNDOING = registerItemWithTab(GebsUndoingItem::new, "gebs_undoing");
+    public static final RegistryObject<Item> HORUS_ASCENSION = registerItemWithTab(HorusAscensionItem::new, "horus_ascension");
+    public static final RegistryObject<Item> HORUS_SOARING = registerItemWithTab(HorusSoaringItem::new, "horus_soaring");
+    public static final RegistryObject<Item> ISIS_DIVISION = registerItemWithTab(IsisDivisionItem::new, "isis_division");
+    public static final RegistryObject<Item> ISIS_HEALING = registerItemWithTab(IsisHealingItem::new, "isis_healing");
+    public static final RegistryObject<Item> MONTUS_BLAST = registerItemWithTab(MontusBlastItem::new, "montus_blast");
+    public static final RegistryObject<Item> MONTUS_STRIKE = registerItemWithTab(MontusStrikeItem::new, "montus_strike");
+    public static final RegistryObject<Item> NEPTHYS_BANISHING = registerItemWithTab(NepthysBanishingItem::new, "nepthys_banishing");
+    //public static final RegistryObject<Item> NEPTHYS_CONSECRATION = registerItemWithTab(NepthysConsecrationItem::new, "nepthys_consecration");
+    public static final RegistryObject<Item> NEPTHYS_GUARD = registerItemWithTab(NepthysGuardItem::new, "nepthys_guard");
+    public static final RegistryObject<Item> NUITS_IRE = registerItemWithTab(NuitsIreItem::new, "nuits_ire");
+    public static final RegistryObject<Item> NUITS_QUARTER = registerItemWithTab(NuitsQuarterItem::new, "nuits_quarter");
+    public static final RegistryObject<Item> NUITS_VANISHING = registerItemWithTab(NuitsVanishingItem::new, "nuits_vanishing");
+    public static final RegistryObject<Item> OSIRIS_BLESSING = registerItemWithTab(OsirisBlessingItem::new, "osiris_blessing");
+    public static final RegistryObject<Item> OSIRIS_MERCY = registerItemWithTab(OsirisMercyItem::new, "osiris_mercy");
+    public static final RegistryObject<Item> PTAHS_DECADENCE = registerItemWithTab(PtahsDecadenceItem::new, "ptahs_decadence");
+    public static final RegistryObject<Item> HALO_OF_RA = registerItemWithTab(() ->new RaArmor(ArmorItem.Type.HELMET), "halo_of_ra");
+    public static final RegistryObject<Item> BODY_OF_RA = registerItemWithTab(() ->new RaArmor(ArmorItem.Type.CHESTPLATE), "body_of_ra");
+    public static final RegistryObject<Item> LEGS_OF_RA = registerItemWithTab(() ->new RaArmor(ArmorItem.Type.LEGGINGS), "legs_of_ra");
+    public static final RegistryObject<Item> FEET_OF_RA = registerItemWithTab(() -> new RaArmor(ArmorItem.Type.BOOTS), "feet_of_ra");
+    public static final RegistryObject<Item> RAS_FURY = registerItemWithTab(RasFuryItem::new, "ras_fury");
+    public static final RegistryObject<Item> RAS_STEP = registerItemWithTab(RasStep::new, "ras_step");
+    public static final RegistryObject<Item> SETHS_STING = registerItemWithTab(SethsStingItem::new, "seths_sting");
+    public static final RegistryObject<Item> SETHS_VENOM = registerItemWithTab(SethsVenomItem::new, "seths_venom");
+    public static final RegistryObject<Item> SHUS_BREATH = registerItemWithTab(ShusBreathItem::new, "shus_breath");
+    public static final RegistryObject<Item> SHUS_EXILE = registerItemWithTab(ShusExileItem::new, "shus_exile");
+    public static final RegistryObject<Item> SHUS_SWIFTNESS = registerItemWithTab(ShusSwiftnessItem::new, "shus_swiftness");
+    public static final RegistryObject<Item> TEFNUTS_CALL = registerItemWithTab(TefnutsCallItem::new, "tefnuts_call");
+    public static final RegistryObject<Item> TEFNUTS_RAIN = registerItemWithTab(TefnutsRainItem::new, "tefnuts_rain");
+    public static final RegistryObject<Item> MUMMY_HELMET = registerItemWithTab(() -> new TexturedArmorItem(AtumArmorMaterials.MUMMY, "mummy_armor", ArmorItem.Type.HELMET), "mummy_helmet");
+    public static final RegistryObject<Item> MUMMY_CHEST = registerItemWithTab(() -> new TexturedArmorItem(AtumArmorMaterials.MUMMY, "mummy_armor", ArmorItem.Type.CHESTPLATE), "mummy_chest");
+    public static final RegistryObject<Item> MUMMY_LEGS = registerItemWithTab(() -> new TexturedArmorItem(AtumArmorMaterials.MUMMY, "mummy_armor", ArmorItem.Type.LEGGINGS), "mummy_legs");
+    public static final RegistryObject<Item> MUMMY_BOOTS = registerItemWithTab(() -> new TexturedArmorItem(AtumArmorMaterials.MUMMY, "mummy_armor", ArmorItem.Type.BOOTS), "mummy_boots");
+    public static final RegistryObject<Item> WANDERER_HELMET = registerItemWithTab(() -> new WandererDyeableArmor(AtumArmorMaterials.WANDERER, "wanderer_armor", ArmorItem.Type.HELMET), "wanderer_helmet");
+    public static final RegistryObject<Item> WANDERER_CHEST = registerItemWithTab(() -> new WandererDyeableArmor(AtumArmorMaterials.WANDERER, "wanderer_armor", ArmorItem.Type.CHESTPLATE), "wanderer_chest");
+    public static final RegistryObject<Item> WANDERER_LEGS = registerItemWithTab(() -> new WandererDyeableArmor(AtumArmorMaterials.WANDERER, "wanderer_armor", ArmorItem.Type.LEGGINGS), "wanderer_legs");
+    public static final RegistryObject<Item> WANDERER_BOOTS = registerItemWithTab(() -> new WandererDyeableArmor(AtumArmorMaterials.WANDERER, "wanderer_armor", ArmorItem.Type.BOOTS), "wanderer_boots");
+    public static final RegistryObject<Item> DESERT_HELMET_IRON = registerItemWithTab(() -> new WandererDyeableArmor(ArmorMaterials.IRON, "desert_iron_armor", ArmorItem.Type.HELMET).setDamageModifier(10), "desert_helmet_iron");
+    public static final RegistryObject<Item> DESERT_CHEST_IRON = registerItemWithTab(() -> new WandererDyeableArmor(ArmorMaterials.IRON, "desert_iron_armor", ArmorItem.Type.CHESTPLATE).setDamageModifier(10), "desert_chest_iron");
+    public static final RegistryObject<Item> DESERT_LEGS_IRON = registerItemWithTab(() -> new WandererDyeableArmor(ArmorMaterials.IRON, "desert_iron_armor", ArmorItem.Type.LEGGINGS).setDamageModifier(10), "desert_legs_iron");
+    public static final RegistryObject<Item> DESERT_BOOTS_IRON = registerItemWithTab(() -> new WandererDyeableArmor(ArmorMaterials.IRON, "desert_iron_armor", ArmorItem.Type.BOOTS).setDamageModifier(10), "desert_boots_iron");
+    public static final RegistryObject<Item> DESERT_HELMET_GOLD = registerItemWithTab(() -> new WandererDyeableArmor(ArmorMaterials.GOLD, "desert_gold_armor", ArmorItem.Type.HELMET).setDamageModifier(20), "desert_helmet_gold");
+    public static final RegistryObject<Item> DESERT_CHEST_GOLD = registerItemWithTab(() -> new WandererDyeableArmor(ArmorMaterials.GOLD, "desert_gold_armor", ArmorItem.Type.CHESTPLATE).setDamageModifier(20), "desert_chest_gold");
+    public static final RegistryObject<Item> DESERT_LEGS_GOLD = registerItemWithTab(() -> new WandererDyeableArmor(ArmorMaterials.GOLD, "desert_gold_armor", ArmorItem.Type.LEGGINGS).setDamageModifier(20), "desert_legs_gold");
+    public static final RegistryObject<Item> DESERT_BOOTS_GOLD = registerItemWithTab(() -> new WandererDyeableArmor(ArmorMaterials.GOLD, "desert_gold_armor", ArmorItem.Type.BOOTS).setDamageModifier(20), "desert_boots_gold");
+    public static final RegistryObject<Item> DESERT_HELMET_DIAMOND = registerItemWithTab(() -> new WandererDyeableArmor(ArmorMaterials.DIAMOND, "desert_diamond_armor", ArmorItem.Type.HELMET).setDamageModifier(15), "desert_helmet_diamond");
+    public static final RegistryObject<Item> DESERT_CHEST_DIAMOND = registerItemWithTab(() -> new WandererDyeableArmor(ArmorMaterials.DIAMOND, "desert_diamond_armor", ArmorItem.Type.CHESTPLATE).setDamageModifier(15), "desert_chest_diamond");
+    public static final RegistryObject<Item> DESERT_LEGS_DIAMOND = registerItemWithTab(() -> new WandererDyeableArmor(ArmorMaterials.DIAMOND, "desert_diamond_armor", ArmorItem.Type.LEGGINGS).setDamageModifier(15), "desert_legs_diamond");
+    public static final RegistryObject<Item> DESERT_BOOTS_DIAMOND = registerItemWithTab(() -> new WandererDyeableArmor(ArmorMaterials.DIAMOND, "desert_diamond_armor", ArmorItem.Type.BOOTS).setDamageModifier(15), "desert_boots_diamond");
+    public static final RegistryObject<Item> DESERT_WOLF_IRON_ARMOR = registerItemWithTab(NonStackableItem::new, "desert_wolf_iron_armor");
+    public static final RegistryObject<Item> DESERT_WOLF_GOLD_ARMOR = registerItemWithTab(NonStackableItem::new, "desert_wolf_gold_armor");
+    public static final RegistryObject<Item> DESERT_WOLF_DIAMOND_ARMOR = registerItemWithTab(NonStackableItem::new, "desert_wolf_diamond_armor");
+    public static final RegistryObject<Item> CAMEL_IRON_ARMOR = registerItemWithTab(NonStackableItem::new, "camel_iron_armor");
+    public static final RegistryObject<Item> CAMEL_GOLD_ARMOR = registerItemWithTab(NonStackableItem::new, "camel_gold_armor");
+    public static final RegistryObject<Item> CAMEL_DIAMOND_ARMOR = registerItemWithTab(NonStackableItem::new, "camel_diamond_armor");
+    public static final RegistryObject<Item> SCROLL = registerItemWithTab(SimpleItem::new, "scroll");
+    public static final RegistryObject<Item> SCRAP = registerItemWithTab(SimpleItem::new, "cloth_scrap");
+    public static final RegistryObject<Item> LINEN_BANDAGE = registerItemWithTab(LinenBandageItem::new, "linen_bandage");
+    public static final RegistryObject<Item> LINEN_THREAD = registerItemWithTab(SimpleItem::new, "linen_thread");
+    public static final RegistryObject<Item> LINEN_CLOTH = registerItemWithTab(SimpleItem::new, "linen_cloth");
+    public static final RegistryObject<Item> PAPYRUS_PLANT = registerItemWithTab(() -> new BlockItem(AtumBlocks.PAPYRUS.get(), new Item.Properties()), "papyrus_plant");
+    public static final RegistryObject<Item> FLAX_SEEDS = registerItemWithTab(() -> new ItemNameBlockItem(AtumBlocks.FLAX.get(), new Item.Properties()), "flax_seeds");
+    public static final RegistryObject<Item> FLAX = registerItemWithTab(SimpleItem::new, "flax");
+    public static final RegistryObject<Item> OPHIDIAN_TONGUE_FLOWER = registerItemWithTab(SimpleItem::new, "ophidian_tongue_flower");
+    public static final RegistryObject<Item> ANPUTS_FINGERS_SPORES = registerItemWithTab(() -> new ItemNameBlockItem(AtumBlocks.ANPUTS_FINGERS.get(), new Item.Properties()), "anputs_fingers_spores");
+    public static final RegistryObject<Item> EMMER_SEEDS = registerItemWithTab(() -> new ItemNameBlockItem(AtumBlocks.EMMER_WHEAT.get(), new Item.Properties()), "emmer_seeds");
+    public static final RegistryObject<Item> EMMER_EAR = registerItemWithTab(SimpleItem::new, "emmer");
+    public static final RegistryObject<Item> EMMER_FLOUR = registerItemWithTab(EmmerFlourItem::new, "emmer_flour");
+    public static final RegistryObject<Item> EMMER_DOUGH = registerItemWithTab(SimpleItem::new, "emmer_dough");
+    public static final RegistryObject<Item> EMMER_BREAD = registerItemWithTab(() -> new Item(new Item.Properties().food(AtumFoods.EMMER_BREAD)), "emmer_bread");
+    public static final RegistryObject<Item> QUAIL_EGG = registerItemWithTab(QuailEggItem::new, "quail_egg");
+    public static final RegistryObject<Item> CAMEL_RAW = registerItemWithTab(() -> new Item(new Item.Properties().food(AtumFoods.CAMEL_RAW)), "camel");
+    public static final RegistryObject<Item> CAMEL_COOKED = registerItemWithTab(() -> new Item(new Item.Properties().food(AtumFoods.CAMEL_COOKED)), "camel_cooked");
+    public static final RegistryObject<Item> QUAIL_RAW = registerItemWithTab(() -> new Item(new Item.Properties().food(AtumFoods.QUAIL_RAW)), "quail");
+    public static final RegistryObject<Item> QUAIL_COOKED = registerItemWithTab(() -> new Item(new Item.Properties().food(AtumFoods.QUAIL_COOKED)), "quail_cooked");
+    public static final RegistryObject<Item> DATE = registerItemWithTab(() -> new Item(new Item.Properties().food(Foods.APPLE)), "date");
+    public static final RegistryObject<Item> GLISTERING_DATE = registerItemWithTab(SimpleItem::new, "glistering_date");
+    public static final RegistryObject<Item> GOLDEN_DATE = registerItemWithTab(() -> new Item(new Item.Properties().food(AtumFoods.GOLDEN_DATE)), "golden_date");
+    public static final RegistryObject<Item> ENCHANTED_GOLDEN_DATE = registerItemWithTab(() -> new EnchantedGoldenAppleItem(new Item.Properties().food(AtumFoods.ENCHANTED_GOLDEN_DATE)), "golden_date_enchanted");
+    public static final RegistryObject<Item> ECTOPLASM = registerItemWithTab(SimpleItem::new, "ectoplasm");
+    public static final RegistryObject<Item> MANDIBLES = registerItemWithTab(SimpleItem::new, "mandibles");
+    public static final RegistryObject<Item> DUSTY_BONE = registerItemWithTab(SimpleItem::new, "dusty_bone");
+    public static final RegistryObject<Item> WOLF_PELT = registerItemWithTab(SimpleItem::new, "wolf_pelt");
+    public static final RegistryObject<Item> FERTILE_SOIL_PILE = registerItemWithTab(SimpleItem::new, "fertile_soil_pile");
+    public static final RegistryObject<Item> FORSAKEN_FISH = registerItemWithTab(() -> new FishItem(FishItem.FishType.FORSAKEN), "fish_forsaken");
+    public static final RegistryObject<Item> MUMMIFIED_FISH = registerItemWithTab(() -> new FishItem(FishItem.FishType.MUMMIFIED), "fish_mummified");
+    public static final RegistryObject<Item> JEWELED_FISH = registerItemWithTab(() -> new FishItem(FishItem.FishType.JEWELED), "fish_jeweled");
+    public static final RegistryObject<Item> SKELETAL_FISH = registerItemWithTab(() -> new FishItem(FishItem.FishType.SKELETAL), "fish_skeletal");
+    public static final RegistryObject<Item> CRUNCHY_SCARAB = registerItemWithTab(() -> new CrunchyScarabItem(new Item.Properties().food(AtumFoods.CRUNCHY_SCARAB)), "crunchy_scarab");
+    public static final RegistryObject<Item> CRUNCHY_GOLD_SCARAB = registerItemWithTab(() -> new CrunchyScarabItem(new Item.Properties().food(AtumFoods.CRUNCHY_GOLD_SCARAB)), "crunchy_golden_scarab");
 
     public static void setItemInfo() {
-        ComposterBlock.CHANCES.put(EMMER_SEEDS, 0.3F);
-        ComposterBlock.CHANCES.put(EMMER_EAR, 0.65F);
-        ComposterBlock.CHANCES.put(EMMER_BREAD, 0.85F);
-        ComposterBlock.CHANCES.put(FLAX, 0.50F);
+        ComposterBlock.COMPOSTABLES.put(EMMER_SEEDS.get(), 0.3F);
+        ComposterBlock.COMPOSTABLES.put(EMMER_EAR.get(), 0.65F);
+        ComposterBlock.COMPOSTABLES.put(EMMER_BREAD.get(), 0.85F);
+        ComposterBlock.COMPOSTABLES.put(FLAX.get(), 0.50F);
     }
 
     public static class AtumFoods {
-        public static final Food EMMER_BREAD = new Food.Builder().hunger(4).saturation(0.9F).build();
-        public static final Food CAMEL_RAW = new Food.Builder().hunger(3).saturation(0.2F).meat().build();
-        public static final Food CAMEL_COOKED = new Food.Builder().hunger(9).saturation(0.7F).meat().build();
-        public static final Food QUAIL_RAW = new Food.Builder().hunger(1).saturation(0.4F).meat().build();
-        public static final Food QUAIL_COOKED = new Food.Builder().hunger(5).saturation(0.8F).meat().build();
-        public static final Food GOLDEN_DATE = new Food.Builder().hunger(5).saturation(1.5F).effect(() -> new EffectInstance(Effects.REGENERATION, 100, 1), 1.0F).effect(new EffectInstance(Effects.ABSORPTION, 2400, 0), 1.0F).setAlwaysEdible().build();
-        public static final Food ENCHANTED_GOLDEN_DATE = new Food.Builder().hunger(5).saturation(1.5F).effect(() -> new EffectInstance(Effects.REGENERATION, 400, 1), 1.0F).effect(() -> new EffectInstance(Effects.RESISTANCE, 6000, 0), 1.0F).effect(() -> new EffectInstance(Effects.FIRE_RESISTANCE, 6000, 0), 1.0F).effect(() -> new EffectInstance(Effects.ABSORPTION, 2400, 3), 1.0F).setAlwaysEdible().build();
-        public static final Food CRUNCHY_SCARAB = new Food.Builder().hunger(3).saturation(0.1F).meat().build();
-        public static final Food CRUNCHY_GOLD_SCARAB = new Food.Builder().hunger(6).saturation(1.3F).meat().build();
+        public static final FoodProperties EMMER_BREAD = new FoodProperties.Builder().nutrition(4).saturationMod(0.9F).build();
+        public static final FoodProperties CAMEL_RAW = new FoodProperties.Builder().nutrition(3).saturationMod(0.2F).meat().build();
+        public static final FoodProperties CAMEL_COOKED = new FoodProperties.Builder().nutrition(9).saturationMod(0.7F).meat().build();
+        public static final FoodProperties QUAIL_RAW = new FoodProperties.Builder().nutrition(1).saturationMod(0.4F).meat().build();
+        public static final FoodProperties QUAIL_COOKED = new FoodProperties.Builder().nutrition(5).saturationMod(0.8F).meat().build();
+        public static final FoodProperties GOLDEN_DATE = new FoodProperties.Builder().nutrition(5).saturationMod(1.5F).effect(() -> new MobEffectInstance(MobEffects.REGENERATION, 100, 1), 1.0F).effect(new MobEffectInstance(MobEffects.ABSORPTION, 2400, 0), 1.0F).alwaysEat().build();
+        public static final FoodProperties ENCHANTED_GOLDEN_DATE = new FoodProperties.Builder().nutrition(5).saturationMod(1.5F).effect(() -> new MobEffectInstance(MobEffects.REGENERATION, 400, 1), 1.0F).effect(() -> new MobEffectInstance(MobEffects.DAMAGE_RESISTANCE, 6000, 0), 1.0F).effect(() -> new MobEffectInstance(MobEffects.FIRE_RESISTANCE, 6000, 0), 1.0F).effect(() -> new MobEffectInstance(MobEffects.ABSORPTION, 2400, 3), 1.0F).alwaysEat().build();
+        public static final FoodProperties CRUNCHY_SCARAB = new FoodProperties.Builder().nutrition(3).saturationMod(0.1F).meat().build();
+        public static final FoodProperties CRUNCHY_GOLD_SCARAB = new FoodProperties.Builder().nutrition(6).saturationMod(1.3F).meat().build();
+    }
+
+    /**
+     * Registers an item
+     *
+     * @param item The item to be registered
+     * @param name The name to register the item with
+     * @return The RegistryObject<Item> that was registered
+     */
+    public static RegistryObject<Item> registerItem(@Nonnull Supplier<Item> item, @Nonnull String name) {
+        return ITEM_DEFERRED.register(name, item);
+    }
+
+    /**
+     * Registers an item & adds is to the Atum creative tab
+     *
+     * @param item The item to be registered
+     * @param name The name to register the item with
+     * @return The RegistryObject<Item> that was registered
+     */
+    public static RegistryObject<Item> registerItemWithTab(@Nonnull Supplier<Item> item, @Nonnull String name) {
+        RegistryObject<Item> itemRegistryObject = ITEM_DEFERRED.register(name, item);
+        ITEMS_FOR_TAB_LIST.add(itemRegistryObject);
+        return itemRegistryObject;
+    }
+
+    /**
+     * Helper method for easily registering relics
+     *
+     * @param type The relic type
+     * @return The dirty relic item that was registered
+     */
+    public static RegistryObject<Item> registerRelic(@Nonnull RelicItem.Type type) {
+        Item.Properties nonDirty = new Item.Properties().stacksTo(16);
+        RegistryObject<Item> dirty = registerItemWithTab(() -> new RelicItem(new Item.Properties().stacksTo(64)), getRelicName(RelicItem.Quality.DIRTY, type));
+        registerItemWithTab(() -> new RelicItem(nonDirty), getRelicName(RelicItem.Quality.SILVER, type));
+        registerItemWithTab(() -> new RelicItem(nonDirty), getRelicName(RelicItem.Quality.GOLD, type));
+        registerItemWithTab(() -> new RelicItem(nonDirty), getRelicName(RelicItem.Quality.SAPPHIRE, type));
+        registerItemWithTab(() -> new RelicItem(nonDirty), getRelicName(RelicItem.Quality.RUBY, type));
+        registerItemWithTab(() -> new RelicItem(nonDirty), getRelicName(RelicItem.Quality.EMERALD, type));
+        registerItemWithTab(() -> new RelicItem(nonDirty), getRelicName(RelicItem.Quality.DIAMOND, type));
+        return dirty;
+    }
+
+    public static RegistryObject<Item> registerScepter(God god) {
+        RegistryObject<Item> scepter = registerItem(ScepterItem::new, "scepter_" + god.getName());
+        ScepterItem.SCEPTERS.put(god, scepter);
+        return scepter;
+    }
+
+    private static String getRelicName(@Nonnull RelicItem.Quality quality, @Nonnull RelicItem.Type type) {
+        RelicItem.RELIC_ENTRIES.add(new RelicItem.RelicEntry(quality, quality.getWeight()));
+        return "relic_" + quality.getSerializedName() + "_" + type.getSerializedName();
     }
 }

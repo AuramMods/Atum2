@@ -1,66 +1,78 @@
 package com.teammetallurgy.atum.blocks.lighting;
 
+import com.google.common.collect.Maps;
 import com.teammetallurgy.atum.Atum;
 import com.teammetallurgy.atum.misc.StackHelper;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.FlintAndSteelItem;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.ActionResultType;
-import net.minecraft.util.Hand;
-import net.minecraft.util.SoundCategory;
-import net.minecraft.util.SoundEvents;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.BlockRayTraceResult;
-import net.minecraft.world.World;
+import net.minecraft.core.BlockPos;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.FlintAndSteelItem;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.BlockHitResult;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.registries.RegistryObject;
 
 import javax.annotation.Nonnull;
-import java.util.Random;
+import java.util.Map;
+import java.util.function.Supplier;
 
 @Mod.EventBusSubscriber(modid = Atum.MOD_ID)
 public class AtumTorchUnlitBlock extends AtumTorchBlock {
+    private final Supplier<? extends Block> lit;
+    public static final Map<RegistryObject<Block>, RegistryObject<Block>> UNLIT = Maps.newHashMap();
 
-    public AtumTorchUnlitBlock() {
+    public AtumTorchUnlitBlock(Supplier<? extends Block> lit) {
         super(0);
+        this.lit = lit;
+    }
+
+    public Supplier<? extends Block> getLit() {
+        return this.lit;
     }
 
     @Override
     @Nonnull
-    public ActionResultType onBlockActivated(@Nonnull BlockState state, @Nonnull World world, @Nonnull BlockPos pos, PlayerEntity player, @Nonnull Hand hand, @Nonnull BlockRayTraceResult rayTraceResult) {
-        ItemStack heldStack = player.getHeldItem(hand);
-        Block block = Block.getBlockFromItem(heldStack.getItem());
-        if ((heldStack.getItem() instanceof FlintAndSteelItem || block.getLightValue(block.getDefaultState(), world, pos) > 0)) {
-            if (heldStack.getItem().isDamageable()) {
-                heldStack.damageItem(1, player, (p) -> p.sendBreakAnimation(hand));
+    public InteractionResult use(@Nonnull BlockState state, @Nonnull Level level, @Nonnull BlockPos pos, Player player, @Nonnull InteractionHand hand, @Nonnull BlockHitResult rayTraceResult) {
+        ItemStack heldStack = player.getItemInHand(hand);
+        Block block = Block.byItem(heldStack.getItem());
+        if ((heldStack.getItem() instanceof FlintAndSteelItem || block.getLightEmission(block.defaultBlockState(), level, pos) > 0)) {
+            if (heldStack.getItem().canBeDepleted()) {
+                heldStack.hurtAndBreak(1, player, (p) -> p.broadcastBreakEvent(hand));
             }
-            world.setBlockState(pos, LIT.get(this).getDefaultState());
-            world.playSound(null, pos, SoundEvents.BLOCK_FIRE_AMBIENT, SoundCategory.BLOCKS, 2.5F, 1.0F);
-            return ActionResultType.SUCCESS;
+            level.setBlockAndUpdate(pos, this.getLit().get().defaultBlockState());
+            level.playSound(null, pos, SoundEvents.FIRE_AMBIENT, SoundSource.BLOCKS, 2.5F, 1.0F);
+            return InteractionResult.SUCCESS;
         }
-        return ActionResultType.PASS;
+        return InteractionResult.PASS;
     }
 
     @SubscribeEvent
     public static void onRightClick(PlayerInteractEvent.RightClickBlock event) { //Light unlit held torch
-        BlockState state = event.getWorld().getBlockState(event.getPos());
-        if (Block.getBlockFromItem(event.getItemStack().getItem()) instanceof AtumTorchUnlitBlock && state.getBlock().getLightValue(state.getBlock().getDefaultState(), event.getWorld(), event.getPos()) > 0) {
+        BlockState state = event.getLevel().getBlockState(event.getPos());
+        Block block =  Block.byItem(event.getItemStack().getItem());
+        if (block instanceof AtumTorchUnlitBlock unlit && state.getBlock().getLightEmission(state.getBlock().defaultBlockState(), event.getLevel(), event.getPos()) > 0) {
             BlockPos pos = event.getPos();
             event.setCanceled(true); //Cancel placement
             event.getItemStack().shrink(1);
-            StackHelper.giveItem(event.getPlayer(), event.getHand(), new ItemStack(LIT.get(Block.getBlockFromItem(event.getItemStack().getItem()))));
-            event.getWorld().playSound(pos.getX(), pos.getY(), pos.getZ(), SoundEvents.BLOCK_FURNACE_FIRE_CRACKLE, SoundCategory.BLOCKS, 10.0F, 1.0F, false);
+            StackHelper.giveItem(event.getEntity(), event.getHand(), new ItemStack(unlit.getLit().get()));
+            event.getLevel().playLocalSound(pos.getX(), pos.getY(), pos.getZ(), SoundEvents.FURNACE_FIRE_CRACKLE, SoundSource.BLOCKS, 10.0F, 1.0F, false);
         }
     }
 
 
     @Override
     @OnlyIn(Dist.CLIENT)
-    public void animateTick(@Nonnull BlockState state, @Nonnull World world, @Nonnull BlockPos pos, @Nonnull Random random) {
+    public void animateTick(@Nonnull BlockState state, @Nonnull Level level, @Nonnull BlockPos pos, @Nonnull RandomSource random) {
     }
 }

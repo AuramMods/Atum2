@@ -2,21 +2,29 @@ package com.teammetallurgy.atum.blocks.trap.tileentity;
 
 import com.teammetallurgy.atum.blocks.trap.TrapBlock;
 import com.teammetallurgy.atum.init.AtumTileEntities;
-import net.minecraft.block.BlockState;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.projectile.ArrowEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.particles.ParticleTypes;
-import net.minecraft.util.Direction;
-import net.minecraft.util.SoundCategory;
-import net.minecraft.util.SoundEvents;
-import net.minecraft.util.math.*;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.util.math.vector.Vector3i;
-import net.minecraft.world.World;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.core.Vec3i;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.util.Mth;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.projectile.Arrow;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.RecipeType;
+import net.minecraft.world.level.ClipContext;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.common.ForgeHooks;
+import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
 import java.util.List;
@@ -24,40 +32,38 @@ import java.util.List;
 public class ArrowTrapTileEntity extends TrapTileEntity {
     private int timer = 80;
 
-    public ArrowTrapTileEntity() {
-        super(AtumTileEntities.ARROW_TRAP);
+    public ArrowTrapTileEntity(BlockPos pos, BlockState state) {
+        super(AtumTileEntities.ARROW_TRAP.get(), pos, state);
     }
 
-    @Override
-    public void tick() {
-        boolean isBurningCheck = this.isBurning();
+    public static void arrowTrackServerTick(Level level, BlockPos pos, BlockState state, ArrowTrapTileEntity trap) {
+        boolean isBurningCheck = trap.isBurning();
         boolean isBurning = false;
         boolean canDamageEntity = false;
-        World world = this.world;
-        if (world == null) return;
 
-        if (this.timer > 0) this.timer--;
-        if (!this.isDisabled && this.isBurning()) {
-            BlockState state = world.getBlockState(this.pos);
+        if (trap.timer > 0) trap.timer--;
+        if (!trap.isDisabled && trap.isBurning()) {
             if (state.getBlock() instanceof TrapBlock) {
-                Direction facing = state.get(TrapBlock.FACING);
+                Direction facing = state.getValue(TrapBlock.FACING);
                 Class<? extends LivingEntity> entity;
-                if (this.isInsidePyramid) {
-                    entity = PlayerEntity.class;
+                if (trap.isInsidePyramid) {
+                    entity = Player.class;
                 } else {
                     entity = LivingEntity.class;
                 }
-                AxisAlignedBB box = getFacingBoxWithRange(facing, 13).shrink(1);
-                List<LivingEntity> entities = world.getEntitiesWithinAABB(entity, box);
+                AABB box = getFacingBoxWithRange(pos, facing, 13).deflate(1);
+                List<? extends LivingEntity> entities = level.getEntitiesOfClass(entity, box);
                 for (LivingEntity livingBase : entities) {
-                    BlockRayTraceResult findBlock = this.rayTraceMinMax(world, box, livingBase);
-                    boolean cantSeeEntity = this.getDistance(findBlock.getPos()) < this.getDistance(livingBase.getPosition());
-                    if (livingBase instanceof PlayerEntity ? !((PlayerEntity) livingBase).isCreative() && !cantSeeEntity : !cantSeeEntity) {
-                        if (canSee(facing, world, livingBase)) {
+                    BlockHitResult findBlock = rayTraceMinMax(level, box, livingBase);
+                    boolean cantSeeEntity = trap.getDistance(findBlock.getBlockPos()) < trap.getDistance(livingBase.blockPosition());
+                    if (livingBase instanceof Player ? !((Player) livingBase).isCreative() && !cantSeeEntity : !cantSeeEntity) {
+                        if (trap.canSee(facing, level, livingBase)) {
                             canDamageEntity = true;
-                            if (this.timer == 0) {
-                                this.timer = 80;
-                                this.triggerTrap(world, facing, livingBase);
+                            if (trap.timer == 0) {
+                                trap.timer = 80;
+                                if (level instanceof ServerLevel serverLevel) {
+                                    trap.triggerTrap(serverLevel, facing, livingBase);
+                                }
                             }
                         } else {
                             canDamageEntity = false;
@@ -70,21 +76,21 @@ public class ArrowTrapTileEntity extends TrapTileEntity {
         }
 
         //Copied from TileEntityTrap
-        if (this.isInsidePyramid) {
-            this.burnTime = 1;
+        if (trap.isInsidePyramid) {
+            trap.burnTime = 1;
         }
 
-        if (this.isBurning() && !this.isDisabled && canDamageEntity && !this.isInsidePyramid) {
-            --this.burnTime;
+        if (trap.isBurning() && !trap.isDisabled && canDamageEntity && !trap.isInsidePyramid) {
+            --trap.burnTime;
         }
 
-        if (!world.isRemote && !this.isDisabled) {
-            ItemStack fuel = this.inventory.get(0);
-            if (this.isBurning() || !fuel.isEmpty()) {
-                if (!this.isBurning()) {
-                    this.burnTime = ForgeHooks.getBurnTime(fuel) / 10;
-                    this.currentItemBurnTime = this.burnTime;
-                    if (this.isBurning()) {
+        if (!level.isClientSide && !trap.isDisabled) {
+            ItemStack fuel = trap.inventory.get(0);
+            if (trap.isBurning() || !fuel.isEmpty()) {
+                if (!trap.isBurning()) {
+                    trap.burnTime = ForgeHooks.getBurnTime(fuel, RecipeType.SMELTING) / 10;
+                    trap.currentItemBurnTime = trap.burnTime;
+                    if (trap.isBurning()) {
                         isBurning = true;
                         if (!fuel.isEmpty()) {
                             fuel.shrink(1);
@@ -92,91 +98,87 @@ public class ArrowTrapTileEntity extends TrapTileEntity {
                     }
                 }
             }
-            if (isBurningCheck != this.isBurning()) {
+            if (isBurningCheck != trap.isBurning()) {
                 isBurning = true;
             }
         }
         if (isBurning) {
-            this.markDirty();
+            trap.setChanged();
         }
     }
 
-    private boolean canSee(Direction facing, World world, LivingEntity living) {
-        Vector3i dir = facing.getDirectionVec();
-        Vector3d posDir = new Vector3d(this.pos.getX() + dir.getX(), this.pos.getY(), this.pos.getZ() + dir.getZ());
-        Vector3d livingPos = new Vector3d(living.getPosX(), living.getPosY() + (double) living.getEyeHeight(), living.getPosZ());
-        return world.rayTraceBlocks(new RayTraceContext(posDir, livingPos, RayTraceContext.BlockMode.COLLIDER, RayTraceContext.FluidMode.ANY, living)).getType() == RayTraceResult.Type.MISS;
+    public boolean canSee(Direction facing, Level level, LivingEntity living) {
+        Vec3i dir = facing.getNormal();
+        Vec3 posDir = new Vec3(this.worldPosition.getX() + dir.getX(), this.worldPosition.getY(), this.worldPosition.getZ() + dir.getZ());
+        Vec3 livingPos = new Vec3(living.getX(), living.getY() + (double) living.getEyeHeight(), living.getZ());
+        return level.clip(new ClipContext(posDir, livingPos, ClipContext.Block.COLLIDER, ClipContext.Fluid.ANY, living)).getType() == HitResult.Type.MISS;
     }
 
-    private BlockRayTraceResult rayTraceMinMax(World world, AxisAlignedBB box, LivingEntity living) {
-        final Vector3d min = new Vector3d(box.minX, box.minY, box.minZ);
-        final Vector3d max = new Vector3d(box.maxX, box.maxY + 0.05D, box.maxZ);
-        return world.rayTraceBlocks(new RayTraceContext(max, min, RayTraceContext.BlockMode.COLLIDER, RayTraceContext.FluidMode.ANY, living));
+    private static BlockHitResult rayTraceMinMax(Level level, AABB box, LivingEntity living) {
+        final Vec3 min = new Vec3(box.minX, box.minY, box.minZ);
+        final Vec3 max = new Vec3(box.maxX, box.maxY + 0.05D, box.maxZ);
+        return level.clip(new ClipContext(max, min, ClipContext.Block.COLLIDER, ClipContext.Fluid.ANY, living));
     }
 
     private double getDistance(BlockPos position) {
-        double d0 = position.getX() - this.pos.getX();
-        double d1 = position.getY() - this.pos.getY();
-        double d2 = position.getZ() - this.pos.getZ();
-        return MathHelper.sqrt(d0 * d0 + d1 * d1 + d2 * d2);
+        double d0 = position.getX() - this.worldPosition.getX();
+        double d1 = position.getY() - this.worldPosition.getY();
+        double d2 = position.getZ() - this.worldPosition.getZ();
+        return Mth.sqrt((float) (d0 * d0 + d1 * d1 + d2 * d2));
     }
 
     @Override
-    protected void triggerTrap(World world, Direction facing, LivingEntity livingBase) {
-        double x = (double) this.pos.getX() + 0.5D;
-        double y = (double) this.pos.getY() + world.rand.nextDouble() * 12.0D / 16.0D;
-        double z = (double) this.pos.getZ() + 0.5D;
-        double randomPos = world.rand.nextDouble() * 0.6D - 0.3D;
+    protected void triggerTrap(ServerLevel serverLevel, Direction facing, LivingEntity livingBase) {
+        double x = (double) this.worldPosition.getX() + 0.5D;
+        double y = (double) this.worldPosition.getY() + serverLevel.random.nextDouble() * 12.0D / 16.0D;
+        double z = (double) this.worldPosition.getZ() + 0.5D;
+        double randomPos = serverLevel.random.nextDouble() * 0.6D - 0.3D;
 
-        world.playSound(x, pos.getY(), z, SoundEvents.BLOCK_DISPENSER_LAUNCH, SoundCategory.BLOCKS, 1.0F, 1.2F, false);
+        serverLevel.playSound(null, x, worldPosition.getY(), z, SoundEvents.DISPENSER_LAUNCH, SoundSource.BLOCKS, 1.0F, 1.2F);
 
         switch (facing) {
-            case DOWN:
-                fireArrow(world, facing, x - randomPos, y - 0.5D, z);
-                world.addParticle(ParticleTypes.SMOKE, x - randomPos, y - 0.2D, z, 0.0D, 0.0D, 0.0D);
-                break;
-            case UP:
-                fireArrow(world, facing, x - randomPos, y + 1.0D, z);
-                world.addParticle(ParticleTypes.SMOKE, x - randomPos, y + 1.0D, z, 0.0D, 0.0D, 0.0D);
-                break;
-            case WEST:
-                fireArrow(world, facing, x - 0.52D, y, z + randomPos);
-                world.addParticle(ParticleTypes.SMOKE, x - 0.52D, y, z + randomPos, 0.0D, 0.0D, 0.0D);
-                break;
-            case EAST:
-                fireArrow(world, facing, x + 0.52D, y, z + randomPos);
-                world.addParticle(ParticleTypes.SMOKE, x + 0.52D, y, z + randomPos, 0.0D, 0.0D, 0.0D);
-                break;
-            case NORTH:
-                fireArrow(world, facing, x + randomPos, y, z - 0.52D);
-                world.addParticle(ParticleTypes.SMOKE, x + randomPos, y, z - 0.52D, 0.0D, 0.0D, 0.0D);
-                break;
-            case SOUTH:
-                fireArrow(world, facing, x + randomPos, y, z + 0.52D);
-                world.addParticle(ParticleTypes.SMOKE, x + randomPos, y, z + 0.52D, 0.0D, 0.0D, 0.0D);
-                break;
+            case DOWN -> {
+                fireArrow(serverLevel, facing, x - randomPos, y - 0.5D, z);
+                serverLevel.addParticle(ParticleTypes.SMOKE, x - randomPos, y - 0.2D, z, 0.0D, 0.0D, 0.0D);
+            }
+            case UP -> {
+                fireArrow(serverLevel, facing, x - randomPos, y + 1.0D, z);
+                serverLevel.addParticle(ParticleTypes.SMOKE, x - randomPos, y + 1.0D, z, 0.0D, 0.0D, 0.0D);
+            }
+            case WEST -> {
+                fireArrow(serverLevel, facing, x - 0.52D, y, z + randomPos);
+                serverLevel.addParticle(ParticleTypes.SMOKE, x - 0.52D, y, z + randomPos, 0.0D, 0.0D, 0.0D);
+            }
+            case EAST -> {
+                fireArrow(serverLevel, facing, x + 0.52D, y, z + randomPos);
+                serverLevel.addParticle(ParticleTypes.SMOKE, x + 0.52D, y, z + randomPos, 0.0D, 0.0D, 0.0D);
+            }
+            case NORTH -> {
+                fireArrow(serverLevel, facing, x + randomPos, y, z - 0.52D);
+                serverLevel.addParticle(ParticleTypes.SMOKE, x + randomPos, y, z - 0.52D, 0.0D, 0.0D, 0.0D);
+            }
+            case SOUTH -> {
+                fireArrow(serverLevel, facing, x + randomPos, y, z + 0.52D);
+                serverLevel.addParticle(ParticleTypes.SMOKE, x + randomPos, y, z + 0.52D, 0.0D, 0.0D, 0.0D);
+            }
         }
     }
 
-    private void fireArrow(World world, Direction facing, double x, double y, double z) {
-        if (!world.isRemote) {
-            ArrowEntity arrow = new ArrowEntity(world, x, y, z);
-            arrow.shoot(facing.getXOffset(), (float) facing.getYOffset() + 0.1F, facing.getZOffset(), 1.1F, 6.0F);
-            world.addEntity(arrow);
-        }
+    private void fireArrow(ServerLevel serverLevel, Direction facing, double x, double y, double z) {
+        Arrow arrow = new Arrow(serverLevel, x, y, z);
+        arrow.shoot(facing.getStepX(), (float) facing.getStepY() + 0.1F, facing.getStepZ(), 1.1F, 6.0F);
+        serverLevel.addFreshEntity(arrow);
     }
 
     @Override
-    public void read(@Nonnull BlockState state, @Nonnull CompoundNBT compound) {
-        super.read(state, compound);
-        this.timer = compound.getInt("Timer");
+    public void load(@Nonnull CompoundTag tag) {
+        super.load( tag);
+        this.timer = tag.getInt("Timer");
     }
 
     @Override
-    @Nonnull
-    public CompoundNBT write(@Nonnull CompoundNBT compound) {
-        super.write(compound);
-        compound.putInt("Timer", this.timer);
-        return compound;
+    protected void saveAdditional(@NotNull CompoundTag tag) {
+        super.saveAdditional(tag);
+        tag.putInt("Timer", this.timer);
     }
 }

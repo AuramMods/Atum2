@@ -1,0 +1,7 @@
+{
+    "sources": [
+        { "type": "single", "resource": "atum:shield/atems_protection" },
+        { "type": "single", "resource": "atum:shield/brigand_shield" },
+        { "type": "single", "resource": "atum:shield/stoneguard_shield" }
+    ]
+}

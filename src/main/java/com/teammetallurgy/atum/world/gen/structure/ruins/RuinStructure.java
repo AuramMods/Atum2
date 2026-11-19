@@ -1,110 +1,62 @@
 package com.teammetallurgy.atum.world.gen.structure.ruins;
 
 import com.mojang.serialization.Codec;
+import com.teammetallurgy.atum.Atum;
 import com.teammetallurgy.atum.init.AtumBlocks;
-import com.teammetallurgy.atum.world.DimensionHelper;
-import com.teammetallurgy.atum.world.gen.structure.StructureHelper;
-import net.minecraft.block.Block;
-import net.minecraft.util.Rotation;
-import net.minecraft.util.SharedSeedRandom;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.ChunkPos;
-import net.minecraft.util.math.MutableBoundingBox;
-import net.minecraft.util.registry.DynamicRegistries;
-import net.minecraft.world.ISeedReader;
-import net.minecraft.world.biome.Biome;
-import net.minecraft.world.biome.provider.BiomeProvider;
-import net.minecraft.world.gen.ChunkGenerator;
-import net.minecraft.world.gen.feature.NoFeatureConfig;
-import net.minecraft.world.gen.feature.structure.Structure;
-import net.minecraft.world.gen.feature.structure.StructureManager;
-import net.minecraft.world.gen.feature.structure.StructurePiece;
-import net.minecraft.world.gen.feature.structure.StructureStart;
-import net.minecraft.world.gen.feature.template.TemplateManager;
+import com.teammetallurgy.atum.init.AtumStructures;
+import com.teammetallurgy.atum.misc.AtumConfig;
+import com.teammetallurgy.atum.world.gen.structure.AtumStructure;
+import net.minecraft.core.BlockPos;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Mth;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.level.WorldGenLevel;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Rotation;
+import net.minecraft.world.level.levelgen.Heightmap;
+import net.minecraft.world.level.levelgen.structure.Structure;
+import net.minecraft.world.level.levelgen.structure.StructureType;
+import net.minecraft.world.level.levelgen.structure.pieces.StructurePiecesBuilder;
 
 import javax.annotation.Nonnull;
-import java.util.Random;
+import java.util.Optional;
 
-public class RuinStructure extends Structure<NoFeatureConfig> {
+public class RuinStructure extends AtumStructure {
+    public static final Codec<RuinStructure> CODEC = simpleCodec(RuinStructure::new);
 
-    public RuinStructure(Codec<NoFeatureConfig> config) {
-        super(config);
-    }
-
-    @Override
-    protected boolean func_230363_a_(@Nonnull ChunkGenerator generator, @Nonnull BiomeProvider provider, long seed, @Nonnull SharedSeedRandom seedRandom, int chunkX, int chunkZ, @Nonnull Biome biome, @Nonnull ChunkPos chunkPos, @Nonnull NoFeatureConfig config) {
-        for (Biome b : provider.getBiomes(chunkX * 16 + 9, DimensionHelper.GROUND_LEVEL, chunkZ * 16 + 9, 17)) {
-            if (!b.getGenerationSettings().hasStructure(this)) {
-                return false;
-            }
-        }
-        return true;
+    public RuinStructure(Structure.StructureSettings structureSettings) {
+        super(structureSettings);
     }
 
     @Override
     @Nonnull
-    public IStartFactory<NoFeatureConfig> getStartFactory() {
-        return Start::new;
+    public StructureType<?> type() {
+        return AtumStructures.RUIN.get();
     }
 
-    public static class Start extends StructureStart<NoFeatureConfig> {
+    @Override
+    @Nonnull
+    protected Optional<GenerationStub> findGenerationPoint(@Nonnull GenerationContext generationContext) {
+        Rotation rotation = Rotation.getRandom(generationContext.random());
+        BlockPos pos = this.getLowestYIn5by5BoxOffset7Blocks(generationContext, rotation);
+        return onTopOfChunkCenter(generationContext, Heightmap.Types.WORLD_SURFACE_WG, (piecesBuilder) -> {
+            generatePieces(piecesBuilder, generationContext, pos, rotation);
+        });
+    }
 
-        public Start(Structure<NoFeatureConfig> structure, int chunkPosX, int chunkPosZ, MutableBoundingBox box, int references, long seed) {
-            super(structure, chunkPosX, chunkPosZ, box, references, seed);
+    private static void generatePieces(StructurePiecesBuilder piecesBuilder, GenerationContext context, BlockPos pos, Rotation rotation) {
+        int ruinType = Mth.nextInt(context.random(), 1, AtumConfig.WORLD_GEN.ruinsAmount.get());
+        piecesBuilder.addPiece(new RuinPieces.RuinTemplate(context.structureTemplateManager(), new ResourceLocation(Atum.MOD_ID, "ruins/ruin" + ruinType), pos, rotation));
+    }
+
+    @Override
+    public void setBelowStructureBlock(WorldGenLevel genLevel, BlockPos.MutableBlockPos mutablePos, RandomSource random) {
+        Block brick = AtumBlocks.LIMESTONE_BRICK_LARGE.get();
+        if (random.nextDouble() <= 0.20D) {
+            brick = AtumBlocks.LIMESTONE_BRICK_CRACKED_BRICK.get();
+        } else if (random.nextDouble() >= 0.80D) {
+            brick = AtumBlocks.LIMESTONE_BRICK_SMALL.get();
         }
-
-        @Override
-        public void func_230364_a_(@Nonnull DynamicRegistries registries, @Nonnull ChunkGenerator generator, @Nonnull TemplateManager manager, int chunkX, int chunkZ, @Nonnull Biome biome, @Nonnull NoFeatureConfig config) {
-            Rotation rotation = Rotation.randomRotation(this.rand);
-            int y = StructureHelper.getYPosForStructure(chunkX, chunkZ, generator, rotation);
-
-            if (y > 60 && y < 85) {
-                BlockPos pos = new BlockPos(chunkX * 16, y, chunkZ * 16);
-                this.components.add(new RuinPieces.RuinTemplate(manager, pos, this.rand, rotation));
-                this.recalculateStructureSize();
-            }
-        }
-
-        @Override
-        public void func_230366_a_(@Nonnull ISeedReader seedReader, @Nonnull StructureManager manager, @Nonnull ChunkGenerator generator, @Nonnull Random rand, @Nonnull MutableBoundingBox box, @Nonnull ChunkPos chunkPos) {
-            super.func_230366_a_(seedReader, manager, generator, rand, box, chunkPos);
-            int y = this.bounds.minY;
-
-            for (int x = box.minX; x <= box.maxX; ++x) {
-                for (int z = box.minZ; z <= box.maxZ; ++z) {
-                    BlockPos pos = new BlockPos(x, y, z);
-
-                    if (!StructureHelper.doesChunkHaveStructure(seedReader, pos, Structure.VILLAGE)) {
-                        if (!seedReader.isAirBlock(pos) && this.bounds.isVecInside(pos)) {
-                            boolean isVecInside = false;
-
-                            for (StructurePiece piece : this.components) {
-                                if (piece.getBoundingBox().isVecInside(pos)) {
-                                    isVecInside = true;
-                                    break;
-                                }
-                            }
-
-                            if (isVecInside) {
-                                for (int ruinY = y - 1; ruinY > 1; --ruinY) {
-                                    BlockPos ruinPos = new BlockPos(x, ruinY, z);
-
-                                    if (!seedReader.isAirBlock(ruinPos) && !seedReader.getBlockState(ruinPos).getMaterial().isLiquid()) {
-                                        break;
-                                    }
-                                    Block brick = AtumBlocks.LIMESTONE_BRICK_LARGE;
-                                    if (rand.nextDouble() <= 0.20D) {
-                                        brick = AtumBlocks.LIMESTONE_BRICK_CRACKED_BRICK;
-                                    } else if (rand.nextDouble() >= 0.80D) {
-                                        brick = AtumBlocks.LIMESTONE_BRICK_SMALL;
-                                    }
-                                    seedReader.setBlockState(ruinPos, brick.getDefaultState(), 2);
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
+        genLevel.setBlock(mutablePos, brick.defaultBlockState(), 2);
     }
 }

@@ -1,50 +1,66 @@
 package com.teammetallurgy.atum.world;
 
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.ListNBT;
-import net.minecraft.util.math.MutableBoundingBox;
-import net.minecraft.world.storage.WorldSavedData;
-import net.minecraftforge.common.util.Constants;
+import com.teammetallurgy.atum.Atum;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.IntArrayTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.Tag;
+import net.minecraft.world.level.levelgen.structure.BoundingBox;
+import net.minecraft.world.level.saveddata.SavedData;
 
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.List;
 
-public class AtumDimensionData extends WorldSavedData {
+public class AtumDimensionData extends SavedData {
     public static final String ID = "atum_dimension_data";
     private boolean hasStartStructureSpawned;
     private boolean isStorming;
-    private final List<MutableBoundingBox> beatenPyramids = new ArrayList<>();
+    private final List<BoundingBox> beatenPyramids = new ArrayList<>();
 
-    public AtumDimensionData() {
-        super(ID);
-    }
+    public static AtumDimensionData load(@Nonnull CompoundTag nbt) {
+        AtumDimensionData data = new AtumDimensionData();
+        data.hasStartStructureSpawned = nbt.getBoolean("HasStartStructureSpawned");
+        data.isStorming = nbt.getBoolean("IsStorming");
 
-    @Override
-    public void read(@Nonnull CompoundNBT nbt) {
-        this.hasStartStructureSpawned = nbt.getBoolean("HasStartStructureSpawned");
-        this.isStorming = nbt.getBoolean("IsStorming");
-
-        ListNBT listNBT = nbt.getList("PyramidBoxes", Constants.NBT.TAG_INT_ARRAY);
-        for (int i = 0; i < listNBT.size(); ++i) {
-            this.beatenPyramids.add(new MutableBoundingBox(listNBT.getIntArray(i)));
+        if (nbt.contains("PyramidBoxes", Tag.TAG_INT_ARRAY)) {
+            data.readPyramidBox(nbt.getIntArray("PyramidBoxes"));
+        } else {
+            ListTag boxes = nbt.getList("PyramidBoxes", Tag.TAG_INT_ARRAY);
+            for (int i = 0; i < boxes.size(); i++) {
+                data.readPyramidBox(boxes.getIntArray(i));
+            }
         }
+
+        return data;
     }
 
     @Override
     @Nonnull
-    public CompoundNBT write(@Nonnull CompoundNBT nbt) {
+    public CompoundTag save(@Nonnull CompoundTag nbt) {
         nbt.putBoolean("HasStartStructureSpawned", this.hasStartStructureSpawned);
         nbt.putBoolean("IsStorming", this.isStorming);
 
-        if (!this.beatenPyramids.isEmpty()) {
-            ListNBT listNBT = new ListNBT();
-            for (MutableBoundingBox box : this.beatenPyramids) {
-                listNBT.add(box.toNBTTagIntArray());
-            }
-            nbt.put("PyramidBoxes", listNBT);
+        ListTag boxes = new ListTag();
+        for (BoundingBox box : this.beatenPyramids) {
+            boxes.add(new IntArrayTag(new int[] {
+                    box.minX(), box.minY(), box.minZ(), box.maxX(), box.maxY(), box.maxZ()
+            }));
+        }
+        if (!boxes.isEmpty()) {
+            nbt.put("PyramidBoxes", boxes);
+        } else {
+            nbt.remove("PyramidBoxes");
         }
         return nbt;
+    }
+
+    private void readPyramidBox(int[] bounds) {
+        if (bounds.length == 6) {
+            this.beatenPyramids.add(new BoundingBox(bounds[0], bounds[1], bounds[2], bounds[3], bounds[4], bounds[5]));
+        } else {
+            Atum.LOG.warn("Skipping pyramid bounds with {} coordinates", bounds.length);
+        }
     }
 
     public boolean hasStartStructureSpawned() {
@@ -55,22 +71,22 @@ public class AtumDimensionData extends WorldSavedData {
         return this.isStorming;
     }
 
-    public List<MutableBoundingBox> getBeatenPyramids() {
+    public List<BoundingBox> getBeatenPyramids() {
         return this.beatenPyramids;
     }
 
     public void setHasStartStructureSpawned(boolean hasStartStructureSpawned) {
         this.hasStartStructureSpawned = hasStartStructureSpawned;
-        this.markDirty();
+        this.setDirty();
     }
 
     public void setStorming(boolean isStorming) {
         this.isStorming = isStorming;
-        this.markDirty();
+        this.setDirty();
     }
 
-    public void addBeatenPyramid(MutableBoundingBox box) {
+    public void addBeatenPyramid(BoundingBox box) {
         this.beatenPyramids.add(box);
-        this.markDirty();
+        this.setDirty();
     }
 }

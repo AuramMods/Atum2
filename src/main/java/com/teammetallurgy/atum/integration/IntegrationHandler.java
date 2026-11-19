@@ -3,7 +3,7 @@ package com.teammetallurgy.atum.integration;
 import com.teammetallurgy.atum.Atum;
 import com.teammetallurgy.atum.integration.theoneprobe.TOPSupport;
 import com.teammetallurgy.atum.misc.AtumConfig;
-import net.minecraft.util.NonNullList;
+import net.minecraft.core.NonNullList;
 import net.minecraftforge.fml.ModList;
 
 import java.util.HashMap;
@@ -16,7 +16,6 @@ public class IntegrationHandler {
     private HashMap<String, Class<? extends IModIntegration>> mods = new HashMap<>();
 
     public void addSupport() {
-        //addSupport(Thaumcraft.THAUMCRAFT_ID, Thaumcraft.class, true);
         addSupport(TOPSupport.THE_ONE_PROBE, TOPSupport.class, true);
     }
 

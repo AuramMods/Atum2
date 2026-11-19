@@ -1,24 +1,23 @@
 package com.teammetallurgy.atum.blocks.vegetation;
 
+import net.minecraft.world.level.material.PushReaction;
+import net.minecraft.world.level.material.MapColor;
 import com.teammetallurgy.atum.init.AtumBlocks;
 import com.teammetallurgy.atum.init.AtumItems;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.SoundType;
-import net.minecraft.block.SugarCaneBlock;
-import net.minecraft.block.material.Material;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.fluid.FluidState;
-import net.minecraft.item.ItemStack;
-import net.minecraft.state.BooleanProperty;
-import net.minecraft.state.StateContainer;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.tags.FluidTags;
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.world.IBlockReader;
-import net.minecraft.world.IWorldReader;
-import net.minecraft.world.World;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.SoundType;
+import net.minecraft.world.level.block.SugarCaneBlock;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.BooleanProperty;
+import net.minecraft.world.level.material.FluidState;
 import net.minecraftforge.common.IPlantable;
 
 import javax.annotation.Nonnull;
@@ -27,24 +26,24 @@ public class PapyrusBlock extends SugarCaneBlock {
     private static final BooleanProperty TOP = BooleanProperty.create("top");
 
     public PapyrusBlock() {
-        super(Block.Properties.create(Material.PLANTS).doesNotBlockMovement().tickRandomly().hardnessAndResistance(0.0F).sound(SoundType.PLANT));
-        this.setDefaultState(this.stateContainer.getBaseState().with(AGE, 0).with(TOP, false));
+        super(Block.Properties.of().mapColor(MapColor.PLANT).pushReaction(PushReaction.DESTROY).noCollission().randomTicks().strength(0.0F).sound(SoundType.GRASS));
+        this.registerDefaultState(this.stateDefinition.any().setValue(AGE, 0).setValue(TOP, false));
     }
 
     @Override
-    public boolean isValidPosition(BlockState state, IWorldReader world, BlockPos pos) {
-        BlockState soil = world.getBlockState(pos.down());
+    public boolean canSurvive(BlockState state, LevelReader level, BlockPos pos) {
+        BlockState soil = level.getBlockState(pos.below());
         Block block = soil.getBlock();
 
         if (block == this) {
             return true;
         } else {
-            if (block == AtumBlocks.FERTILE_SOIL || block == AtumBlocks.FERTILE_SOIL_TILLED || block == AtumBlocks.SAND) {
-                BlockPos powDown = pos.down();
+            if (block == AtumBlocks.FERTILE_SOIL.get() || block == AtumBlocks.FERTILE_SOIL_TILLED.get() || block == AtumBlocks.STRANGE_SAND.get()) {
+                BlockPos powDown = pos.below();
 
                 for (Direction direction : Direction.Plane.HORIZONTAL) {
-                    FluidState fluidState = world.getFluidState(powDown.offset(direction));
-                    if (fluidState.isTagged(FluidTags.WATER)) {
+                    FluidState fluidState = level.getFluidState(powDown.relative(direction));
+                    if (fluidState.is(FluidTags.WATER)) {
                         return true;
                     }
                 }
@@ -54,36 +53,37 @@ public class PapyrusBlock extends SugarCaneBlock {
     }
 
     @Override
-    public boolean canSustainPlant(@Nonnull BlockState state, @Nonnull IBlockReader world, BlockPos pos, @Nonnull Direction direction, IPlantable plantable) {
-        BlockState plant = plantable.getPlant(world, pos.offset(direction));
-        if (plant.getBlock() == AtumBlocks.PAPYRUS && this == AtumBlocks.PAPYRUS) {
+    public boolean canSustainPlant(@Nonnull BlockState state, @Nonnull BlockGetter level, BlockPos pos, @Nonnull Direction direction, IPlantable plantable) {
+        BlockState plant = plantable.getPlant(level, pos.relative(direction));
+        if (plant.getBlock() == AtumBlocks.PAPYRUS.get() && this == AtumBlocks.PAPYRUS.get()) {
             return true;
         }
-        return super.canSustainPlant(state, world, pos, direction, plantable);
+        return super.canSustainPlant(state, level, pos, direction, plantable);
     }
 
     @Override
-    public void onBlockAdded(BlockState state, World world, BlockPos pos, BlockState oldState, boolean isMoving) {
-        world.setBlockState(pos, state.with(TOP, world.isAirBlock(pos.up())));
-        if (world.getBlockState(pos.down()).equals(state.with(TOP, true))) { //Correct non-top papyrus, when manually placed
-            world.setBlockState(pos.down(), state.with(TOP, false));
+    public void onPlace(BlockState state, Level level, @Nonnull BlockPos pos, @Nonnull BlockState oldState, boolean isMoving) {
+        level.setBlockAndUpdate(pos, state.setValue(TOP, level.isEmptyBlock(pos.above())));
+        if (level.getBlockState(pos.below()).equals(state.setValue(TOP, true))) { //Correct non-top papyrus, when manually placed
+            level.setBlockAndUpdate(pos.below(), state.setValue(TOP, false));
         }
     }
 
     @Override
-    public void onReplaced(BlockState state, @Nonnull World world, @Nonnull BlockPos pos, @Nonnull BlockState newState, boolean isMoving) {
-        if (world.getBlockState(pos.down()).getBlock() == this) {
-            world.setBlockState(pos.down(), state.with(TOP, world.isAirBlock(pos.up()))); //Fix new top, when top gets removed
+    public void onRemove(@Nonnull BlockState state, @Nonnull Level level, @Nonnull BlockPos pos, @Nonnull BlockState newState, boolean isMoving) {
+        if (level.getBlockState(pos.below()).getBlock() == this) {
+            level.setBlockAndUpdate(pos.below(), state.setValue(TOP, level.isEmptyBlock(pos.above()))); //Fix new top, when top gets removed
         }
     }
 
     @Override
-    public ItemStack getPickBlock(BlockState state, RayTraceResult target, IBlockReader world, BlockPos pos, PlayerEntity player) {
-        return new ItemStack(AtumItems.PAPYRUS_PLANT);
+    @Nonnull
+    public ItemStack getCloneItemStack(@Nonnull BlockGetter getter, @Nonnull BlockPos pos, @Nonnull BlockState state) {
+        return new ItemStack(AtumItems.PAPYRUS_PLANT.get());
     }
 
     @Override
-    protected void fillStateContainer(StateContainer.Builder<Block, BlockState> container) {
+    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> container) {
         container.add(AGE, TOP);
     }
 }

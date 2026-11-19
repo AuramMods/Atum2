@@ -1,23 +1,22 @@
 package com.teammetallurgy.atum.items;
 
+import com.mojang.blaze3d.platform.InputConstants;
 import com.teammetallurgy.atum.Atum;
 import com.teammetallurgy.atum.init.AtumItems;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.CauldronBlock;
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.util.ITooltipFlag;
-import net.minecraft.client.util.InputMappings;
-import net.minecraft.entity.item.ItemEntity;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
+import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.Component;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.tags.FluidTags;
-import net.minecraft.util.SoundEvents;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TextFormatting;
-import net.minecraft.util.text.TranslationTextComponent;
-import net.minecraft.world.World;
+import net.minecraft.util.Mth;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.LayeredCauldronBlock;
+import net.minecraft.world.level.block.state.BlockState;
 import org.lwjgl.glfw.GLFW;
 
 import javax.annotation.Nonnull;
@@ -27,22 +26,22 @@ import java.util.List;
 public class CoinItem extends Item {
 
     public CoinItem() {
-        super(new Item.Properties().group(Atum.GROUP));
+        super(new Item.Properties());
     }
 
     @Override
     public boolean onEntityItemUpdate(@Nonnull ItemStack stack, ItemEntity entityItem) {
-        World world = entityItem.world;
-        BlockState state = world.getBlockState(new BlockPos(MathHelper.floor(entityItem.getPosX()), MathHelper.floor(entityItem.getPosY()), MathHelper.floor(entityItem.getPosZ())));
-        if ((state.getFluidState().isTagged(FluidTags.WATER) || state.getBlock() instanceof CauldronBlock && state.get(CauldronBlock.LEVEL) > 0) && entityItem.getItem().getItem() == AtumItems.DIRTY_COIN) {
-            if (!world.isRemote) {
+        Level level = entityItem.level();
+        BlockState state = level.getBlockState(new BlockPos(Mth.floor(entityItem.getX()), Mth.floor(entityItem.getY()), Mth.floor(entityItem.getZ())));
+        if ((state.getFluidState().is(FluidTags.WATER) || state.getBlock() instanceof LayeredCauldronBlock && state.getValue(LayeredCauldronBlock.LEVEL) > 0) && entityItem.getItem().getItem() == AtumItems.DIRTY_COIN.get()) {
+            if (!level.isClientSide) {
                 while (stack.getCount() > 0) {
-                    if (random.nextFloat() <= 0.10F) {
+                    if (level.random.nextFloat() <= 0.10F) {
                         stack.shrink(1);
-                        world.playSound(null, entityItem.getPosX(), entityItem.getPosY(), entityItem.getPosZ(), SoundEvents.ENTITY_ITEM_BREAK, entityItem.getSoundCategory(), 0.8F, 0.8F + entityItem.world.rand.nextFloat() * 0.4F);
+                        level.playSound(null, entityItem.getX(), entityItem.getY(), entityItem.getZ(), SoundEvents.ITEM_BREAK, entityItem.getSoundSource(), 0.8F, 0.8F + entityItem.level().random.nextFloat() * 0.4F);
                     } else {
-                        world.addEntity(new ItemEntity(world, entityItem.getPosX(), entityItem.getPosY(), entityItem.getPosZ(), new ItemStack(AtumItems.GOLD_COIN)));
-                        world.playSound(null, entityItem.getPosX(), entityItem.getPosY(), entityItem.getPosZ(), SoundEvents.ENTITY_EXPERIENCE_ORB_PICKUP, entityItem.getSoundCategory(), 0.8F, 0.8F + entityItem.world.rand.nextFloat() * 0.4F);
+                        level.addFreshEntity(new ItemEntity(level, entityItem.getX(), entityItem.getY(), entityItem.getZ(), new ItemStack(AtumItems.GOLD_COIN.get())));
+                        level.playSound(null, entityItem.getX(), entityItem.getY(), entityItem.getZ(), SoundEvents.EXPERIENCE_ORB_PICKUP, entityItem.getSoundSource(), 0.8F, 0.8F + entityItem.level().random.nextFloat() * 0.4F);
                         stack.shrink(1);
                     }
                 }
@@ -52,15 +51,15 @@ public class CoinItem extends Item {
     }
 
     @Override
-    public void addInformation(@Nonnull ItemStack stack, @Nullable World world, @Nonnull List<ITextComponent> tooltip, @Nonnull ITooltipFlag flag) {
-        super.addInformation(stack, world, tooltip, flag);
-        if (stack.getItem() == AtumItems.DIRTY_COIN) {
-            if (InputMappings.isKeyDown(Minecraft.getInstance().getMainWindow().getHandle(), GLFW.GLFW_KEY_LEFT_SHIFT)) {
-                tooltip.add(new TranslationTextComponent(Atum.MOD_ID + ".tooltip.dirty").appendString(": ").mergeStyle(TextFormatting.GRAY)
-                        .append(new TranslationTextComponent(Atum.MOD_ID + ".tooltip.dirty.description").mergeStyle(TextFormatting.DARK_GRAY)));
+    public void appendHoverText(@Nonnull ItemStack stack, @Nullable Level level, @Nonnull List<Component> tooltip, @Nonnull TooltipFlag flag) {
+        super.appendHoverText(stack, level, tooltip, flag);
+        if (stack.getItem() == AtumItems.DIRTY_COIN.get()) {
+            if (InputConstants.isKeyDown(Minecraft.getInstance().getWindow().getWindow(), GLFW.GLFW_KEY_LEFT_SHIFT)) {
+                tooltip.add(Component.translatable(Atum.MOD_ID + ".tooltip.dirty").append(": ").withStyle(ChatFormatting.GRAY)
+                        .append(Component.translatable(Atum.MOD_ID + ".tooltip.dirty.description").withStyle(ChatFormatting.DARK_GRAY)));
             } else {
-                tooltip.add(new TranslationTextComponent(Atum.MOD_ID + ".tooltip.dirty").mergeStyle(TextFormatting.GRAY)
-                        .appendString(" ").append(new TranslationTextComponent(Atum.MOD_ID + ".tooltip.shift").mergeStyle(TextFormatting.DARK_GRAY)));
+                tooltip.add(Component.translatable(Atum.MOD_ID + ".tooltip.dirty").withStyle(ChatFormatting.GRAY)
+                        .append(" ").append(Component.translatable(Atum.MOD_ID + ".tooltip.shift").withStyle(ChatFormatting.DARK_GRAY)));
             }
         }
     }

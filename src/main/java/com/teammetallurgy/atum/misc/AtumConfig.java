@@ -1,24 +1,18 @@
 package com.teammetallurgy.atum.misc;
 
 import com.electronwill.nightconfig.core.file.FileConfig;
-import com.google.common.collect.HashMultimap;
-import net.minecraft.entity.EntityClassification;
-import net.minecraft.entity.EntityType;
-import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.ForgeConfigSpec;
 import net.minecraftforge.fml.loading.FMLPaths;
 
 import java.io.File;
-import java.util.HashMap;
 
 public class AtumConfig {
     public static final ForgeConfigSpec.Builder BUILDER = new ForgeConfigSpec.Builder();
     public static final General GENERAL = new General(BUILDER);
     public static final AtumStart ATUM_START = new AtumStart(BUILDER);
     public static final Sandstorm SANDSTORM = new Sandstorm(BUILDER);
-    public static final WorldGen WORLD_GEN = new WorldGen(BUILDER);
-    public static final Biome BIOME = new Biome(BUILDER);
     public static final Mobs MOBS = new Mobs(BUILDER);
+    public static final WorldGen WORLD_GEN = new WorldGen(BUILDER);
 
     public static class General {
         public static final String GENERAL = "general";
@@ -98,162 +92,19 @@ public class AtumConfig {
 
     public static class WorldGen {
         public static final String WORLDGEN = "world gen";
-        public static final String OREGEN = "ore gen";
-        public final ForgeConfigSpec.DoubleValue mineshaftProbability;
         public final ForgeConfigSpec.IntValue ruinsAmount;
-        public final ForgeConfigSpec.IntValue shrubFrequency;
-        public final ForgeConfigSpec.IntValue fossilsChance;
-        public final ForgeConfigSpec.IntValue dungeonChance;
-        public final ForgeConfigSpec.BooleanValue sandLayerEdge;
-
-        //Oregen options //TODO Remove in 1.18
-        public final ForgeConfigSpec.IntValue coalVeinSize;
-        public final ForgeConfigSpec.IntValue coalCount;
-        public final ForgeConfigSpec.IntValue coalMaxHeight;
-        public final ForgeConfigSpec.IntValue ironVeinSize;
-        public final ForgeConfigSpec.IntValue ironCount;
-        public final ForgeConfigSpec.IntValue ironMaxHeight;
-        public final ForgeConfigSpec.IntValue goldVeinSize;
-        public final ForgeConfigSpec.IntValue goldCount;
-        public final ForgeConfigSpec.IntValue goldMaxHeight;
-        public final ForgeConfigSpec.IntValue redstoneVeinSize;
-        public final ForgeConfigSpec.IntValue redstoneCount;
-        public final ForgeConfigSpec.IntValue redstoneMaxHeight;
-        public final ForgeConfigSpec.IntValue diamondVeinSize;
-        public final ForgeConfigSpec.IntValue diamondCount;
-        public final ForgeConfigSpec.IntValue diamondMaxHeight;
-        public final ForgeConfigSpec.IntValue lapisVeinSize;
-        public final ForgeConfigSpec.IntValue lapisBaseline;
-        public final ForgeConfigSpec.IntValue lapisSpread;
-        public final ForgeConfigSpec.IntValue khnumiteVeinSize;
-        public final ForgeConfigSpec.IntValue khnumiteCount;
-        public final ForgeConfigSpec.IntValue khnumiteMaxHeight;
-        public final ForgeConfigSpec.IntValue boneOreVeinSize;
-        public final ForgeConfigSpec.IntValue boneOreCount;
-        public final ForgeConfigSpec.IntValue boneOreMaxHeight;
-        public final ForgeConfigSpec.IntValue relicOreVeinSize;
-        public final ForgeConfigSpec.IntValue relicOreCount;
-        public final ForgeConfigSpec.IntValue relicOreMaxHeight;
-        public final ForgeConfigSpec.IntValue nebuVeinSize;
-        public final ForgeConfigSpec.IntValue nebuCount;
-        public final ForgeConfigSpec.IntValue nebuMaxHeight;
-        public final ForgeConfigSpec.BooleanValue emeraldEnabled;
-        public final ForgeConfigSpec.IntValue alabasterVeinSize;
-        public final ForgeConfigSpec.IntValue alabasterCount;
-        public final ForgeConfigSpec.IntValue alabasterMaxHeight;
-        public final ForgeConfigSpec.IntValue porphyryVeinSize;
-        public final ForgeConfigSpec.IntValue porphyryCount;
-        public final ForgeConfigSpec.IntValue porphyryMaxHeight;
-        public final ForgeConfigSpec.IntValue sandVeinSize;
-        public final ForgeConfigSpec.IntValue sandCount;
-        public final ForgeConfigSpec.IntValue sandMaxHeight;
-        public final ForgeConfigSpec.IntValue limestoneGravelVeinSize;
-        public final ForgeConfigSpec.IntValue limestoneGravelCount;
-        public final ForgeConfigSpec.IntValue limestoneGravelMaxHeight;
-        public final ForgeConfigSpec.IntValue marlVeinSize;
-        public final ForgeConfigSpec.IntValue marlCount;
-        public final ForgeConfigSpec.IntValue marlMaxHeight;
 
         WorldGen(ForgeConfigSpec.Builder builder) {
             builder.push(WORLDGEN);
-            this.mineshaftProbability = builder.comment("Probability of mineshafts generating. Set to 0 to disable. Default value same as vanilla overworld")
-                    .translation("atum.config.mineshaft_probability")
-                    .defineInRange("Minecraft probability", 0.007D, 0.0D, 1.0D);
             this.ruinsAmount = builder.comment("Specify the amount of ruin variants structures/ruins. Allows for additional ruin structures with a resourcepack")
                     .translation("atum.config.ruins_amount")
                     .defineInRange("Ruins Amount", 17, 1, 999);
-            this.shrubFrequency = builder.defineInRange("Shrub frequency, set to 0 to disable", 1, 0, 64);
-            this.fossilsChance = builder.defineInRange("Fossils chance, set to 0 to disable", 64, 0, 255);
-            this.dungeonChance = builder.defineInRange("Dungeon chance, set to 0 to disable", 8, 0, 255);
-            this.sandLayerEdge = builder.comment("Should Sand Layers generate along all edges?")
-                    .translation("atum.config.sand_layer_enabled")
-                    .define("Enable Sand Layer along edges", true);
             builder.pop();
-            builder.push(OREGEN).comment("All vanilla based ores, uses the vanilla values by default.");
-            this.coalVeinSize = builder.defineInRange("Coal vein size", 17, 1, 64);
-            this.coalCount = builder.defineInRange("Coal count, set to 0 to disable", 20, 0, 64);
-            this.coalMaxHeight = builder.defineInRange("Coal max height", 128, 1, 255);
-            this.ironVeinSize = builder.defineInRange("Iron vein size", 9, 1, 64);
-            this.ironCount = builder.defineInRange("Iron count, set to 0 to disable", 20, 0, 64);
-            this.ironMaxHeight = builder.defineInRange("Iron max height", 64, 1, 255);
-            this.goldVeinSize = builder.defineInRange("Gold vein size", 9, 1, 64);
-            this.goldCount = builder.defineInRange("Gold count, set to 0 to disable", 2, 0, 64);
-            this.goldMaxHeight = builder.defineInRange("Gold max height", 32, 1, 255);
-            this.redstoneVeinSize = builder.defineInRange("Redstone vein size", 8, 1, 64);
-            this.redstoneCount = builder.defineInRange("Redstone count, set to 0 to disable", 8, 0, 64);
-            this.redstoneMaxHeight = builder.defineInRange("Redstone max height", 16, 1, 255);
-            this.diamondVeinSize = builder.defineInRange("Diamond vein size", 8, 1, 64);
-            this.diamondCount = builder.defineInRange("Diamond count, set to 0 to disable", 1, 0, 64);
-            this.diamondMaxHeight = builder.defineInRange("Diamond max height", 16, 1, 255);
-            this.lapisVeinSize = builder.defineInRange("Lapis vein size", 7, 1, 64);
-            this.lapisBaseline = builder.defineInRange("Lapis baseline, set to 0 to disable", 16, 0, 64);
-            this.lapisSpread = builder.defineInRange("Lapis spread", 16, 1, 64);
-            this.khnumiteVeinSize = builder.defineInRange("Khnumite vein size", 6, 1, 64);
-            this.khnumiteCount = builder.defineInRange("Khnumite count, set to 0 to disable", 4, 0, 64);
-            this.khnumiteMaxHeight = builder.defineInRange("Khnumite max height", 20, 1, 255);
-            this.boneOreVeinSize = builder.defineInRange("Bone Ore vein size", 9, 1, 64);
-            this.boneOreCount = builder.defineInRange("Bone Ore count, set to 0 to disable", 12, 0, 64);
-            this.boneOreMaxHeight = builder.defineInRange("Bone Ore max height", 128, 1, 255);
-            this.relicOreVeinSize = builder.defineInRange("Relic Ore vein size", 5, 1, 64);
-            this.relicOreCount = builder.defineInRange("Relic Ore count, set to 0 to disable", 4, 0, 64);
-            this.relicOreMaxHeight = builder.defineInRange("Relic Ore max height", 64, 1, 255);
-            this.nebuVeinSize = builder.defineInRange("Nebu vein size", 8, 1, 64);
-            this.nebuCount = builder.defineInRange("Nebu count, set to 0 to disable", 1, 0, 64);
-            this.nebuMaxHeight = builder.defineInRange("Nebu max height", 64, 1, 255);
-            this.emeraldEnabled = builder.comment("Should Emeralds generate in Atum?")
-                    .translation("atum.config.emeralds_enabled")
-                    .define("Enable Emeralds", true);
-            this.alabasterVeinSize = builder.defineInRange("Alabaster vein size", 30, 1, 64);
-            this.alabasterCount = builder.defineInRange("Alabaster count, set to 0 to disable", 10, 0, 64);
-            this.alabasterMaxHeight = builder.defineInRange("Alabaster max height", 60, 1, 255);
-            this.porphyryVeinSize = builder.defineInRange("Porphyry vein size", 30, 1, 64);
-            this.porphyryCount = builder.defineInRange("Porphyry count, set to 0 to disable", 10, 0, 64);
-            this.porphyryMaxHeight = builder.defineInRange("Porphyry max height", 60, 1, 255);
-            this.sandVeinSize = builder.defineInRange("Sand pocket vein size", 28, 1, 64);
-            this.sandCount = builder.defineInRange("Sand pocket count, set to 0 to disable", 14, 0, 64);
-            this.sandMaxHeight = builder.defineInRange("Sand pocket max height", 255, 1, 255);
-            this.limestoneGravelVeinSize = builder.defineInRange("Limestone Gravel pocket vein size", 32, 1, 64);
-            this.limestoneGravelCount = builder.defineInRange("Limestone Gravel pocket count, set to 0 to disable", 10, 0, 64);
-            this.limestoneGravelMaxHeight = builder.defineInRange("Limestone Gravel pocket max height", 255, 1, 255);
-            this.marlVeinSize = builder.defineInRange("Marl vein size", 14, 1, 64);
-            this.marlCount = builder.defineInRange("Marl count, set to 0 to disable", 8, 0, 64);
-            this.marlMaxHeight = builder.defineInRange("Marl max height", 50, 1, 255);
-            builder.pop();
-        }
-    }
-
-    public static class Biome {
-        public static final String BIOME = "biome";
-        public ForgeConfigSpec.IntValue subBiomeChance;
-        public ForgeConfigSpec.IntValue oasisChance;
-        public ForgeConfigSpec.IntValue weight;
-
-        Biome(ForgeConfigSpec.Builder builder) {
-            builder.push(BIOME);
-            this.subBiomeChance = builder.comment("By default 1 in 30 Sand Plains biomes can contain either an Oasis or Dead Oasis. Set to 0 to disable both oases biomes.")
-                    .translation("atum.config.oaseschances")
-                    .defineInRange("Oases chance", 30, 0, 10000);
-            this.oasisChance = builder.comment("Sets the percentage chance for oases to generate as an Oasis. The remaining oases will generate as an Dead Oasis. Set to 0 to only get Dead Oasis or to 100 to only get Oasis")
-                    .translation("atum.config.oasispercentage")
-                    .defineInRange("Oasis percentage", 50, 0, 10000);
-            builder.pop();
-        }
-
-        public Biome(ForgeConfigSpec.Builder builder, String biomeName, int weight) {
-            builder.push(BIOME);
-            builder.push(biomeName);
-            this.weight = builder.defineInRange("weight", weight, -1, 1000);
-            builder.pop(2);
         }
     }
 
     public static class Mobs {
         public static final String MOBS = "mobs";
-        public static HashMap<EntityType<?>, EntityClassification> ENTITY_CLASSIFICATION = new HashMap<>();
-        public static HashMultimap<ResourceLocation, EntityType<?>> ENTITY_TYPE = HashMultimap.create();
-        public ForgeConfigSpec.IntValue min;
-        public ForgeConfigSpec.IntValue max;
-        public ForgeConfigSpec.IntValue weight;
         public ForgeConfigSpec.IntValue banditPatrolFrequency;
         public ForgeConfigSpec.IntValue markedForDeathTimeBaseValue;
         public ForgeConfigSpec.BooleanValue displayPharaohSlainMessage;
@@ -261,23 +112,12 @@ public class AtumConfig {
         public Mobs(ForgeConfigSpec.Builder builder) {
             builder.push(MOBS);
             this.banditPatrolFrequency = builder.comment("How frequent Bandit patrols are. The higher the number, the less patrols will spawn")
-                    .defineInRange("banditPatrolFrequency", 1000, -1, 10000);
+                    .defineInRange("banditPatrolFrequency", 20000, -1, 100000);
             this.markedForDeathTimeBaseValue = builder.comment("How long time is required for an Assassin to spawn. The higher the number, the less frequent Assassin will spawn")
                     .defineInRange("markedForDeathFrequency", 1000, 1, 10000);
             this.displayPharaohSlainMessage = builder.comment("Whether a message should be broadcast to everybody, when a Pharaoh have been killed")
                     .define("displayPharaohSlainMessage", true);
             builder.pop();
-        }
-
-        public Mobs(ForgeConfigSpec.Builder builder, String mobName, int min, int max, int weight, EntityType<?> entityType, EntityClassification classification, ResourceLocation biomeName) {
-            ENTITY_CLASSIFICATION.put(entityType, classification);
-            ENTITY_TYPE.put(biomeName, entityType);
-            builder.push(MOBS);
-            builder.push(mobName);
-            this.min = builder.defineInRange("min", min, -1, 63);
-            this.max = builder.defineInRange("max", max, 1, 64);
-            this.weight = builder.defineInRange("weight", weight, -1, 1000);
-            builder.pop(2);
         }
     }
 

@@ -1,37 +1,42 @@
 package com.teammetallurgy.atum.blocks;
 
+import net.minecraft.world.level.block.state.properties.NoteBlockInstrument;
+import net.minecraft.world.level.material.MapColor;
 import com.teammetallurgy.atum.init.AtumBlocks;
-import net.minecraft.block.*;
-import net.minecraft.block.material.Material;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemStack;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.tags.FluidTags;
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.IBlockReader;
-import net.minecraft.world.World;
+import net.minecraft.world.item.context.UseOnContext;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.CactusBlock;
+import net.minecraft.world.level.block.FallingBlock;
+import net.minecraft.world.level.block.SoundType;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.common.IPlantable;
 import net.minecraftforge.common.PlantType;
-import net.minecraftforge.common.ToolType;
+import net.minecraftforge.common.ToolAction;
+import net.minecraftforge.common.ToolActions;
+import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.Nonnull;
 
 public class StrangeSandBlock extends FallingBlock {
 
     public StrangeSandBlock() {
-        super(Block.Properties.create(Material.SAND).hardnessAndResistance(0.5F).sound(SoundType.SAND).tickRandomly().harvestTool(ToolType.SHOVEL).harvestLevel(0));
+        super(Block.Properties.of().mapColor(MapColor.SAND).instrument(NoteBlockInstrument.SNARE).strength(0.5F).sound(SoundType.SAND).randomTicks());
     }
 
     @Override
-    public boolean canSustainPlant(@Nonnull BlockState state, @Nonnull IBlockReader world, BlockPos pos, @Nonnull Direction direction, IPlantable plantable) {
-        BlockState plant = plantable.getPlant(world, pos.offset(direction));
-        PlantType plantType = plantable.getPlantType(world, pos.up());
-        boolean hasWater = (world.getBlockState(pos.east()).getFluidState().isTagged(FluidTags.WATER) ||
-                world.getBlockState(pos.west()).getFluidState().isTagged(FluidTags.WATER)||
-                world.getBlockState(pos.north()).getFluidState().isTagged(FluidTags.WATER) ||
-                world.getBlockState(pos.south()).getFluidState().isTagged(FluidTags.WATER));
+    public boolean canSustainPlant(@Nonnull BlockState state, @Nonnull BlockGetter level, BlockPos pos, @Nonnull Direction direction, IPlantable plantable) {
+        BlockState plant = plantable.getPlant(level, pos.relative(direction));
+        PlantType plantType = plantable.getPlantType(level, pos.above());
+        boolean hasWater = (level.getBlockState(pos.east()).getFluidState().is(FluidTags.WATER) ||
+                level.getBlockState(pos.west()).getFluidState().is(FluidTags.WATER)||
+                level.getBlockState(pos.north()).getFluidState().is(FluidTags.WATER) ||
+                level.getBlockState(pos.south()).getFluidState().is(FluidTags.WATER));
 
-        if (plant.getBlock() instanceof CactusBlock || plant.getBlock() == AtumBlocks.ANPUTS_FINGERS) {
+        if (plant.getBlock() instanceof CactusBlock || plant.getBlock() == AtumBlocks.ANPUTS_FINGERS.get()) {
             return true;
         }
 
@@ -40,12 +45,12 @@ public class StrangeSandBlock extends FallingBlock {
         } else if (plantType.equals(PlantType.BEACH)) {
             return hasWater;
         } else {
-            return super.canSustainPlant(state, world, pos, direction, plantable);
+            return super.canSustainPlant(state, level, pos, direction, plantable);
         }
     }
 
     @Override
-    public BlockState getToolModifiedState(BlockState state, World world, BlockPos pos, PlayerEntity player, ItemStack stack, ToolType toolType) {
-        return toolType == ToolType.SHOVEL ? AtumBlocks.STRANGE_SAND_PATH.getDefaultState() : super.getToolModifiedState(state, world, pos, player, stack, toolType);
+    public @Nullable BlockState getToolModifiedState(BlockState state, UseOnContext context, ToolAction toolAction, boolean simulate) {
+        return toolAction == ToolActions.SHOVEL_FLATTEN ? AtumBlocks.STRANGE_SAND_PATH.get().defaultBlockState() : super.getToolModifiedState(state, context, toolAction, simulate);
     }
 }

@@ -1,5 +1,6 @@
 package com.teammetallurgy.atum.misc.event;
 
+import net.minecraft.tags.BlockTags;
 import com.teammetallurgy.atum.Atum;
 import com.teammetallurgy.atum.blocks.PortalBlock;
 import com.teammetallurgy.atum.blocks.base.IUnbreakable;
@@ -12,47 +13,46 @@ import com.teammetallurgy.atum.items.WandererDyeableArmor;
 import com.teammetallurgy.atum.items.artifacts.atem.AtemsBountyItem;
 import com.teammetallurgy.atum.misc.AtumConfig;
 import com.teammetallurgy.atum.misc.SpawnHelper;
-import com.teammetallurgy.atum.world.DimensionHelper;
 import com.teammetallurgy.atum.world.teleporter.TeleporterAtumStart;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.block.CauldronBlock;
-import net.minecraft.block.FarmlandBlock;
-import net.minecraft.block.material.Material;
-import net.minecraft.enchantment.EnchantmentHelper;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.item.ExperienceOrbEntity;
-import net.minecraft.entity.item.ItemEntity;
-import net.minecraft.entity.monster.PhantomEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.entity.projectile.FishingBobberEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.loot.LootContext;
-import net.minecraft.loot.LootParameterSets;
-import net.minecraft.loot.LootParameters;
-import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.stats.Stats;
+import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.tags.FluidTags;
-import net.minecraft.util.DamageSource;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.SoundEvents;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.world.IWorld;
-import net.minecraft.world.World;
-import net.minecraft.world.server.ServerWorld;
+import net.minecraft.util.Mth;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.ExperienceOrb;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.monster.Phantom;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.projectile.FishingHook;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.enchantment.EnchantmentHelper;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.FarmBlock;
+import net.minecraft.world.level.block.LayeredCauldronBlock;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.storage.loot.LootParams;
+import net.minecraft.world.level.storage.loot.LootTable;
+import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
+import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.living.LivingHurtEvent;
-import net.minecraftforge.event.entity.living.LivingSpawnEvent;
+import net.minecraftforge.event.entity.living.MobSpawnEvent;
 import net.minecraftforge.event.entity.player.ItemFishedEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
-import net.minecraftforge.event.world.BlockEvent;
+import net.minecraftforge.event.level.BlockEvent;
 import net.minecraftforge.eventbus.api.Event;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fluids.FluidUtil;
@@ -68,60 +68,56 @@ public class AtumEventListener {
 
     @SubscribeEvent
     public static void onPlayerJoin(PlayerEvent.PlayerLoggedInEvent event) {
-        PlayerEntity player = event.getPlayer();
-        CompoundNBT tag = player.getPersistentData();
-        CompoundNBT persistedTag = tag.getCompound(PlayerEntity.PERSISTED_NBT_TAG);
+        Player player = event.getEntity();
+        CompoundTag tag = player.getPersistentData();
+        CompoundTag persistedTag = tag.getCompound(Player.PERSISTED_NBT_TAG);
         boolean shouldStartInAtum = AtumConfig.ATUM_START.startInAtum.get() && !persistedTag.getBoolean(TAG_ATUM_START);
 
         persistedTag.putBoolean(TAG_ATUM_START, true);
-        tag.put(PlayerEntity.PERSISTED_NBT_TAG, persistedTag);
+        tag.put(Player.PERSISTED_NBT_TAG, persistedTag);
 
-        if (shouldStartInAtum && player instanceof ServerPlayerEntity && player.world instanceof ServerWorld) {
-            ServerPlayerEntity serverPlayer = (ServerPlayerEntity) player;
-            ServerWorld world = (ServerWorld) player.world;
-            PortalBlock.changeDimension(world, serverPlayer, new TeleporterAtumStart());
-            SpawnHelper.validateAndGetSpawnPoint(world, serverPlayer, 0);
+        if (shouldStartInAtum && player instanceof ServerPlayer serverPlayer && player.level() instanceof ServerLevel level) {
+            PortalBlock.changeDimension(level, serverPlayer, new TeleporterAtumStart());
+            SpawnHelper.validateAndGetSpawnPoint(level, serverPlayer, 0);
         }
     }
 
     @SubscribeEvent
     public static void onPlayerDeath(LivingDeathEvent event) {
         if (AtumConfig.ATUM_START.startInAtum.get()) {
-            LivingEntity livingEntity = event.getEntityLiving();
-            if (livingEntity instanceof ServerPlayerEntity) {
-                ServerPlayerEntity serverPlayer = (ServerPlayerEntity) livingEntity;
-                ServerWorld serverWorld = serverPlayer.getServerWorld();
-                SpawnHelper.validateAndGetSpawnPoint(serverWorld, serverPlayer, 1);
+            LivingEntity livingEntity = event.getEntity();
+            if (livingEntity instanceof ServerPlayer serverPlayer) {
+                ServerLevel serverLevel = serverPlayer.serverLevel();
+                SpawnHelper.validateAndGetSpawnPoint(serverLevel, serverPlayer, 1);
             }
         }
     }
 
     @SubscribeEvent
     public static void onPlayerRespawn(PlayerEvent.PlayerRespawnEvent event) {
-        PlayerEntity player = event.getPlayer();
-        if (player instanceof ServerPlayerEntity) {
-            ServerPlayerEntity serverPlayer = (ServerPlayerEntity) player;
-            CompoundNBT tag = serverPlayer.getPersistentData();
-            CompoundNBT persistedTag = tag.getCompound(PlayerEntity.PERSISTED_NBT_TAG);
+        Player player = event.getEntity();
+        if (player instanceof ServerPlayer serverPlayer) {
+            CompoundTag tag = serverPlayer.getPersistentData();
+            CompoundTag persistedTag = tag.getCompound(Player.PERSISTED_NBT_TAG);
             if (persistedTag.getBoolean(SpawnHelper.TAG_ATUM_RESPAWN)) {
                 SpawnHelper.sendBedMissingMsg(serverPlayer, 2);
                 persistedTag.remove(SpawnHelper.TAG_ATUM_RESPAWN);
-                tag.put(PlayerEntity.PERSISTED_NBT_TAG, persistedTag);
+                tag.put(Player.PERSISTED_NBT_TAG, persistedTag);
             }
         }
     }
 
     @SubscribeEvent
     public static void playerTick(TickEvent.PlayerTickEvent event) {
-        PlayerEntity player = event.player;
-        World world = player.world;
-        if (!world.isRemote && AtumConfig.GENERAL.allowCreation.get() && event.phase == TickEvent.Phase.END && player.ticksExisted % 20 == 0) {
-            if (world.getDimensionKey() == World.OVERWORLD || world.getDimensionKey() == Atum.ATUM) {
-                for (ItemEntity entityItem : world.getEntitiesWithinAABB(ItemEntity.class, player.getBoundingBox().grow(10.0F, 1.0F, 10.0F))) {
-                    BlockState state = world.getBlockState(entityItem.getPosition());
-                    if (entityItem.getItem().getItem() == AtumItems.SCARAB && (state.getBlock() == Blocks.WATER || state == AtumBlocks.PORTAL.getDefaultState())) {
-                        if (AtumBlocks.PORTAL.trySpawnPortal(world, entityItem.getPosition())) {
-                            entityItem.remove();
+        Player player = event.player;
+        Level level = player.level();
+        if (!level.isClientSide && AtumConfig.GENERAL.allowCreation.get() && event.phase == TickEvent.Phase.END && player.tickCount % 20 == 0) {
+            if (level.dimension() == Level.OVERWORLD || level.dimension() == Atum.ATUM) {
+                for (ItemEntity entityItem : level.getEntitiesOfClass(ItemEntity.class, player.getBoundingBox().inflate(10.0F, 1.0F, 10.0F))) {
+                    BlockState state = level.getBlockState(entityItem.blockPosition());
+                    if (entityItem.getItem().getItem() == AtumItems.SCARAB.get() && (state.getBlock() == Blocks.WATER || state == AtumBlocks.PORTAL.get().defaultBlockState())) {
+                        if (((PortalBlock) AtumBlocks.PORTAL.get()).trySpawnPortal(level, entityItem.blockPosition())) {
+                            entityItem.discard();
                             return;
                         }
                     }
@@ -133,9 +129,9 @@ public class AtumEventListener {
     @SubscribeEvent
     public static void onPlace(BlockEvent.EntityPlaceEvent event) {
         BlockState state = event.getPlacedBlock();
-        if (event.getEntity() != null && event.getEntity().world.getDimensionKey() == Atum.ATUM) {
-            if (((state.getMaterial() == Material.EARTH || state.getBlock() == Blocks.GRASS_BLOCK || state.getBlock() == Blocks.MYCELIUM) && state.getBlock() != AtumBlocks.FERTILE_SOIL_TILLED)) {
-                event.getWorld().setBlockState(event.getPos(), AtumBlocks.SAND.getDefaultState(), 3);
+        if (event.getEntity() != null && event.getEntity().level().dimension() == Atum.ATUM) {
+            if (((state.is(BlockTags.DIRT) || state.getBlock() == Blocks.GRASS_BLOCK || state.getBlock() == Blocks.MYCELIUM) && state.getBlock() != AtumBlocks.FERTILE_SOIL_TILLED.get())) {
+                event.getLevel().setBlock(event.getPos(), AtumBlocks.STRANGE_SAND.get().defaultBlockState(), 3);
             }
         }
     }
@@ -143,36 +139,36 @@ public class AtumEventListener {
     @SubscribeEvent
     public static void onArmorClean(PlayerInteractEvent.RightClickBlock event) {
         try {
-            World world = event.getWorld();
+            Level level = event.getLevel();
             BlockPos pos = event.getPos();
-            PlayerEntity player = event.getPlayer();
-            ItemStack stack = player.getHeldItemMainhand();
-            LazyOptional<IFluidHandler> lazyTank = FluidUtil.getFluidHandler(world, pos, event.getFace());
+            Player player = event.getEntity();
+            ItemStack stack = player.getMainHandItem();
+            LazyOptional<IFluidHandler> lazyTank = FluidUtil.getFluidHandler(level, pos, event.getFace());
 
-            if (stack.getItem() instanceof WandererDyeableArmor && ((WandererDyeableArmor) stack.getItem()).hasColor(stack)) {
-                BlockState state = world.getBlockState(pos);
-                if (state.getBlock() instanceof CauldronBlock) {
-                    int level = state.get(CauldronBlock.LEVEL);
-                    if (level > 0) {
-                        if (!world.isRemote) {
-                            ((WandererDyeableArmor) stack.getItem()).removeColor(stack);
-                            player.addStat(Stats.CLEAN_ARMOR);
-                            ((CauldronBlock) state.getBlock()).setWaterLevel(world, pos, state, level - 1);
+            if (stack.getItem() instanceof WandererDyeableArmor && ((WandererDyeableArmor) stack.getItem()).hasCustomColor(stack)) {
+                BlockState state = level.getBlockState(pos);
+                if (state.getBlock() instanceof LayeredCauldronBlock) {
+                    int cauldronLevel = state.getValue(LayeredCauldronBlock.LEVEL);
+                    if (cauldronLevel > 0) {
+                        if (!level.isClientSide) {
+                            ((WandererDyeableArmor) stack.getItem()).clearColor(stack);
+                            player.awardStat(Stats.CLEAN_ARMOR);
+                            LayeredCauldronBlock.lowerFillLevel(state, level, pos);
                         }
-                        player.playSound(SoundEvents.ENTITY_FISHING_BOBBER_SPLASH, 0.16F, 0.66F);
+                        player.playSound(SoundEvents.FISHING_BOBBER_SPLASH, 0.16F, 0.66F);
                         event.setUseItem(Event.Result.DENY);
                     }
                 } else if (lazyTank.map(f -> f instanceof FluidTank).orElse(false)) {
                     lazyTank.ifPresent(tank -> {
                                 FluidTank fluidTank = (FluidTank) tank;
 
-                                if (fluidTank.getFluid().getFluid().isIn(FluidTags.WATER) && fluidTank.getFluidAmount() >= 250) {
-                                    if (!world.isRemote) {
-                                        ((WandererDyeableArmor) stack.getItem()).removeColor(stack);
-                                        player.addStat(Stats.CLEAN_ARMOR);
+                                if (fluidTank.getFluid().getFluid().is(FluidTags.WATER) && fluidTank.getFluidAmount() >= 250) {
+                                    if (!level.isClientSide) {
+                                        ((WandererDyeableArmor) stack.getItem()).clearColor(stack);
+                                        player.awardStat(Stats.CLEAN_ARMOR);
                                         tank.drain(250, IFluidHandler.FluidAction.EXECUTE);
                                     }
-                                    player.playSound(SoundEvents.ENTITY_FISHING_BOBBER_SPLASH, 0.16F, 0.66F);
+                                    player.playSound(SoundEvents.FISHING_BOBBER_SPLASH, 0.16F, 0.66F);
                                     event.setUseItem(Event.Result.ALLOW);
                                 }
                             }
@@ -186,10 +182,10 @@ public class AtumEventListener {
 
     @SubscribeEvent
     public static void onSeedUse(PlayerInteractEvent.RightClickBlock event) {
-        PlayerEntity player = event.getPlayer();
-        World world = event.getWorld();
-        if (player.world.getDimensionKey() == Atum.ATUM) {
-            if (player.getHeldItem(event.getHand()).getItem() == Items.WHEAT_SEEDS && world.getBlockState(event.getPos()).getBlock() instanceof FarmlandBlock) {
+        Player player = event.getEntity();
+        Level level = event.getLevel();
+        if (player.level().dimension() == Atum.ATUM) {
+            if (player.getItemInHand(event.getHand()).getItem() == Items.WHEAT_SEEDS && level.getBlockState(event.getPos()).getBlock() instanceof FarmBlock) {
                 event.setCanceled(true);
             }
         }
@@ -197,50 +193,56 @@ public class AtumEventListener {
 
     @SubscribeEvent
     public static void onLivingHurt(LivingHurtEvent event) {
-        if (event.getSource().equals(DamageSource.DROWN) && (event.getEntity() instanceof UndeadBaseEntity || event.getEntity() instanceof StoneBaseEntity)) {
+        if (event.getSource().is(DamageTypeTags.IS_DROWNING) && (event.getEntity() instanceof UndeadBaseEntity || event.getEntity() instanceof StoneBaseEntity)) {
             event.setCanceled(true);
         }
     }
 
     @SubscribeEvent
     public static void onFishLoot(ItemFishedEvent event) {
-        World world = event.getPlayer().world;
-        FishingBobberEntity bobber = event.getHookEntity();
-        PlayerEntity angler = bobber.func_234606_i_();
+        Level level = event.getEntity().level();
+        FishingHook bobber = event.getHookEntity();
+        Player angler = bobber.getPlayerOwner();
         if (angler != null) {
-            ItemStack heldStack = angler.getHeldItem(angler.getActiveHand());
-            LootContext.Builder builder = new LootContext.Builder((ServerWorld) world);
-            builder.withLuck((float) EnchantmentHelper.getFishingLuckBonus(heldStack) + angler.getLuck()).withParameter(LootParameters.KILLER_ENTITY, angler).withParameter(LootParameters.THIS_ENTITY, bobber);
-            if (world.getDimensionKey() == Atum.ATUM) {
+            ItemStack heldStack = angler.getItemInHand(angler.getUsedItemHand());
+            LootParams params = new LootParams.Builder((ServerLevel)bobber.level())
+                    .withParameter(LootContextParams.ORIGIN, bobber.position())
+                    .withParameter(LootContextParams.TOOL, heldStack)
+                    .withParameter(LootContextParams.THIS_ENTITY, bobber)
+                    .withParameter(LootContextParams.KILLER_ENTITY, bobber.getOwner())
+                    .withLuck(EnchantmentHelper.getFishingLuckBonus(heldStack) + angler.getLuck())
+                    .create(LootContextParamSets.FISHING);
+            if (level.dimension() == Atum.ATUM) {
                 event.setCanceled(true); //We don't want vanillas loot table
                 if (heldStack.getItem() instanceof AtemsBountyItem) {
-                    catchFish((ServerWorld) world, angler, heldStack, bobber, builder, AtumLootTables.ATEMS_BOUNTY);
-                    angler.world.addEntity(new ExperienceOrbEntity(angler.world, angler.getPosX(), angler.getPosY() + 0.5D, angler.getPosZ() + 0.5D, world.rand.nextInt(6) + 1));
+                    catchFish((ServerLevel) level, angler, bobber, params, AtumLootTables.ATEMS_BOUNTY);
+                    angler.level().addFreshEntity(new ExperienceOrb(angler.level(), angler.getX(), angler.getY() + 0.5D, angler.getZ() + 0.5D, level.random.nextInt(6) + 1));
                 } else {
-                    catchFish((ServerWorld) world, angler, heldStack, bobber, builder, AtumLootTables.FISHING);
+                    catchFish((ServerLevel) level, angler, bobber, params, AtumLootTables.FISHING);
                 }
             }
         }
     }
 
-    private static void catchFish(ServerWorld world, PlayerEntity angler, ItemStack heldStack, FishingBobberEntity bobber, LootContext.Builder builder, ResourceLocation lootTable) {
-        List<ItemStack> loots = world.getServer().getLootTableManager().getLootTableFromLocation(lootTable).generate(builder.withParameter(LootParameters.field_237457_g_, bobber.getPositionVec()).withParameter(LootParameters.TOOL, heldStack).withParameter(LootParameters.THIS_ENTITY, bobber).withRandom(world.rand).build(LootParameterSets.FISHING));
+    private static void catchFish(ServerLevel level, Player angler, FishingHook bobber, LootParams params, ResourceLocation lootTableID) {
+        LootTable lootTable = level.getServer().getLootData().getLootTable(lootTableID);
+        List<ItemStack> loots = lootTable.getRandomItems(params);
         for (ItemStack loot : loots) {
-            ItemEntity fish = new ItemEntity(bobber.world, bobber.getPosX(), bobber.getPosY(), bobber.getPosZ(), loot);
-            double x = angler.getPosX() - bobber.getPosX();
-            double y = angler.getPosY() - bobber.getPosY();
-            double z = angler.getPosZ() - bobber.getPosZ();
-            double swush = MathHelper.sqrt(x * x + y * y + z * z);
-            fish.setMotion(x * 0.1D, y * 0.1D + swush * 0.08D, z * 0.1D);
-            world.addEntity(fish);
+            ItemEntity fish = new ItemEntity(bobber.level(), bobber.getX(), bobber.getY(), bobber.getZ(), loot);
+            double x = angler.getX() - bobber.getX();
+            double y = angler.getY() - bobber.getY();
+            double z = angler.getZ() - bobber.getZ();
+            double swush = Mth.sqrt((float) (x * x + y * y + z * z));
+            fish.setDeltaMovement(x * 0.1D, y * 0.1D + swush * 0.08D, z * 0.1D);
+            level.addFreshEntity(fish);
         }
     }
 
     @SubscribeEvent
-    public static void checkSpawn(LivingSpawnEvent.CheckSpawn event) { //Prevent Phantom spawning in Atum
-        IWorld world = event.getWorld();
-        if ((event.getEntityLiving() instanceof PhantomEntity || event.getEntityLiving().getType() == EntityType.CAT) && (world instanceof ServerWorld && ((ServerWorld) world).getDimensionKey() == Atum.ATUM)) {
-            event.setResult(Event.Result.DENY);
+    public static void checkSpawn(MobSpawnEvent.FinalizeSpawn event) { //Prevent Phantom spawning in Atum
+        LevelAccessor level = event.getLevel();
+        if ((event.getEntity() instanceof Phantom || event.getEntity().getType() == EntityType.CAT) && (level instanceof ServerLevel && ((ServerLevel) level).dimension() == Atum.ATUM)) {
+            event.setSpawnCancelled(true);
         }
     }
 
@@ -248,7 +250,7 @@ public class AtumEventListener {
     @SubscribeEvent
     public static void onBlockBreak(BlockEvent.BreakEvent event) {
         BlockState state = event.getState();
-        if (state.getBlock() instanceof IUnbreakable && state.get(IUnbreakable.UNBREAKABLE) && !event.getPlayer().isCreative()) {
+        if (state.getBlock() instanceof IUnbreakable && state.getValue(IUnbreakable.UNBREAKABLE) && !event.getPlayer().isCreative()) {
             event.setCanceled(true);
         }
     }

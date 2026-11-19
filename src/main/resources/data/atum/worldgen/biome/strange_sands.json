@@ -1,0 +1,221 @@
+{
+  "carvers": {
+    "air": [
+      "minecraft:cave",
+      "minecraft:cave_extra_underground",
+      "minecraft:canyon"
+    ]
+  },
+  "creature_spawn_probability": 0.2,
+  "downfall": 0.0,
+  "effects": {
+    "mood_sound": {
+      "block_search_extent": 8,
+      "offset": 2.0,
+      "sound": "minecraft:ambient.cave",
+      "tick_delay": 6000
+    },
+    "sky_color": 8166547,
+    "fog_color": 13876389,
+    "water_color": 7036242,
+    "water_fog_color": 7036242,
+    "grass_color": 12889745,
+    "foliage_color": 12889745,
+    "particle":
+    {
+      "probability": 0.5,
+      "options":{
+        "type": "atum:sand_air"
+      }
+    }
+  },
+  "features": [
+    [],
+    [
+      "atum:lake_lava_underground",
+      "atum:lake_lava_surface",
+      "atum:sand_layer"
+    ],
+    [],
+    [
+      "atum:dirty_bone_fossil_upper",
+      "atum:dirty_bone_fossil_lower",
+      "atum:limestone_dungeon",
+      "atum:limestone_dungeon_deep"
+    ],
+    [],
+    [],
+    [
+      "minecraft:ore_dirt",
+      "minecraft:ore_gravel",
+      "minecraft:ore_granite_upper",
+      "minecraft:ore_granite_lower",
+      "minecraft:ore_diorite_upper",
+      "minecraft:ore_diorite_lower",
+      "minecraft:ore_andesite_upper",
+      "minecraft:ore_andesite_lower",
+      "atum:ore_alabaster_upper",
+      "atum:ore_alabaster_lower",
+      "atum:ore_porphyry_upper",
+      "atum:ore_porphyry_lower",
+      "minecraft:ore_tuff",
+      "minecraft:ore_coal_upper",
+      "minecraft:ore_coal_lower",
+      "minecraft:ore_iron_upper",
+      "minecraft:ore_iron_middle",
+      "minecraft:ore_iron_small",
+      "minecraft:ore_gold",
+      "minecraft:ore_gold_lower",
+      "minecraft:ore_redstone",
+      "minecraft:ore_redstone_lower",
+      "minecraft:ore_diamond",
+      "minecraft:ore_diamond_large",
+      "minecraft:ore_diamond_buried",
+      "minecraft:ore_lapis",
+      "minecraft:ore_lapis_buried",
+      "minecraft:ore_copper",
+      "minecraft:underwater_magma",
+      "minecraft:disk_sand",
+      "minecraft:disk_clay",
+      "minecraft:disk_gravel",
+      "atum:karst_rock",
+      "atum:limestone_pile"
+    ],
+    [],
+    [
+      "minecraft:spring_water",
+      "minecraft:spring_lava"
+    ],
+    [
+      "minecraft:glow_lichen",
+      "atum:patch_grass_strangesands",
+      "atum:patch_shrub",
+      "atum:patch_weed",
+      "atum:palm_tree_sparse",
+      "atum:deadwood_tree",
+      "atum:anputs_fingers"
+    ],
+    [
+    ]
+  ],
+  "has_precipitation": false,
+  "spawn_costs": {
+    "atum:brigand": {
+      "charge": 1.0,
+      "energy_budget": 0.12
+    },
+    "atum:nomad": {
+      "charge": 1.0,
+      "energy_budget": 0.12
+    },
+    "atum:barbarian": {
+      "charge": 1.0,
+      "energy_budget": 0.12
+    }
+  },
+  "spawners": {
+    "ambient": [
+      {
+        "type": "minecraft:bat",
+        "maxCount": 8,
+        "minCount": 8,
+        "weight": 10
+      }
+    ],
+    "axolotls": [],
+    "creature": [
+      {
+        "type": "atum:quail",
+        "weight": 4,
+        "maxCount": 3,
+        "minCount": 2
+      },
+      {
+        "type": "atum:desert_rabbit",
+        "weight": 4,
+        "maxCount": 3,
+        "minCount": 2
+      },
+      {
+        "type": "atum:desert_wolf",
+        "weight": 4,
+        "maxCount": 3,
+        "minCount": 2
+      },
+      {
+        "type": "atum:camel",
+        "weight": 4,
+        "maxCount": 3,
+        "minCount": 2
+      }
+    ],
+    "misc": [],
+    "monster": [
+      {
+        "type": "atum:tarantula",
+        "maxCount": 4,
+        "minCount": 4,
+        "weight": 100
+      },
+      {
+        "type": "atum:bonestorm",
+        "maxCount": 4,
+        "minCount": 4,
+        "weight": 19
+      },
+      {
+        "type": "atum:forsaken",
+        "maxCount": 1,
+        "minCount": 1,
+        "weight": 1
+      },
+      {
+        "type": "atum:mummy",
+        "maxCount": 4,
+        "minCount": 4,
+        "weight": 100
+      },
+      {
+        "type": "atum:wraith",
+        "maxCount": 4,
+        "minCount": 4,
+        "weight": 100
+      },
+      {
+        "type": "atum:stoneguard",
+        "maxCount": 4,
+        "minCount": 4,
+        "weight": 100
+      },
+      {
+        "type": "atum:brigand",
+        "maxCount": 4,
+        "minCount": 4,
+        "weight": 100
+      },
+      {
+        "type": "atum:nomad",
+        "maxCount": 4,
+        "minCount": 4,
+        "weight": 100
+      },
+      {
+        "type": "atum:barbarian",
+        "maxCount": 4,
+        "minCount": 4,
+        "weight": 100
+      }
+    ],
+    "underground_water_creature": [
+      {
+        "type": "minecraft:glow_squid",
+        "maxCount": 6,
+        "minCount": 4,
+        "weight": 10
+      }
+    ],
+    "water_ambient": [],
+    "water_creature": []
+  },
+  "temperature": 2.0
+}

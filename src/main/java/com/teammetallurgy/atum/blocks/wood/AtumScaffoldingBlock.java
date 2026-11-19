@@ -1,21 +1,21 @@
 package com.teammetallurgy.atum.blocks.wood;
 
 import com.teammetallurgy.atum.api.AtumAPI;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.ScaffoldingBlock;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.item.FallingBlockEntity;
-import net.minecraft.fluid.Fluids;
-import net.minecraft.item.BlockItemUseContext;
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.IBlockReader;
-import net.minecraft.world.IWorldReader;
-import net.minecraft.world.World;
-import net.minecraft.world.server.ServerWorld;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.item.FallingBlockEntity;
+import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.block.ScaffoldingBlock;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.material.Fluids;
 
 import javax.annotation.Nonnull;
-import java.util.Random;
 
 public class AtumScaffoldingBlock extends ScaffoldingBlock {
 
@@ -24,52 +24,52 @@ public class AtumScaffoldingBlock extends ScaffoldingBlock {
     }
 
     @Override
-    public BlockState getStateForPlacement(BlockItemUseContext context) {
-        BlockPos blockpos = context.getPos();
-        World world = context.getWorld();
-        int i = getDistance(world, blockpos);
-        return this.getDefaultState().with(WATERLOGGED, world.getFluidState(blockpos).getFluid() == Fluids.WATER).with(DISTANCE, i).with(BOTTOM, this.hasScaffoldingBelow(world, blockpos, i));
+    public BlockState getStateForPlacement(BlockPlaceContext context) {
+        BlockPos blockpos = context.getClickedPos();
+        Level level = context.getLevel();
+        int i = getDistance(level, blockpos);
+        return this.defaultBlockState().setValue(WATERLOGGED, level.getFluidState(blockpos).getType() == Fluids.WATER).setValue(DISTANCE, i).setValue(BOTTOM, this.hasScaffoldingBelow(level, blockpos, i));
     }
 
     @Override
-    public void tick(BlockState state, @Nonnull ServerWorld world, @Nonnull BlockPos pos, @Nonnull Random rand) {
-        int i = getDistance(world, pos);
-        BlockState blockstate = state.with(DISTANCE, i).with(BOTTOM, this.hasScaffoldingBelow(world, pos, i));
-        if (blockstate.get(DISTANCE) == 7) {
-            if (state.get(DISTANCE) == 7) {
-                world.addEntity(new FallingBlockEntity(world, (double)pos.getX() + 0.5D, pos.getY(), (double)pos.getZ() + 0.5D, blockstate.with(WATERLOGGED, Boolean.FALSE)));
+    public void tick(BlockState state, @Nonnull ServerLevel level, @Nonnull BlockPos pos, @Nonnull RandomSource rand) {
+        int i = getDistance(level, pos);
+        BlockState blockstate = state.setValue(DISTANCE, i).setValue(BOTTOM, this.hasScaffoldingBelow(level, pos, i));
+        if (blockstate.getValue(DISTANCE) == 7) {
+            if (state.getValue(DISTANCE) == 7) {
+                FallingBlockEntity.fall(level, pos, blockstate);
             } else {
-                world.destroyBlock(pos, true);
+                level.destroyBlock(pos, true);
             }
         } else if (state != blockstate) {
-            world.setBlockState(pos, blockstate, 3);
+            level.setBlock(pos, blockstate, 3);
         }
 
     }
 
     @Override
-    public boolean isValidPosition(@Nonnull BlockState state, @Nonnull IWorldReader world, @Nonnull BlockPos pos) {
-        return getDistance(world, pos) < 7;
+    public boolean canSurvive(@Nonnull BlockState state, @Nonnull LevelReader level, @Nonnull BlockPos pos) {
+        return getDistance(level, pos) < 7;
     }
 
-    private boolean hasScaffoldingBelow(IBlockReader blockReader, BlockPos pos, int distance) {
-        return distance > 0 && !blockReader.getBlockState(pos.down()).isIn(this);
+    private boolean hasScaffoldingBelow(BlockGetter blockReader, BlockPos pos, int distance) {
+        return distance > 0 && !blockReader.getBlockState(pos.below()).is(this);
     }
 
-    public static int getDistance(IBlockReader reader, BlockPos pos) {
-        BlockPos.Mutable mutablePos = pos.toMutable().move(Direction.DOWN);
+    public static int getDistance(BlockGetter reader, BlockPos pos) {
+        BlockPos.MutableBlockPos mutablePos = pos.mutable().move(Direction.DOWN);
         BlockState state = reader.getBlockState(mutablePos);
         int distance = 7;
-        if (state.isIn(AtumAPI.Tags.SCAFFOLDING)) {
-            distance = state.get(DISTANCE);
-        } else if (state.isSolidSide(reader, mutablePos, Direction.UP)) {
+        if (state.is(AtumAPI.Tags.SCAFFOLDING)) {
+            distance = state.getValue(DISTANCE);
+        } else if (state.isFaceSturdy(reader, mutablePos, Direction.UP)) {
             return 0;
         }
 
         for (Direction direction : Direction.Plane.HORIZONTAL) {
-            BlockState blockstate1 = reader.getBlockState(mutablePos.setAndMove(pos, direction));
-            if (blockstate1.isIn(AtumAPI.Tags.SCAFFOLDING)) {
-                distance = Math.min(distance, blockstate1.get(DISTANCE) + 1);
+            BlockState blockstate1 = reader.getBlockState(mutablePos.setWithOffset(pos, direction));
+            if (blockstate1.is(AtumAPI.Tags.SCAFFOLDING)) {
+                distance = Math.min(distance, blockstate1.getValue(DISTANCE) + 1);
                 if (distance == 1) {
                     break;
                 }
@@ -79,7 +79,7 @@ public class AtumScaffoldingBlock extends ScaffoldingBlock {
     }
 
     @Override
-    public boolean isScaffolding(BlockState state, IWorldReader world, BlockPos pos, LivingEntity entity) {
+    public boolean isScaffolding(BlockState state, LevelReader level, BlockPos pos, LivingEntity entity) {
         return true;
     }
 }

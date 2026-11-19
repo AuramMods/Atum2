@@ -2,100 +2,111 @@ package com.teammetallurgy.atum.init;
 
 import com.teammetallurgy.atum.Atum;
 import com.teammetallurgy.atum.api.God;
+import com.teammetallurgy.atum.blocks.lighting.AtumTorchBlock;
 import com.teammetallurgy.atum.client.particle.*;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.particle.ParticleManager;
-import net.minecraft.particles.BasicParticleType;
-import net.minecraft.particles.IParticleData;
-import net.minecraft.particles.ParticleType;
+import net.minecraft.core.particles.ParticleType;
+import net.minecraft.core.particles.SimpleParticleType;
 import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.client.event.ParticleFactoryRegisterEvent;
+import net.minecraftforge.client.event.RegisterParticleProvidersEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.registries.ObjectHolder;
-
-import static com.teammetallurgy.atum.misc.AtumRegistry.registerGodFlame;
-import static com.teammetallurgy.atum.misc.AtumRegistry.registerParticle;
+import net.minecraftforge.registries.DeferredRegister;
+import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraftforge.registries.RegistryObject;
 
 @Mod.EventBusSubscriber(modid = Atum.MOD_ID, value = Dist.CLIENT, bus = Mod.EventBusSubscriber.Bus.MOD)
-@ObjectHolder(value = Atum.MOD_ID)
 public class AtumParticles {
-    public static final BasicParticleType ANUBIS = registerParticle("anubis");
-    public static final BasicParticleType ANUBIS_SKULL = registerParticle("anubis_skull");
-    public static final BasicParticleType EMPTY = registerParticle("empty");
-    public static final BasicParticleType GAS = registerParticle("gas");
-    public static final BasicParticleType GEB = registerParticle("geb");
-    public static final BasicParticleType HORUS = registerParticle("horus");
-    public static final BasicParticleType ISIS = registerParticle("isis");
-    public static final BasicParticleType LIGHT_SPARKLE = registerParticle("light_sparkle");
-    public static final BasicParticleType MONTU = registerParticle("montu");
-    public static final BasicParticleType NEBU_FLAME = registerParticle("nebu_flame");
-    public static final BasicParticleType NUIT_BLACK = registerParticle("nuit_black");
-    public static final BasicParticleType NUIT_WHITE = registerParticle("nuit_white");
-    public static final BasicParticleType RA_FIRE = registerParticle("ra_fire");
-    public static final BasicParticleType SETH = registerParticle("seth");
-    public static final BasicParticleType SHU = registerParticle("shu");
-    public static final BasicParticleType TAR = registerParticle("tar");
-    public static final BasicParticleType TEFNUT = registerParticle("tefnut");
-    public static final BasicParticleType TEFNUT_DROP = registerParticle("tefnut_drop");
+    public static final DeferredRegister<ParticleType<?>> PARTICLE_DEFERRED = DeferredRegister.create(ForgeRegistries.PARTICLE_TYPES, Atum.MOD_ID);
+    public static final RegistryObject<SimpleParticleType> ANUBIS = registerParticle("anubis");
+    public static final RegistryObject<SimpleParticleType> ANUBIS_SKULL = registerParticle("anubis_skull");
+    public static final RegistryObject<SimpleParticleType> EMPTY = registerParticle("empty");
+    public static final RegistryObject<SimpleParticleType> GAS = registerParticle("gas");
+    public static final RegistryObject<SimpleParticleType> GEB = registerParticle("geb");
+    public static final RegistryObject<SimpleParticleType> HORUS = registerParticle("horus");
+    public static final RegistryObject<SimpleParticleType> ISIS = registerParticle("isis");
+    public static final RegistryObject<SimpleParticleType> LIGHT_SPARKLE = registerParticle("light_sparkle");
+    public static final RegistryObject<SimpleParticleType> MONTU = registerParticle("montu");
+    public static final RegistryObject<SimpleParticleType> NEBU_FLAME = registerParticle("nebu_flame");
+    public static final RegistryObject<SimpleParticleType> NUIT_BLACK = registerParticle("nuit_black");
+    public static final RegistryObject<SimpleParticleType> NUIT_WHITE = registerParticle("nuit_white");
+    public static final RegistryObject<SimpleParticleType> RA_FIRE = registerParticle("ra_fire");
+    public static final RegistryObject<SimpleParticleType> SETH = registerParticle("seth");
+    public static final RegistryObject<SimpleParticleType> SHU = registerParticle("shu");
+    public static final RegistryObject<SimpleParticleType> TAR = registerParticle("tar");
+    public static final RegistryObject<SimpleParticleType> TEFNUT = registerParticle("tefnut");
+    public static final RegistryObject<SimpleParticleType> TEFNUT_DROP = registerParticle("tefnut_drop");
+    public static final RegistryObject<SimpleParticleType> SAND_AIR = registerParticle("sand_air");
 
     //God Flames
-    public static final BasicParticleType ANPUT_FLAME = registerGodFlame("anput_flame", God.ANPUT);
-    public static final BasicParticleType ANUBIS_FLAME = registerGodFlame("anubis_flame", God.ANUBIS);
-    public static final BasicParticleType ATEM_FLAME = registerGodFlame("atem_flame", God.ATEM);
-    public static final BasicParticleType GEB_FLAME = registerGodFlame("geb_flame", God.GEB);
-    public static final BasicParticleType HORUS_FLAME = registerGodFlame("horus_flame", God.HORUS);
-    public static final BasicParticleType ISIS_FLAME = registerGodFlame("isis_flame", God.ISIS);
-    public static final BasicParticleType MONTU_FLAME = registerGodFlame("montu_flame", God.MONTU);
-    public static final BasicParticleType NEPTHYS_FLAME = registerGodFlame("nepthys_flame", God.NEPTHYS);
-    public static final BasicParticleType NUIT_FLAME = registerGodFlame("nuit_flame", God.NUIT);
-    public static final BasicParticleType OSIRIS_FLAME = registerGodFlame("osiris_flame", God.OSIRIS);
-    public static final BasicParticleType PTAH_FLAME = registerGodFlame("ptah_flame", God.PTAH);
-    public static final BasicParticleType RA_FLAME = registerGodFlame("ra_flame", God.RA);
-    public static final BasicParticleType SETH_FLAME = registerGodFlame("seth_flame", God.SETH);
-    public static final BasicParticleType SHU_FLAME = registerGodFlame("shu_flame", God.SHU);
-    public static final BasicParticleType TEFNUT_FLAME = registerGodFlame("tefnut_flame", God.TEFNUT);
+    public static final RegistryObject<SimpleParticleType> ANPUT_FLAME = registerGodFlame("anput_flame", God.ANPUT);
+    public static final RegistryObject<SimpleParticleType> ANUBIS_FLAME = registerGodFlame("anubis_flame", God.ANUBIS);
+    public static final RegistryObject<SimpleParticleType> ATEM_FLAME = registerGodFlame("atem_flame", God.ATEM);
+    public static final RegistryObject<SimpleParticleType> GEB_FLAME = registerGodFlame("geb_flame", God.GEB);
+    public static final RegistryObject<SimpleParticleType> HORUS_FLAME = registerGodFlame("horus_flame", God.HORUS);
+    public static final RegistryObject<SimpleParticleType> ISIS_FLAME = registerGodFlame("isis_flame", God.ISIS);
+    public static final RegistryObject<SimpleParticleType> MONTU_FLAME = registerGodFlame("montu_flame", God.MONTU);
+    public static final RegistryObject<SimpleParticleType> NEPTHYS_FLAME = registerGodFlame("nepthys_flame", God.NEPTHYS);
+    public static final RegistryObject<SimpleParticleType> NUIT_FLAME = registerGodFlame("nuit_flame", God.NUIT);
+    public static final RegistryObject<SimpleParticleType> OSIRIS_FLAME = registerGodFlame("osiris_flame", God.OSIRIS);
+    public static final RegistryObject<SimpleParticleType> PTAH_FLAME = registerGodFlame("ptah_flame", God.PTAH);
+    public static final RegistryObject<SimpleParticleType> RA_FLAME = registerGodFlame("ra_flame", God.RA);
+    public static final RegistryObject<SimpleParticleType> SETH_FLAME = registerGodFlame("seth_flame", God.SETH);
+    public static final RegistryObject<SimpleParticleType> SHU_FLAME = registerGodFlame("shu_flame", God.SHU);
+    public static final RegistryObject<SimpleParticleType> TEFNUT_FLAME = registerGodFlame("tefnut_flame", God.TEFNUT);
 
     @SubscribeEvent
-    public static void registerParticleFactories(ParticleFactoryRegisterEvent event) {
-        registerFactory(ANUBIS, SwirlParticle.Anubis::new);
-        registerFactory(ANUBIS_SKULL, SwirlParticle.AnubisSkull::new);
-        registerFactory(GAS, SwirlParticle.Gas::new);
-        registerFactory(GEB, SwirlParticle.Geb::new);
-        registerFactory(HORUS, SwirlParticle.Horus::new);
-        registerFactory(ISIS, SwirlParticle.Isis::new);
-        registerFactory(LIGHT_SPARKLE, LightSparkleParticle.Factory::new);
-        registerFactory(MONTU, MontuParticle.Factory::new);
-        registerFactory(NEBU_FLAME, NebuFlameParticle.Nebu::new);
-        registerFactory(NUIT_BLACK, SwirlParticle.NuitBlack::new);
-        registerFactory(NUIT_WHITE, SwirlParticle.NuitWhite::new);
-        registerFactory(RA_FIRE, RaFireParticle.Factory::new);
-        registerFactory(SETH, DropParticle.Seth::new);
-        registerFactory(SHU, SwirlParticle.Shu::new);
-        registerFactory(TAR, DropParticle.Tar::new);
-        registerFactory(TEFNUT, TefnutParticle.Factory::new);
-        registerFactory(TEFNUT_DROP, DropParticle.Tefnut::new);
+    public static void registerParticleFactories(RegisterParticleProvidersEvent event) {
+        event.registerSpriteSet(ANUBIS.get(), SwirlParticle.Anubis::new);
+        event.registerSpriteSet(ANUBIS_SKULL.get(), SwirlParticle.AnubisSkull::new);
+        event.registerSpriteSet(GAS.get(), SwirlParticle.Gas::new);
+        event.registerSpriteSet(GEB.get(), SwirlParticle.Geb::new);
+        event.registerSpriteSet(HORUS.get(), SwirlParticle.Horus::new);
+        event.registerSpriteSet(ISIS.get(), SwirlParticle.Isis::new);
+        event.registerSpriteSet(LIGHT_SPARKLE.get(), LightSparkleParticle.Factory::new);
+        event.registerSpriteSet(MONTU.get(), MontuParticle.Factory::new);
+        event.registerSpriteSet(NEBU_FLAME.get(), NebuFlameParticle.Nebu::new);
+        event.registerSpriteSet(NUIT_BLACK.get(), SwirlParticle.NuitBlack::new);
+        event.registerSpriteSet(NUIT_WHITE.get(), SwirlParticle.NuitWhite::new);
+        event.registerSpriteSet(RA_FIRE.get(), RaFireParticle.Factory::new);
+        event.registerSpriteSet(SETH.get(), DropParticle.Seth::new);
+        event.registerSpriteSet(SHU.get(), SwirlParticle.Shu::new);
+        event.registerSpriteSet(TAR.get(), DropParticle.Tar::new);
+        event.registerSpriteSet(TEFNUT.get(), TefnutParticle.Factory::new);
+        event.registerSpriteSet(TEFNUT_DROP.get(), DropParticle.Tefnut::new);
+        event.registerSpriteSet(SAND_AIR.get(), InAirParticle.SandAirParticle::new);
 
         //God Flames
-        registerFactory(ANPUT_FLAME, NebuFlameParticle.Nebu::new);
-        registerFactory(ANUBIS_FLAME, NebuFlameParticle.Nebu::new);
-        registerFactory(ATEM_FLAME, NebuFlameParticle.Nebu::new);
-        registerFactory(GEB_FLAME, NebuFlameParticle.Nebu::new);
-        registerFactory(HORUS_FLAME, NebuFlameParticle.Nebu::new);
-        registerFactory(ISIS_FLAME, NebuFlameParticle.Nebu::new);
-        registerFactory(MONTU_FLAME, NebuFlameParticle.Nebu::new);
-        registerFactory(NEPTHYS_FLAME, NebuFlameParticle.Nebu::new);
-        registerFactory(NUIT_FLAME, NebuFlameParticle.Nebu::new);
-        registerFactory(OSIRIS_FLAME, NebuFlameParticle.Nebu::new);
-        registerFactory(PTAH_FLAME, NebuFlameParticle.Nebu::new);
-        registerFactory(RA_FLAME, NebuFlameParticle.Nebu::new);
-        registerFactory(SETH_FLAME, NebuFlameParticle.Nebu::new);
-        registerFactory(SHU_FLAME, NebuFlameParticle.Nebu::new);
-        registerFactory(TEFNUT_FLAME, NebuFlameParticle.Nebu::new);
+        event.registerSpriteSet(ANPUT_FLAME.get(), NebuFlameParticle.Nebu::new);
+        event.registerSpriteSet(ANUBIS_FLAME.get(), NebuFlameParticle.Nebu::new);
+        event.registerSpriteSet(ATEM_FLAME.get(), NebuFlameParticle.Nebu::new);
+        event.registerSpriteSet(GEB_FLAME.get(), NebuFlameParticle.Nebu::new);
+        event.registerSpriteSet(HORUS_FLAME.get(), NebuFlameParticle.Nebu::new);
+        event.registerSpriteSet(ISIS_FLAME.get(), NebuFlameParticle.Nebu::new);
+        event.registerSpriteSet(MONTU_FLAME.get(), NebuFlameParticle.Nebu::new);
+        event.registerSpriteSet(NEPTHYS_FLAME.get(), NebuFlameParticle.Nebu::new);
+        event.registerSpriteSet(NUIT_FLAME.get(), NebuFlameParticle.Nebu::new);
+        event.registerSpriteSet(OSIRIS_FLAME.get(), NebuFlameParticle.Nebu::new);
+        event.registerSpriteSet(PTAH_FLAME.get(), NebuFlameParticle.Nebu::new);
+        event.registerSpriteSet(RA_FLAME.get(), NebuFlameParticle.Nebu::new);
+        event.registerSpriteSet(SETH_FLAME.get(), NebuFlameParticle.Nebu::new);
+        event.registerSpriteSet(SHU_FLAME.get(), NebuFlameParticle.Nebu::new);
+        event.registerSpriteSet(TEFNUT_FLAME.get(), NebuFlameParticle.Nebu::new);
     }
 
-    public static <T extends IParticleData> void registerFactory(ParticleType<T> particleType, ParticleManager.IParticleMetaFactory<T> particleMetaFactory) {
-        ParticleManager particleManager = Minecraft.getInstance().particles;
-        particleManager.registerFactory(particleType, particleMetaFactory);
+    /**
+     * Registers a particle
+     *
+     * @param name The name to register the sound with
+     * @return The Sound that was registered
+     */
+    public static RegistryObject<SimpleParticleType> registerParticle(String name) {
+        return PARTICLE_DEFERRED.register(name, () -> new SimpleParticleType(false));
+    }
+
+    public static RegistryObject<SimpleParticleType> registerGodFlame(String name, God god) {
+        RegistryObject<SimpleParticleType> particleType = registerParticle(name);
+        AtumTorchBlock.GOD_FLAMES.put(god, particleType);
+        AtumTorchBlock.GODS.put(particleType, god);
+        return particleType;
     }
 }

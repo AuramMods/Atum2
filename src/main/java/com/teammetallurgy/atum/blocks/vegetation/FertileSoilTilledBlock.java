@@ -1,109 +1,111 @@
 package com.teammetallurgy.atum.blocks.vegetation;
 
+import net.minecraft.world.level.material.MapColor;
 import com.teammetallurgy.atum.init.AtumBlocks;
 import com.teammetallurgy.atum.init.AtumParticles;
-import net.minecraft.block.*;
-import net.minecraft.block.material.Material;
-import net.minecraft.entity.Entity;
-import net.minecraft.state.BooleanProperty;
-import net.minecraft.state.StateContainer;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.FluidTags;
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.shapes.ISelectionContext;
-import net.minecraft.util.math.shapes.VoxelShape;
-import net.minecraft.world.IBlockReader;
-import net.minecraft.world.IWorld;
-import net.minecraft.world.World;
-import net.minecraft.world.server.ServerWorld;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.BonemealableBlock;
+import net.minecraft.world.level.block.FarmBlock;
+import net.minecraft.world.level.block.SoundType;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.BooleanProperty;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.IPlantable;
 import net.minecraftforge.common.PlantType;
-import net.minecraftforge.common.ToolType;
 
 import javax.annotation.Nonnull;
-import java.util.Random;
 
-public class FertileSoilTilledBlock extends FarmlandBlock {
+public class FertileSoilTilledBlock extends FarmBlock {
     public static final BooleanProperty BLESSED = BooleanProperty.create("blessed");
 
     public FertileSoilTilledBlock() {
-        super(Block.Properties.create(Material.EARTH).tickRandomly().hardnessAndResistance(0.5F).sound(SoundType.GROUND).harvestTool(ToolType.SHOVEL).harvestLevel(0).setBlocksVision(AtumBlocks::needsPostProcessing).setSuffocates(AtumBlocks::needsPostProcessing));
-        this.setDefaultState(this.stateContainer.getBaseState().with(MOISTURE, 0).with(BLESSED, false));
+        super(Block.Properties.of().mapColor(MapColor.DIRT).randomTicks().strength(0.5F).sound(SoundType.GRAVEL).isViewBlocking(AtumBlocks::always).isSuffocating(AtumBlocks::always));
+        this.registerDefaultState(this.stateDefinition.any().setValue(MOISTURE, 0).setValue(BLESSED, false));
     }
 
     @Override
     @Nonnull
-    public VoxelShape getShape(@Nonnull BlockState state, @Nonnull IBlockReader world, @Nonnull BlockPos pos, @Nonnull ISelectionContext context) {
-        return FarmlandBlock.SHAPE;
+    public VoxelShape getShape(@Nonnull BlockState state, @Nonnull BlockGetter level, @Nonnull BlockPos pos, @Nonnull CollisionContext context) {
+        return FarmBlock.SHAPE;
     }
 
     @Override
-    public void tick(BlockState state, @Nonnull ServerWorld serverWorld, @Nonnull BlockPos pos, @Nonnull Random rand) {
-        if (!state.isValidPosition(serverWorld, pos)) {
-            turnToSoil(serverWorld, pos, AtumBlocks.FERTILE_SOIL);
+    public void tick(BlockState state, @Nonnull ServerLevel serverLevel, @Nonnull BlockPos pos, @Nonnull RandomSource rand) {
+        if (!state.canSurvive(serverLevel, pos)) {
+            turnToSoil(serverLevel, pos, AtumBlocks.FERTILE_SOIL.get());
         }
     }
 
     @Override
-    public void randomTick(BlockState state, ServerWorld world, BlockPos pos, @Nonnull Random rand) {
-        int moisture = state.get(MOISTURE);
+    public void randomTick(BlockState state, ServerLevel level, BlockPos pos, @Nonnull RandomSource rand) {
+        int moisture = state.getValue(MOISTURE);
 
-        Block blockUp = world.getBlockState(pos.up()).getBlock();
-        if (state.get(BLESSED) && blockUp instanceof IGrowable) {
-            world.getPendingBlockTicks().scheduleTick(pos.up(), blockUp, 5);
+        Block blockUp = level.getBlockState(pos.above()).getBlock();
+        if (state.getValue(BLESSED) && blockUp instanceof BonemealableBlock) {
+            level.scheduleTick(pos.above(), blockUp, 5);
         }
 
-        if (!this.hasWater(world, pos) && !world.isRainingAt(pos.up())) {
+        if (!this.hasWater(level, pos) && !level.isRainingAt(pos.above())) {
             if (moisture > 0) {
-                world.setBlockState(pos, state.with(MOISTURE, moisture - 1), 2);
-            } else if (!this.hasCrops(world, pos)) {
-                turnToSoil(world, pos, AtumBlocks.FERTILE_SOIL);
+                level.setBlock(pos, state.setValue(MOISTURE, moisture - 1), 2);
+            } else if (!this.hasCrops(level, pos)) {
+                turnToSoil(level, pos, AtumBlocks.FERTILE_SOIL.get());
             }
         } else if (moisture < 7) {
-            world.setBlockState(pos, state.with(MOISTURE, 7), 2);
+            level.setBlock(pos, state.setValue(MOISTURE, 7), 2);
         }
     }
 
     @Override
-    public boolean isFertile(BlockState state, IBlockReader world, BlockPos pos) {
-        return state.get(MOISTURE) > 0 || state.get(BLESSED);
+    public boolean isFertile(BlockState state, BlockGetter level, BlockPos pos) {
+        return state.getValue(MOISTURE) > 0 || state.getValue(BLESSED);
     }
 
     @Override
     @OnlyIn(Dist.CLIENT)
-    public void animateTick(BlockState state, @Nonnull World world, @Nonnull BlockPos pos, @Nonnull Random rand) {
-        if (state.get(BLESSED) && !world.getBlockState(pos.up()).isNormalCube(world, pos.up())) {
+    public void animateTick(BlockState state, @Nonnull Level level, @Nonnull BlockPos pos, @Nonnull RandomSource rand) {
+        if (state.getValue(BLESSED) && !level.getBlockState(pos.above()).isRedstoneConductor(level, pos.above())) {
             if (rand.nextDouble() <= 0.15D) {
                 double d0 = rand.nextGaussian() * 0.01D;
                 double d1 = rand.nextGaussian() * 0.005D;
                 double d2 = rand.nextGaussian() * 0.01D;
-                world.addParticle(AtumParticles.TEFNUT, (float) pos.getX() + rand.nextFloat(), (double) pos.getY() + 1.05D, (float) pos.getZ() + rand.nextFloat(), d0, d1, d2);
+                level.addParticle(AtumParticles.TEFNUT.get(), (float) pos.getX() + rand.nextFloat(), (double) pos.getY() + 1.05D, (float) pos.getZ() + rand.nextFloat(), d0, d1, d2);
             }
         }
     }
 
     @Override
-    public void onFallenUpon(@Nonnull World world, @Nonnull BlockPos pos, @Nonnull Entity entity, float fallDistance) {
-        if (!world.isRemote && entity.canTrample(this.getDefaultState(), pos, fallDistance)) {
-            turnToSoil(world, pos, AtumBlocks.FERTILE_SOIL);
+    public void fallOn(@Nonnull Level level, BlockState state, @Nonnull BlockPos pos, @Nonnull Entity entity, float fallDistance) {
+        if (!level.isClientSide && entity.canTrample(this.defaultBlockState(), pos, fallDistance)) {
+            turnToSoil(level, pos, AtumBlocks.FERTILE_SOIL.get());
         }
-        entity.onLivingFall(fallDistance, 1.0F);
+        entity.causeFallDamage(fallDistance, 1.0F, entity.damageSources().fall());
     }
 
-    private static void turnToSoil(World world, BlockPos pos, Block block) {
-        world.setBlockState(pos, nudgeEntitiesWithNewState(world.getBlockState(pos), block.getDefaultState(), world, pos));
+    private static void turnToSoil(Level level, BlockPos pos, Block block) {
+        level.setBlockAndUpdate(pos, pushEntitiesUp(level.getBlockState(pos), block.defaultBlockState(), level, pos));
     }
 
-    private boolean hasCrops(World world, BlockPos pos) {
-        Block block = world.getBlockState(pos.up()).getBlock();
-        return block instanceof IPlantable && canSustainPlant(world.getBlockState(pos), world, pos, Direction.UP, (IPlantable) block);
+    private boolean hasCrops(Level level, BlockPos pos) {
+        Block block = level.getBlockState(pos.above()).getBlock();
+        return block instanceof IPlantable && canSustainPlant(level.getBlockState(pos), level, pos, Direction.UP, (IPlantable) block);
     }
 
-    private boolean hasWater(World world, BlockPos pos) {
-        for (BlockPos mutablePos : BlockPos.getAllInBoxMutable(pos.add(-6, 0, -6), pos.add(6, 1, 6))) {
-            if (world.getBlockState(mutablePos).getFluidState().isTagged(FluidTags.WATER)) {
+    private boolean hasWater(Level level, BlockPos pos) {
+        for (BlockPos mutablePos : BlockPos.betweenClosed(pos.offset(-6, 0, -6), pos.offset(6, 1, 6))) {
+            if (level.getBlockState(mutablePos).getFluidState().is(FluidTags.WATER)) {
                 return true;
             }
         }
@@ -111,43 +113,35 @@ public class FertileSoilTilledBlock extends FarmlandBlock {
     }
 
     @Override
-    public void neighborChanged(@Nonnull BlockState state, @Nonnull World world, @Nonnull BlockPos pos, @Nonnull Block block, @Nonnull BlockPos fromPos, boolean isMoving) {
-        super.neighborChanged(state, world, pos, block, fromPos, isMoving);
+    public void neighborChanged(@Nonnull BlockState state, @Nonnull Level level, @Nonnull BlockPos pos, @Nonnull Block block, @Nonnull BlockPos fromPos, boolean isMoving) {
+        super.neighborChanged(state, level, pos, block, fromPos, isMoving);
 
-        if (world.getBlockState(pos.up()).getMaterial().isSolid()) {
-            turnToSoil(world, pos, AtumBlocks.SAND);
+        if (level.getBlockState(pos.above()).isSolid()) {
+            turnToSoil(level, pos, AtumBlocks.STRANGE_SAND.get());
         }
     }
 
     @Override
-    public void onPlantGrow(BlockState state, @Nonnull IWorld world, @Nonnull BlockPos pos, BlockPos source) {
-        if (this == AtumBlocks.FERTILE_SOIL_TILLED) {
-            world.setBlockState(pos, AtumBlocks.FERTILE_SOIL.getDefaultState(), 2);
-        }
-        super.onPlantGrow(state, world, pos, source);
-    }
+    public void onPlace(@Nonnull BlockState state, @Nonnull Level level, @Nonnull BlockPos pos, @Nonnull BlockState oldState, boolean isMoving) {
+        super.onPlace(state, level, pos, oldState, isMoving);
 
-    @Override
-    public void onBlockAdded(@Nonnull BlockState state, @Nonnull World world, @Nonnull BlockPos pos, @Nonnull BlockState oldState, boolean isMoving) {
-        super.onBlockAdded(state, world, pos, oldState, isMoving);
-
-        if (world.getBlockState(pos.up()).getMaterial().isSolid()) {
-            turnToSoil(world, pos, AtumBlocks.SAND);
+        if (level.getBlockState(pos.above()).isSolid()) {
+            turnToSoil(level, pos, AtumBlocks.STRANGE_SAND.get());
         }
     }
 
     @Override
-    public boolean canSustainPlant(@Nonnull BlockState state, @Nonnull IBlockReader world, BlockPos pos, @Nonnull Direction direction, IPlantable plantable) {
-        PlantType plantType = plantable.getPlantType(world, pos.up());
+    public boolean canSustainPlant(@Nonnull BlockState state, @Nonnull BlockGetter level, BlockPos pos, @Nonnull Direction direction, IPlantable plantable) {
+        PlantType plantType = plantable.getPlantType(level, pos.above());
 
         if (plantType.equals(PlantType.CROP) || plantType.equals(PlantType.PLAINS)) {
             return true;
         }
-        return super.canSustainPlant(state, world, pos, direction, plantable);
+        return super.canSustainPlant(state, level, pos, direction, plantable);
     }
 
     @Override
-    protected void fillStateContainer(StateContainer.Builder<Block, BlockState> container) {
+    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> container) {
         container.add(MOISTURE, BLESSED);
     }
 }

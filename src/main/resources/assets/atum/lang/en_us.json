@@ -1,13 +1,14 @@
 {
   "_comment": "Blocks",
   "block.atum.portal": "Atum Portal",
-  "block.atum.sand": "Strange Sand",
+  "block.atum.strange_sand": "Strange Sand",
   "block.atum.limestone_gravel": "Limestone Gravel",
   "block.atum.marl": "Marl",
   "block.atum.ra_stone": "Ra Stone",
   "block.atum.khnumite_block": "Khnumite Block",
   "block.atum.khnumite_face": "Khnumite Face",
   "block.atum.limestone": "Limestone",
+  "block.atum.karst": "Karst",
   "block.atum.limestone_cracked": "Cracked Limestone",
   "block.atum.limestone_brick_small": "Small Limestone Bricks",
   "block.atum.limestone_brick_large": "Large Limestone Bricks",
@@ -28,7 +29,7 @@
   "block.atum.cracked_brick_stairs": "Cracked Limestone Brick Stairs",
   "block.atum.chiseled_stairs": "Chiseled Limestone Brick Stairs",
   "block.atum.carved_stairs": "Carved Limestone Brick Stairs",
-  "block.atum.sand_layer": "Strange Sand Layer",
+  "block.atum.strange_sand_layer": "Strange Sand Layer",
   "block.atum.limestone_wall": "Limestone Wall",
   "block.atum.limestone_cracked_wall": "Cracked Limestone Wall",
   "block.atum.small_wall": "Small Limestone Brick Wall",
@@ -388,6 +389,8 @@
   "block.atum.palm_crate": "Palm Crate",
   "block.atum.deadwood_crate": "Deadwood Crate",
   "block.atum.heart_of_ra": "Heart of Ra",
+  "block.atum.lifeless_sand": "Lifeless Sand",
+  "block.atum.packed_strange_sand": "Packed Strange Sand",
 
   "_comment": "Stained Glass",
   "block.atum.black_stained_crystal_glass": "Black Stained Crystal Glass",
@@ -1138,7 +1141,7 @@
 
   "_comment": "Death Messages",
   "death.attack.assassinated": "%1$s was assassinated",
-  "death.attack.atum_pharaoh_orb": "%1$s has felt the wrath of %2$s",
+  "death.attack.pharaoh_orb": "%1$s has felt the wrath of %2$s",
 
   "_comment": "Pharaoh Names",
   "entity.atum.pharaoh.Ama": "Ama'",
@@ -1230,7 +1233,7 @@
   "atum.god.tefnut": "Tefnut",
 
   "_comment": "Creative Tab",
-  "itemGroup.atum": "Atum",
+  "tabs.atum.tab": "Atum",
 
   "_comment": "Chat",
   "chat.atum.disabled": "Scarab portal creation is disabled",
@@ -1276,7 +1279,7 @@
   "item.atum.idol_of_labor.10": "What'll you break this time!",
   "item.atum.idol_of_labor.11": "Oh #*@&, I have to do a #*@& ton of fancy stuff for this. Oh well.",
   "item.atum.idol_of_labor.12": "Maybe its on one of your secret spreadsheets..",
-  "item.atum.idol_of_labor.13": "Sure, if you want your world to die.",
+  "item.atum.idol_of_labor.13": "Sure, if you want your level to die.",
   "item.atum.idol_of_labor.14": "There is stuff for you to do in the sheet!",
   "item.atum.idol_of_labor.15": "Very difficult 30 seconds!",
   "item.atum.idol_of_labor.16": "You a beep!",

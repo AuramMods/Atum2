@@ -2,81 +2,79 @@ package com.teammetallurgy.atum.misc;
 
 import com.teammetallurgy.atum.Atum;
 import com.teammetallurgy.atum.world.DimensionHelper;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.Util;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.world.World;
-import net.minecraft.world.server.ServerWorld;
+import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.Vec3;
 
 import java.util.AbstractMap;
 import java.util.Optional;
 
 public class SpawnHelper {
-
     public static final String TAG_ATUM_RESPAWN = "atum_respawn";
-    private static final StringTextComponent BED_MISSING_MSG = new StringTextComponent("You have no home bed or respawn anchor, or it was obstructed");
+    private static final Component BED_MISSING_MSG = Component.literal("You have no home bed or respawn anchor, or it was obstructed");
 
     /**
      * Gets a player's spawnpoint, resetting if the bed is invalid
-     * Always returns a valid world and position which can be teleported to.
+     * Always returns a valid level and position which can be teleported to.
      *
-     * @param serverWorld any world
+     * @param serverLevel any level
      * @param serverPlayer the player
      * @param msgMode how to tell the player if their bed is missing; 0 is no message, 1 is after respawn, 2 is immediately
      * @return surface pos of the spawnpoint
      */
-    public static AbstractMap.SimpleEntry<ServerWorld, BlockPos> validateAndGetSpawnPoint(ServerWorld serverWorld, ServerPlayerEntity serverPlayer, int msgMode) {
+    public static AbstractMap.SimpleEntry<ServerLevel, BlockPos> validateAndGetSpawnPoint(ServerLevel serverLevel, ServerPlayer serverPlayer, int msgMode) {
         boolean atumSpawn = AtumConfig.ATUM_START.startInAtum.get();
-        boolean forcedSpawn = serverPlayer.func_241142_M_(); // if true -> don't check for valid bed
-        ServerWorld spawnWorld = serverWorld.getServer().getWorld(serverPlayer.func_241141_L_());
-        BlockPos spawnPos = serverPlayer.func_241140_K_();
+        boolean forcedSpawn = serverPlayer.isRespawnForced();
+        ServerLevel spawnLevel = serverLevel.getServer().getLevel(serverPlayer.getRespawnDimension());
+        BlockPos spawnPos = serverPlayer.getRespawnPosition();
 
-        Optional<Vector3d> bedPos = Optional.empty();
+        Optional<Vec3> bedPos = Optional.empty();
         if (spawnPos != null) {
-            bedPos = PlayerEntity.func_242374_a(spawnWorld, spawnPos, serverPlayer.func_242109_L(), forcedSpawn, false);
+            bedPos = Player.findRespawnPositionAndUseSpawnBlock(spawnLevel, spawnPos, serverPlayer.getRespawnAngle(), forcedSpawn, false);
         }
 
         boolean reset = false;
         if (atumSpawn) {
-            ServerWorld atumWorld = serverWorld.getServer().getWorld(Atum.ATUM);
-            BlockPos defaultSpawnPos = DimensionHelper.getSurfacePos(atumWorld, atumWorld.getSpawnPoint()).up();
+            ServerLevel atumLevel = serverLevel.getServer().getLevel(Atum.ATUM);
+            BlockPos defaultSpawnPos = DimensionHelper.getSurfacePos(atumLevel, atumLevel.getSharedSpawnPos()).above();
             // best attempt at checking whether this is the default atum spawnpoint
             boolean isSpawnPosDefault = forcedSpawn &&
-                    spawnWorld.getDimensionKey() == Atum.ATUM &&
+                    spawnLevel.dimension() == Atum.ATUM &&
                     spawnPos != null &&
                     spawnPos.getX() == defaultSpawnPos.getX() &&
                     spawnPos.getZ() == defaultSpawnPos.getZ();
 
-            if (!bedPos.isPresent() || isSpawnPosDefault) {
+            if (bedPos.isEmpty() || isSpawnPosDefault) {
                 if (!forcedSpawn && spawnPos != null) {
                     sendBedMissingMsg(serverPlayer, msgMode);
                 }
-                serverPlayer.func_242111_a(Atum.ATUM, defaultSpawnPos, serverPlayer.getRotationYawHead(), true, false);
-                spawnWorld = atumWorld;
+                serverPlayer.setRespawnPosition(Atum.ATUM, defaultSpawnPos, serverPlayer.getYHeadRot(), true, false);
+                spawnLevel = atumLevel;
                 spawnPos = defaultSpawnPos;
                 reset = true;
             }
         } else {
-            if (!bedPos.isPresent()) {
+            if (bedPos.isEmpty()) {
                 if (!forcedSpawn && spawnPos != null) {
                     sendBedMissingMsg(serverPlayer, msgMode);
                 }
-                serverPlayer.func_242111_a(World.OVERWORLD, null, serverPlayer.getRotationYawHead(), false, false);
-                spawnWorld = serverWorld.getServer().getWorld(World.OVERWORLD);
-                spawnPos = DimensionHelper.getSurfacePos(spawnWorld, spawnWorld.getSpawnPoint()).up();
+                serverPlayer.setRespawnPosition(Level.OVERWORLD, null, serverPlayer.getYHeadRot(), false, false);
+                spawnLevel = serverLevel.getServer().getLevel(Level.OVERWORLD);
+                spawnPos = DimensionHelper.getSurfacePos(spawnLevel, spawnLevel.getSharedSpawnPos()).above();
                 reset = true;
             }
         }
 
         if (!reset) {
-            spawnPos = spawnPos.up();
+            spawnPos = spawnPos.above();
         }
 
-        return new AbstractMap.SimpleEntry<>(spawnWorld, spawnPos);
+        return new AbstractMap.SimpleEntry<>(spawnLevel, spawnPos);
     }
 
     /**
@@ -85,14 +83,14 @@ public class SpawnHelper {
      * @param serverPlayer the player
      * @param msgMode how to tell the player if their bed is missing; 0 is no message, 1 is after respawn, 2 is immediately
      */
-    public static void sendBedMissingMsg(ServerPlayerEntity serverPlayer, int msgMode) {
+    public static void sendBedMissingMsg(ServerPlayer serverPlayer, int msgMode) {
         if (msgMode == 1) {
-            CompoundNBT tag = serverPlayer.getPersistentData();
-            CompoundNBT persistedTag = tag.getCompound(PlayerEntity.PERSISTED_NBT_TAG);
+            CompoundTag tag = serverPlayer.getPersistentData();
+            CompoundTag persistedTag = tag.getCompound(Player.PERSISTED_NBT_TAG);
             persistedTag.putBoolean(TAG_ATUM_RESPAWN, true);
-            tag.put(PlayerEntity.PERSISTED_NBT_TAG, persistedTag);
+            tag.put(Player.PERSISTED_NBT_TAG, persistedTag);
         } else if (msgMode == 2) {
-            serverPlayer.sendMessage(BED_MISSING_MSG, Util.DUMMY_UUID);
+            serverPlayer.sendSystemMessage(BED_MISSING_MSG);
         }
     }
 }

@@ -4,44 +4,47 @@ import com.mojang.serialization.Codec;
 import com.teammetallurgy.atum.blocks.SandLayersBlock;
 import com.teammetallurgy.atum.init.AtumBlocks;
 import com.teammetallurgy.atum.world.DimensionHelper;
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.world.ISeedReader;
-import net.minecraft.world.gen.ChunkGenerator;
-import net.minecraft.world.gen.Heightmap;
-import net.minecraft.world.gen.feature.Feature;
-import net.minecraft.world.gen.feature.NoFeatureConfig;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.util.Mth;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.level.WorldGenLevel;
+import net.minecraft.world.level.levelgen.Heightmap;
+import net.minecraft.world.level.levelgen.feature.Feature;
+import net.minecraft.world.level.levelgen.feature.FeaturePlaceContext;
+import net.minecraft.world.level.levelgen.feature.configurations.NoneFeatureConfiguration;
 
 import javax.annotation.Nonnull;
-import java.util.Random;
 
-public class SandLayerFeature extends Feature<NoFeatureConfig> {
+public class SandLayerFeature extends Feature<NoneFeatureConfiguration> {
 
-    public SandLayerFeature(Codec<NoFeatureConfig> config) {
+    public SandLayerFeature(Codec<NoneFeatureConfiguration> config) {
         super(config);
     }
 
     @Override
-    public boolean generate(@Nonnull ISeedReader seedReader, @Nonnull ChunkGenerator chunkGenerator, @Nonnull Random rand, @Nonnull BlockPos pos, @Nonnull NoFeatureConfig config) {
-        BlockPos.Mutable mutablePos = new BlockPos.Mutable();
+    public boolean place(@Nonnull FeaturePlaceContext<NoneFeatureConfiguration> placeContext) {
+        WorldGenLevel genLevel = placeContext.level();
+        BlockPos pos = placeContext.origin();
+        RandomSource random = placeContext.random();
+        BlockPos.MutableBlockPos mutablePos = new BlockPos.MutableBlockPos();
 
         for (int i = 0; i < 16; ++i) {
             for (int j = 0; j < 16; ++j) {
                 int x = pos.getX() + i;
                 int z = pos.getZ() + j;
-                int y = seedReader.getHeight(Heightmap.Type.MOTION_BLOCKING, x, z);
-                mutablePos.setPos(x, y, z);
+                int y = genLevel.getHeight(Heightmap.Types.MOTION_BLOCKING, x, z);
+                mutablePos.set(x, y, z);
 
                 for (Direction facing : Direction.Plane.HORIZONTAL) {
-                    BlockPos posOffset = mutablePos.offset(facing);
-                    if (seedReader.getBlockState(posOffset).isSolidSide(seedReader, posOffset, Direction.UP) && DimensionHelper.canPlaceSandLayer(seedReader, mutablePos)) {
-                        int layers = MathHelper.nextInt(rand, 1, 3);
-                        seedReader.setBlockState(mutablePos, AtumBlocks.SAND_LAYERED.getDefaultState().with(SandLayersBlock.LAYERS, layers), 2);
+                    BlockPos posOffset = mutablePos.relative(facing);
+                    if (genLevel.getBlockState(posOffset).isFaceSturdy(genLevel, posOffset, Direction.UP) && DimensionHelper.canPlaceSandLayer(genLevel, mutablePos)) {
+                        int layers = Mth.nextInt(random, 1, 3);
+                        genLevel.setBlock(mutablePos, AtumBlocks.STRANGE_SAND_LAYERED.get().defaultBlockState().setValue(SandLayersBlock.LAYERS, layers), 2);
                     }
                 }
             }
         }
-        return true;
+        return false;
     }
 }

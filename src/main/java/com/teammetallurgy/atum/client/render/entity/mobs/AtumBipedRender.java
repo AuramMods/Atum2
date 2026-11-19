@@ -2,13 +2,14 @@ package com.teammetallurgy.atum.client.render.entity.mobs;
 
 import com.google.common.collect.Maps;
 import com.teammetallurgy.atum.entity.ITexture;
-import net.minecraft.client.renderer.entity.BipedRenderer;
-import net.minecraft.client.renderer.entity.EntityRendererManager;
-import net.minecraft.client.renderer.entity.layers.BipedArmorLayer;
-import net.minecraft.client.renderer.entity.model.BipedModel;
-import net.minecraft.client.renderer.entity.model.PlayerModel;
-import net.minecraft.entity.MobEntity;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.client.model.HumanoidModel;
+import net.minecraft.client.model.PlayerModel;
+import net.minecraft.client.model.geom.ModelLayers;
+import net.minecraft.client.renderer.entity.EntityRendererProvider;
+import net.minecraft.client.renderer.entity.HumanoidMobRenderer;
+import net.minecraft.client.renderer.entity.layers.HumanoidArmorLayer;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.Mob;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -16,21 +17,25 @@ import javax.annotation.Nonnull;
 import java.util.Map;
 
 @OnlyIn(Dist.CLIENT)
-public class AtumBipedRender<T extends MobEntity & ITexture, M extends BipedModel<T>> extends BipedRenderer<T, M> {
+public class AtumBipedRender<T extends Mob & ITexture, M extends HumanoidModel<T>> extends HumanoidMobRenderer<T, M> {
     private static final Map<String, ResourceLocation> CACHE = Maps.newHashMap();
 
-    public AtumBipedRender(EntityRendererManager manager) {
-        this(manager, (M) new PlayerModel(0.0F, false));
+    public AtumBipedRender(EntityRendererProvider.Context context) {
+        this(context, false);
     }
 
-    public AtumBipedRender(EntityRendererManager renderManager, M model) {
-        super(renderManager, model, 0.5F);
-        this.addLayer(new BipedArmorLayer<>(this, new BipedModel<>(0.5F), new BipedModel<>(1.0F)));
+    public AtumBipedRender(EntityRendererProvider.Context context, boolean isSlim) {
+        this(context, (M) new PlayerModel(context.bakeLayer(isSlim ? ModelLayers.PLAYER_SLIM : ModelLayers.PLAYER), false), isSlim);
+    }
+
+    public AtumBipedRender(EntityRendererProvider.Context context, M model, boolean isSlim) {
+        super(context, model, 0.5F);
+        this.addLayer(new HumanoidArmorLayer<>(this, new HumanoidModel<>(context.bakeLayer(isSlim ? ModelLayers.PLAYER_SLIM_INNER_ARMOR : ModelLayers.PLAYER_INNER_ARMOR)), new HumanoidModel<>(context.bakeLayer(isSlim ? ModelLayers.PLAYER_SLIM_OUTER_ARMOR : ModelLayers.PLAYER_OUTER_ARMOR)), context.getModelManager()));
     }
 
     @Override
     @Nonnull
-    public ResourceLocation getEntityTexture(T entity) {
+    public ResourceLocation getTextureLocation(T entity) {
         String texture = entity.getTexture();
         ResourceLocation location = CACHE.get(texture);
 

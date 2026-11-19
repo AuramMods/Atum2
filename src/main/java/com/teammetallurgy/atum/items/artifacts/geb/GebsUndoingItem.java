@@ -1,24 +1,25 @@
 package com.teammetallurgy.atum.items.artifacts.geb;
 
+import net.minecraft.tags.BlockTags;
 import com.teammetallurgy.atum.Atum;
-import com.teammetallurgy.atum.api.AtumMats;
 import com.teammetallurgy.atum.api.God;
 import com.teammetallurgy.atum.api.IArtifact;
+import com.teammetallurgy.atum.api.material.AtumMaterialTiers;
 import com.teammetallurgy.atum.entity.stone.StoneBaseEntity;
 import com.teammetallurgy.atum.init.AtumItems;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.material.Material;
-import net.minecraft.enchantment.Enchantment;
-import net.minecraft.enchantment.Enchantments;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.inventory.EquipmentSlotType;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.PickaxeItem;
-import net.minecraft.item.Rarity;
-import net.minecraftforge.common.ToolType;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.PickaxeItem;
+import net.minecraft.world.item.Rarity;
+import net.minecraft.world.item.enchantment.Enchantment;
+import net.minecraft.world.item.enchantment.Enchantments;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraftforge.common.ToolAction;
+import net.minecraftforge.common.ToolActions;
 import net.minecraftforge.event.entity.living.LivingHurtEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -29,7 +30,7 @@ import javax.annotation.Nonnull;
 public class GebsUndoingItem extends PickaxeItem implements IArtifact {
 
     public GebsUndoingItem() {
-        super(AtumMats.NEBU, 2, -2.8F, new Item.Properties().rarity(Rarity.RARE).addToolType(ToolType.AXE, 0).group(Atum.GROUP));
+        super(AtumMaterialTiers.NEBU, 2, -2.8F, new Item.Properties().rarity(Rarity.RARE));
     }
 
     @Override
@@ -38,20 +39,24 @@ public class GebsUndoingItem extends PickaxeItem implements IArtifact {
     }
 
     @Override
+    public boolean canPerformAction(@Nonnull ItemStack stack, @Nonnull ToolAction toolAction) {
+        return super.canPerformAction(stack, toolAction) || ToolActions.DEFAULT_AXE_ACTIONS.contains(toolAction);
+    }
+
+    @Override
     public boolean canApplyAtEnchantingTable(@Nonnull ItemStack stack, Enchantment enchantment) {
-        return super.canApplyAtEnchantingTable(stack, enchantment) || enchantment == Enchantments.KNOCKBACK || enchantment == Enchantments.LOOTING || enchantment == Enchantments.SHARPNESS;
+        return super.canApplyAtEnchantingTable(stack, enchantment) || enchantment == Enchantments.KNOCKBACK || enchantment == Enchantments.MOB_LOOTING || enchantment == Enchantments.SHARPNESS;
     }
 
     @SubscribeEvent
     public static void onAttack(LivingHurtEvent event) {
-        Entity trueSource = event.getSource().getTrueSource();
-        if (trueSource instanceof PlayerEntity) {
-            PlayerEntity player = (PlayerEntity) trueSource;
-            ItemStack held = player.getItemStackFromSlot(EquipmentSlotType.MAINHAND);
-            if (held.getItem() == AtumItems.GEBS_UNDOING) {
-                LivingEntity target = event.getEntityLiving();
+        Entity trueSource = event.getSource().getEntity();
+        if (trueSource instanceof Player player) {
+            ItemStack held = player.getItemBySlot(EquipmentSlot.MAINHAND);
+            if (held.getItem() == AtumItems.GEBS_UNDOING.get()) {
+                LivingEntity target = event.getEntity();
                 if (target instanceof StoneBaseEntity) {
-                    if (!player.getCooldownTracker().hasCooldown(held.getItem())) {
+                    if (!player.getCooldowns().isOnCooldown(held.getItem())) {
                         event.setAmount(event.getAmount() * 2);
                     }
                 }
@@ -61,7 +66,7 @@ public class GebsUndoingItem extends PickaxeItem implements IArtifact {
 
     @Override
     public float getDestroySpeed(@Nonnull ItemStack stack, BlockState state) {
-        if (state.getMaterial() == Material.WOOD) {
+        if (state.is(BlockTags.LOGS) || state.is(BlockTags.PLANKS)) {
             return 11.0F;
         }
         return super.getDestroySpeed(stack, state);

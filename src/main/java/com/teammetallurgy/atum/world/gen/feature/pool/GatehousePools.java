@@ -1,20 +1,22 @@
+/*
 package com.teammetallurgy.atum.world.gen.feature.pool;
 
 import com.google.common.collect.ImmutableList;
 import com.mojang.datafixers.util.Pair;
 import com.teammetallurgy.atum.Atum;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.world.gen.feature.jigsaw.JigsawPattern;
-import net.minecraft.world.gen.feature.jigsaw.JigsawPatternRegistry;
-import net.minecraft.world.gen.feature.jigsaw.JigsawPiece;
-import net.minecraft.world.gen.feature.template.ProcessorLists;
+import net.minecraft.core.Holder;
+import net.minecraft.data.worldgen.Pools;
+import net.minecraft.data.worldgen.ProcessorLists;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.levelgen.structure.pools.StructurePoolElement;
+import net.minecraft.world.level.levelgen.structure.pools.StructureTemplatePool;
 
-public class GatehousePools {
-    public static final JigsawPattern POOL = JigsawPatternRegistry.func_244094_a(new JigsawPattern(new ResourceLocation(Atum.MOD_ID, "ruinedwalls/gatehouses"), new ResourceLocation("empty"), ImmutableList.of(Pair.of(JigsawPiece.func_242851_a("atum:ruinedwalls/gatehouses/gatehouse", ProcessorLists.field_244101_a), 98)), JigsawPattern.PlacementBehaviour.TERRAIN_MATCHING));
+public class GatehousePools { //TODO
+    public static final Holder<StructureTemplatePool> POOL = Pools.register(new StructureTemplatePool(new ResourceLocation(Atum.MOD_ID, "ruinedwalls/gatehouses"), new ResourceLocation("empty"), ImmutableList.of(Pair.of(StructurePoolElement.legacy("atum:ruinedwalls/gatehouses/gatehouse", ProcessorLists.EMPTY), 98)), StructureTemplatePool.Projection.TERRAIN_MATCHING));
 
     public static void init() {
-        JigsawPatternRegistry.func_244094_a(new JigsawPattern(new ResourceLocation(Atum.MOD_ID, "ruinedwalls/walls"), new ResourceLocation(Atum.MOD_ID, "ruinedwalls/terminators"), ImmutableList.of(Pair.of(JigsawPiece.func_242851_a("atum:ruinedwalls/walls/wall1", ProcessorLists.field_244101_a), 2), Pair.of(JigsawPiece.func_242851_a("atum:ruinedwalls/walls/corner1", ProcessorLists.field_244101_a), 2), Pair.of(JigsawPiece.func_242851_a("atum:ruinedwalls/walls/corner2", ProcessorLists.field_244101_a), 2), Pair.of(JigsawPiece.func_242851_a("atum:ruinedwalls/walls/threeway1", ProcessorLists.field_244101_a), 2), Pair.of(JigsawPiece.func_242851_a("atum:ruinedwalls/walls/tower1", ProcessorLists.field_244101_a), 2), Pair.of(JigsawPiece.func_242851_a("atum:ruinedwalls/walls/tower2", ProcessorLists.field_244101_a), 2)), JigsawPattern.PlacementBehaviour.TERRAIN_MATCHING));
-        JigsawPatternRegistry.func_244094_a(new JigsawPattern(new ResourceLocation(Atum.MOD_ID, "ruinedwalls/terminators"), new ResourceLocation("empty"), ImmutableList.of(Pair.of(JigsawPiece.func_242849_a("atum:ruinedwalls/terminators/terminator1"), 1)), JigsawPattern.PlacementBehaviour.TERRAIN_MATCHING));
-        JigsawPatternRegistry.func_244094_a(new JigsawPattern(new ResourceLocation(Atum.MOD_ID, "ruinedwalls/roads"), new ResourceLocation(Atum.MOD_ID, "ruinedwalls/terminators"), ImmutableList.of(Pair.of(JigsawPiece.func_242849_a("atum:ruinedwalls/roads/road1"), 3), Pair.of(JigsawPiece.func_242849_a("atum:ruinedwalls/roads/road2"), 3)), JigsawPattern.PlacementBehaviour.TERRAIN_MATCHING));
+        Pools.register(new StructureTemplatePool(new ResourceLocation(Atum.MOD_ID, "ruinedwalls/walls"), new ResourceLocation(Atum.MOD_ID, "ruinedwalls/terminators"), ImmutableList.of(Pair.of(StructurePoolElement.legacy("atum:ruinedwalls/walls/wall1", ProcessorLists.EMPTY), 2), Pair.of(StructurePoolElement.legacy("atum:ruinedwalls/walls/corner1", ProcessorLists.EMPTY), 2), Pair.of(StructurePoolElement.legacy("atum:ruinedwalls/walls/corner2", ProcessorLists.EMPTY), 2), Pair.of(StructurePoolElement.legacy("atum:ruinedwalls/walls/threeway1", ProcessorLists.EMPTY), 2), Pair.of(StructurePoolElement.legacy("atum:ruinedwalls/walls/tower1", ProcessorLists.EMPTY), 2), Pair.of(StructurePoolElement.legacy("atum:ruinedwalls/walls/tower2", ProcessorLists.EMPTY), 2)), StructureTemplatePool.Projection.TERRAIN_MATCHING));
+        Pools.register(new StructureTemplatePool(new ResourceLocation(Atum.MOD_ID, "ruinedwalls/terminators"), new ResourceLocation("empty"), ImmutableList.of(Pair.of(StructurePoolElement.legacy("atum:ruinedwalls/terminators/terminator1"), 1)), StructureTemplatePool.Projection.TERRAIN_MATCHING));
+        Pools.register(new StructureTemplatePool(new ResourceLocation(Atum.MOD_ID, "ruinedwalls/roads"), new ResourceLocation(Atum.MOD_ID, "ruinedwalls/terminators"), ImmutableList.of(Pair.of(StructurePoolElement.legacy("atum:ruinedwalls/roads/road1"), 3), Pair.of(StructurePoolElement.legacy("atum:ruinedwalls/roads/road2"), 3)), StructureTemplatePool.Projection.TERRAIN_MATCHING));
     }
-}
+}*/

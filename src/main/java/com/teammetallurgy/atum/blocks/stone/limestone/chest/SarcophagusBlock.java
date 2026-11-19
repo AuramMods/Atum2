@@ -1,5 +1,6 @@
 package com.teammetallurgy.atum.blocks.stone.limestone.chest;
 
+import net.minecraft.world.level.block.state.properties.NoteBlockInstrument;
 import com.teammetallurgy.atum.Atum;
 import com.teammetallurgy.atum.blocks.QuandaryBlock;
 import com.teammetallurgy.atum.blocks.base.ChestBaseBlock;
@@ -8,25 +9,31 @@ import com.teammetallurgy.atum.init.AtumBlocks;
 import com.teammetallurgy.atum.init.AtumTileEntities;
 import com.teammetallurgy.atum.network.NetworkHandler;
 import com.teammetallurgy.atum.network.packet.SyncHandStackSizePacket;
-import net.minecraft.block.AbstractBlock;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.material.Material;
-import net.minecraft.block.material.MaterialColor;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.inventory.container.INamedContainerProvider;
-import net.minecraft.item.ItemStack;
-import net.minecraft.state.properties.ChestType;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.*;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.BlockRayTraceResult;
-import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.util.text.TextFormatting;
-import net.minecraft.util.text.TranslationTextComponent;
-import net.minecraft.world.*;
-import net.minecraftforge.event.world.BlockEvent;
+import net.minecraft.ChatFormatting;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.Difficulty;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.MenuProvider;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Explosion;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockBehaviour;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.ChestType;
+import net.minecraft.world.level.material.MapColor;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraftforge.event.level.BlockEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
@@ -37,19 +44,19 @@ import javax.annotation.Nullable;
 public class SarcophagusBlock extends ChestBaseBlock {
 
     public SarcophagusBlock() {
-        super(() -> AtumTileEntities.SARCOPHAGUS, AbstractBlock.Properties.create(Material.ROCK, MaterialColor.SAND).hardnessAndResistance(4.0F));
+        super(AtumTileEntities.SARCOPHAGUS::get, BlockBehaviour.Properties.of().mapColor(MapColor.SAND).instrument(NoteBlockInstrument.BASEDRUM).strength(4.0F));
     }
 
     @Override
-    public TileEntity createNewTileEntity(@Nonnull IBlockReader reader) {
-        return new SarcophagusTileEntity();
+    public BlockEntity newBlockEntity(@Nonnull BlockPos pos, @Nonnull BlockState state) {
+        return AtumTileEntities.SARCOPHAGUS.get().create(pos, state);
     }
 
     @SubscribeEvent
     public static void onBlockBreak(BlockEvent.BreakEvent event) {
         BlockState state = event.getState();
         if (state.getBlock() instanceof SarcophagusBlock) {
-            TileEntity tileEntity = event.getWorld().getTileEntity(event.getPos());
+            BlockEntity tileEntity = event.getLevel().getBlockEntity(event.getPos());
             if (tileEntity instanceof SarcophagusTileEntity && !((SarcophagusTileEntity) tileEntity).isOpenable) {
                 event.setCanceled(true);
             }
@@ -57,71 +64,68 @@ public class SarcophagusBlock extends ChestBaseBlock {
     }
 
     @Override
-    public float getExplosionResistance(BlockState state, IBlockReader world, BlockPos pos, Explosion explosion) {
-        TileEntity tileEntity = world.getTileEntity(pos);
+    public float getExplosionResistance(BlockState state, BlockGetter level, BlockPos pos, Explosion explosion) {
+        BlockEntity tileEntity = level.getBlockEntity(pos);
         if (tileEntity instanceof SarcophagusTileEntity && !((SarcophagusTileEntity) tileEntity).isOpenable) {
             return 6000000.0F;
         } else {
-            return super.getExplosionResistance(state, world, pos, explosion);
+            return super.getExplosionResistance(state, level, pos, explosion);
         }
     }
 
     @Override
     @Nonnull
-    public ActionResultType onBlockActivated(BlockState state, World world, @Nonnull BlockPos pos, @Nonnull PlayerEntity player, @Nonnull Hand hand, @Nonnull BlockRayTraceResult hit) {
-        TileEntity tileEntity = world.getTileEntity(pos);
-        Direction facing = state.get(FACING);
+    public InteractionResult use(BlockState state, Level level, @Nonnull BlockPos pos, @Nonnull Player player, @Nonnull InteractionHand hand, @Nonnull BlockHitResult hit) {
+        BlockEntity tileEntity = level.getBlockEntity(pos);
+        Direction facing = state.getValue(FACING);
 
         //Right-Click left block, when right-clicking right block
-        BlockPos posLeft = pos.offset(facing.rotateY());
-        TileEntity tileLeft = world.getTileEntity(posLeft);
-        if (world.getBlockState(posLeft).getBlock() == this && tileLeft instanceof SarcophagusTileEntity) {
-            SarcophagusTileEntity sarcophagus = (SarcophagusTileEntity) tileLeft;
-            if (world.getDifficulty() != Difficulty.PEACEFUL && !sarcophagus.hasSpawned) {
-                this.onBlockActivated(state, world, pos.offset(facing.rotateY()), player, hand, hit);
-                return ActionResultType.PASS;
+        BlockPos posLeft = pos.relative(facing.getClockWise());
+        BlockEntity tileLeft = level.getBlockEntity(posLeft);
+        if (level.getBlockState(posLeft).getBlock() == this && tileLeft instanceof SarcophagusTileEntity sarcophagus) {
+            if (level.getDifficulty() != Difficulty.PEACEFUL && !sarcophagus.hasSpawned) {
+                this.use(state, level, pos.relative(facing.getClockWise()), player, hand, hit);
+                return InteractionResult.PASS;
             }
         }
 
-        if (tileEntity instanceof SarcophagusTileEntity) {
-            SarcophagusTileEntity sarcophagus = (SarcophagusTileEntity) tileEntity;
-            if (world.getDifficulty() != Difficulty.PEACEFUL && !sarcophagus.hasSpawned) {
-                if (QuandaryBlock.Helper.canSpawnPharaoh(world, pos, facing, player, sarcophagus)) {
-                    return ActionResultType.PASS;
+        if (tileEntity instanceof SarcophagusTileEntity sarcophagus) {
+            if (level.getDifficulty() != Difficulty.PEACEFUL && !sarcophagus.hasSpawned) {
+                if (QuandaryBlock.Helper.canSpawnPharaoh(level, pos, facing, player, level.random, sarcophagus)) {
+                    return InteractionResult.PASS;
                 } else if (!sarcophagus.isOpenable) {
-                    player.sendStatusMessage(new TranslationTextComponent("chat.atum.cannot_spawn_pharaoh").mergeStyle(TextFormatting.RED), true);
-                    world.playSound(pos.getX(), pos.getY(), pos.getZ(), SoundEvents.ENTITY_ZOMBIE_INFECT, SoundCategory.HOSTILE, 0.7F, 0.4F, false);
-                    return ActionResultType.PASS;
+                    player.displayClientMessage(Component.translatable("chat.atum.cannot_spawn_pharaoh").withStyle(ChatFormatting.RED), true);
+                    level.playLocalSound(pos.getX(), pos.getY(), pos.getZ(), SoundEvents.ZOMBIE_INFECT, SoundSource.HOSTILE, 0.7F, 0.4F, false);
+                    return InteractionResult.PASS;
                 }
             }
         }
-        return super.onBlockActivated(state, world, pos, player, hand, hit);
+        return super.use(state, level, pos, player, hand, hit);
     }
 
     @Nullable
     @Override
-    public INamedContainerProvider getContainer(@Nonnull BlockState state, @Nonnull World world, @Nonnull BlockPos pos) { //Workaround so you can't see loot before pharaoh is beaten
-        TileEntity tileEntity = world.getTileEntity(pos);
-        return tileEntity instanceof SarcophagusTileEntity && ((SarcophagusTileEntity) tileEntity).isOpenable ? super.getContainer(state, world, pos) : null;
+    public MenuProvider getMenuProvider(@Nonnull BlockState state, @Nonnull Level level, @Nonnull BlockPos pos) { //Workaround so you can't see loot before pharaoh is beaten
+        BlockEntity tileEntity = level.getBlockEntity(pos);
+        return tileEntity instanceof SarcophagusTileEntity && ((SarcophagusTileEntity) tileEntity).isOpenable ? super.getMenuProvider(state, level, pos) : null;
     }
 
     @Override
-    public void onBlockPlacedBy(@Nonnull World world, @Nonnull BlockPos pos, @Nonnull BlockState state, @Nonnull LivingEntity placer, @Nonnull ItemStack stack) {
-        super.onBlockPlacedBy(world, pos, state, placer, stack);
-        TileEntity tileEntity = world.getTileEntity(pos);
+    public void setPlacedBy(@Nonnull Level level, @Nonnull BlockPos pos, @Nonnull BlockState state, @Nonnull LivingEntity placer, @Nonnull ItemStack stack) {
+        super.setPlacedBy(level, pos, state, placer, stack);
+        BlockEntity tileEntity = level.getBlockEntity(pos);
 
-        if (tileEntity instanceof SarcophagusTileEntity) {
-            SarcophagusTileEntity sarcophagus = (SarcophagusTileEntity) tileEntity;
+        if (tileEntity instanceof SarcophagusTileEntity sarcophagus) {
             sarcophagus.hasSpawned = true;
             sarcophagus.setOpenable();
-            sarcophagus.updateContainingBlockInfo();
+            sarcophagus.setChanged();
 
             for (Direction horizontal : Direction.Plane.HORIZONTAL) {
-                TileEntity tileEntityOffset = world.getTileEntity(pos.offset(horizontal));
+                BlockEntity tileEntityOffset = level.getBlockEntity(pos.relative(horizontal));
                 if (tileEntityOffset instanceof SarcophagusTileEntity) {
                     ((SarcophagusTileEntity) tileEntityOffset).hasSpawned = true;
                     ((SarcophagusTileEntity) tileEntityOffset).setOpenable();
-                    tileEntityOffset.updateContainingBlockInfo();
+                    tileEntityOffset.setChanged();
                 }
             }
         }
@@ -131,30 +135,29 @@ public class SarcophagusBlock extends ChestBaseBlock {
     public static void onPlaced(BlockEvent.EntityPlaceEvent event) { //Prevent placement, 1 block left of another block
         BlockState placedState = event.getPlacedBlock();
         if (placedState.getBlock() instanceof SarcophagusBlock) {
-            if (!canPlaceRightSac(event.getWorld(), event.getPos(), placedState.get(FACING))) {
+            if (!canPlaceRightSac(event.getLevel(), event.getPos(), placedState.getValue(FACING))) {
                 event.setCanceled(true);
-                if (event.getEntity() instanceof ServerPlayerEntity) {
-                    ServerPlayerEntity player = (ServerPlayerEntity) event.getEntity();
+                if (event.getEntity() instanceof ServerPlayer player) {
                     ItemStack placedStack = new ItemStack(placedState.getBlock().asItem());
-                    Hand hand = player.getHeldItemMainhand().getItem() == placedStack.getItem() ? Hand.MAIN_HAND : Hand.OFF_HAND;
-                    NetworkHandler.sendTo(player, new SyncHandStackSizePacket(placedStack, hand == Hand.MAIN_HAND ? 1 : 0));
+                    InteractionHand hand = player.getMainHandItem().getItem() == placedStack.getItem() ? InteractionHand.MAIN_HAND : InteractionHand.OFF_HAND;
+                    NetworkHandler.sendTo(player, new SyncHandStackSizePacket(placedStack, hand == InteractionHand.MAIN_HAND ? 1 : 0));
                 }
             }
         }
     }
 
-    private static boolean canPlaceRightSac(IWorld world, BlockPos pos, Direction facing) {
-        BlockPos posOffset = pos.offset(facing.rotateYCCW());
-        BlockState offsetState = world.getBlockState(posOffset);
+    private static boolean canPlaceRightSac(LevelAccessor level, BlockPos pos, Direction facing) {
+        BlockPos posOffset = pos.relative(facing.getCounterClockWise());
+        BlockState offsetState = level.getBlockState(posOffset);
         if (offsetState.getBlock() instanceof SarcophagusBlock) {
-            return offsetState.get(SarcophagusBlock.TYPE) == ChestType.LEFT && offsetState.get(SarcophagusBlock.FACING) == facing;
+            return offsetState.getValue(SarcophagusBlock.TYPE) == ChestType.LEFT && offsetState.getValue(SarcophagusBlock.FACING) == facing;
         }
         return false;
     }
 
-    @Nonnull
     @Override
-    public ItemStack getPickBlock(BlockState state, RayTraceResult target, IBlockReader world, BlockPos pos, PlayerEntity player) {
-        return new ItemStack(AtumBlocks.SARCOPHAGUS);
+    @Nonnull
+    public ItemStack getCloneItemStack(@Nonnull BlockGetter getter, @Nonnull BlockPos pos, @Nonnull BlockState state) {
+        return new ItemStack(AtumBlocks.SARCOPHAGUS.get());
     }
 }

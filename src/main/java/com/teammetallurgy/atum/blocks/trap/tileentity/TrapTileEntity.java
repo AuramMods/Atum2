@@ -3,40 +3,42 @@ package com.teammetallurgy.atum.blocks.trap.tileentity;
 import com.teammetallurgy.atum.blocks.base.tileentity.InventoryBaseTileEntity;
 import com.teammetallurgy.atum.blocks.trap.TrapBlock;
 import com.teammetallurgy.atum.inventory.container.block.TrapContainer;
-import net.minecraft.block.BlockState;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.inventory.container.Container;
-import net.minecraft.inventory.container.FurnaceFuelSlot;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.network.NetworkManager;
-import net.minecraft.network.play.server.SUpdateTileEntityPacket;
-import net.minecraft.tileentity.FurnaceTileEntity;
-import net.minecraft.tileentity.ITickableTileEntity;
-import net.minecraft.tileentity.TileEntityType;
-import net.minecraft.util.Direction;
-import net.minecraft.util.IIntArray;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.vector.Vector3i;
-import net.minecraft.world.World;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.core.Vec3i;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.Connection;
+import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.ContainerData;
+import net.minecraft.world.inventory.FurnaceFuelSlot;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.crafting.RecipeType;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.entity.FurnaceBlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.AABB;
 import net.minecraftforge.common.ForgeHooks;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.LazyOptional;
+import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.List;
 
-public class TrapTileEntity extends InventoryBaseTileEntity implements ITickableTileEntity {
+public class TrapTileEntity extends InventoryBaseTileEntity {
     protected int burnTime;
     protected int currentItemBurnTime;
     protected boolean isDisabled = false;
     public boolean isInsidePyramid = true;
-    public final IIntArray trapData = new IIntArray() {
+    public final ContainerData trapData = new ContainerData() {
         @Override
         public int get(int index) {
             switch (index) {
@@ -62,52 +64,49 @@ public class TrapTileEntity extends InventoryBaseTileEntity implements ITickable
         }
 
         @Override
-        public int size() {
+        public int getCount() {
             return 2;
         }
     };
 
-    public TrapTileEntity(TileEntityType<?> tileEntityType) {
-        super(tileEntityType, 1);
+    public TrapTileEntity(BlockEntityType<?> tileEntityType, BlockPos pos, BlockState state) {
+        super(tileEntityType, pos, state, 1);
     }
 
     public void setDisabledStatus(boolean isDisabled) {
         this.isDisabled = isDisabled;
-        if (this.world != null) {
-            BlockState state = this.world.getBlockState(this.pos);
-            this.world.notifyBlockUpdate(this.pos, state, state, 3);
+        if (this.level != null) {
+            BlockState state = this.level.getBlockState(this.worldPosition);
+            this.level.sendBlockUpdated(this.worldPosition, state, state, 3);
         }
     }
 
-    AxisAlignedBB getFacingBoxWithRange(Direction facing, int range) {
-        BlockPos pos = getPos();
-        Vector3i dir = facing.getDirectionVec();
-        return new AxisAlignedBB(pos).expand(dir.getX() * range, dir.getY() * range, dir.getZ() * range);
+    public static AABB getFacingBoxWithRange(BlockPos pos, Direction facing, int range) {
+        Vec3i dir = facing.getNormal();
+        return new AABB(pos).expandTowards(dir.getX() * range, dir.getY() * range, dir.getZ() * range);
     }
 
-    @Override
-    public void tick() {
-        boolean isBurningCheck = this.isBurning();
+    public static void serverTick(Level level, BlockPos pos, BlockState state, TrapTileEntity trap) {
+        boolean isBurningCheck = trap.isBurning();
         boolean isBurning = false;
         boolean canDamageEntity = false;
-        World world = this.world;
-        if (world == null) return;
 
-        if (!this.isDisabled && this.isBurning()) {
-            BlockState state = world.getBlockState(this.pos);
+        if (!trap.isDisabled && trap.isBurning()) {
             if (state.getBlock() instanceof TrapBlock) {
-                Direction facing = state.get(TrapBlock.FACING);
+                Direction facing = state.getValue(TrapBlock.FACING);
                 Class<? extends LivingEntity> entity;
-                if (this.isInsidePyramid) {
-                    entity = PlayerEntity.class;
+                if (trap.isInsidePyramid) {
+                    entity = Player.class;
                 } else {
                     entity = LivingEntity.class;
                 }
-                List<LivingEntity> entities = world.getEntitiesWithinAABB(entity, getFacingBoxWithRange(facing, 1).shrink(0.05D));
+                List<? extends LivingEntity> entities = level.getEntitiesOfClass(entity, getFacingBoxWithRange(pos, facing, 1).deflate(0.05D));
                 for (LivingEntity livingBase : entities) {
-                    if (livingBase instanceof PlayerEntity ? !((PlayerEntity) livingBase).isCreative() : livingBase != null) {
+                    if (livingBase instanceof Player ? !((Player) livingBase).isCreative() : livingBase != null) {
                         canDamageEntity = true;
-                        this.triggerTrap(world, facing, livingBase);
+                        if (level instanceof ServerLevel serverLevel) {
+                            trap.triggerTrap(serverLevel, facing, livingBase);
+                        }
                     } else {
                         canDamageEntity = false;
                     }
@@ -115,21 +114,21 @@ public class TrapTileEntity extends InventoryBaseTileEntity implements ITickable
             }
         }
 
-        if (this.isInsidePyramid) {
-            this.burnTime = 1;
+        if (trap.isInsidePyramid) {
+            trap.burnTime = 1;
         }
 
-        if (this.isBurning() && !this.isDisabled && canDamageEntity && !this.isInsidePyramid) {
-            --this.burnTime;
+        if (trap.isBurning() && !trap.isDisabled && canDamageEntity && !trap.isInsidePyramid) {
+            --trap.burnTime;
         }
 
-        if (!world.isRemote && !this.isDisabled) {
-            ItemStack fuel = this.inventory.get(0);
-            if (this.isBurning() || !fuel.isEmpty()) {
-                if (!this.isBurning()) {
-                    this.burnTime = ForgeHooks.getBurnTime(fuel) / 10;
-                    this.currentItemBurnTime = this.burnTime;
-                    if (this.isBurning()) {
+        if (!level.isClientSide && !trap.isDisabled) {
+            ItemStack fuel = trap.inventory.get(0);
+            if (trap.isBurning() || !fuel.isEmpty()) {
+                if (!trap.isBurning()) {
+                    trap.burnTime = ForgeHooks.getBurnTime(fuel, RecipeType.SMELTING) / 10;
+                    trap.currentItemBurnTime = trap.burnTime;
+                    if (trap.isBurning()) {
                         isBurning = true;
                         if (!fuel.isEmpty()) {
                             fuel.shrink(1);
@@ -137,16 +136,16 @@ public class TrapTileEntity extends InventoryBaseTileEntity implements ITickable
                     }
                 }
             }
-            if (isBurningCheck != this.isBurning()) {
+            if (isBurningCheck != trap.isBurning()) {
                 isBurning = true;
             }
         }
         if (isBurning) {
-            this.markDirty();
+            trap.setChanged();
         }
     }
 
-    protected void triggerTrap(World world, Direction facing, LivingEntity livingBase) {
+    protected void triggerTrap(ServerLevel serverLevel, Direction facing, LivingEntity livingBase) {
     }
 
     boolean isBurning() {
@@ -154,61 +153,62 @@ public class TrapTileEntity extends InventoryBaseTileEntity implements ITickable
     }
 
     @Override
-    public boolean isUsableByPlayer(@Nonnull PlayerEntity player) {
-        return super.isUsableByPlayer(player) && !this.isInsidePyramid;
+    public boolean stillValid(@Nonnull Player player) {
+        return super.stillValid(player) && !this.isInsidePyramid;
     }
 
     @Override
-    public boolean isItemValidForSlot(int index, @Nonnull ItemStack stack) {
+    public boolean canPlaceItem(int index, @Nonnull ItemStack stack) {
         ItemStack fuel = this.inventory.get(0);
-        return !this.isInsidePyramid && (FurnaceTileEntity.isFuel(stack) || FurnaceFuelSlot.isBucket(stack) && fuel.getItem() != Items.BUCKET);
+        return !this.isInsidePyramid && (FurnaceBlockEntity.isFuel(stack) || FurnaceFuelSlot.isBucket(stack) && fuel.getItem() != Items.BUCKET);
     }
 
     @Override
-    public SUpdateTileEntityPacket getUpdatePacket() {
-        return new SUpdateTileEntityPacket(this.pos, 0, this.getUpdateTag());
+    public ClientboundBlockEntityDataPacket getUpdatePacket() {
+        return ClientboundBlockEntityDataPacket.create(this);
     }
 
     @Override
-    public void onDataPacket(NetworkManager manager, SUpdateTileEntityPacket packet) {
+    public void onDataPacket(Connection manager, ClientboundBlockEntityDataPacket packet) {
         super.onDataPacket(manager, packet);
-        this.read(this.getBlockState(), packet.getNbtCompound());
+        if (packet.getTag() != null) {
+            this.load(packet.getTag());
+            this.setChanged();
+        }
     }
 
     @Override
     @Nonnull
-    public CompoundNBT getUpdateTag() {
-        return this.write(new CompoundNBT());
+    public CompoundTag getUpdateTag() {
+        return this.saveWithoutMetadata();
     }
 
     @Override
-    public void read(@Nonnull BlockState state, @Nonnull CompoundNBT compound) {
-        super.read(state, compound);
-        this.burnTime = compound.getInt("BurnTime");
-        this.isDisabled = compound.getBoolean("Disabled");
-        this.isInsidePyramid = compound.getBoolean("InPyramid");
+    public void load(@Nonnull CompoundTag tag) {
+        super.load(tag);
+        this.burnTime = tag.getInt("BurnTime");
+        this.isDisabled = tag.getBoolean("Disabled");
+        this.isInsidePyramid = tag.getBoolean("InPyramid");
+    }
+
+    @Override
+    protected void saveAdditional(@NotNull CompoundTag tag) {
+        super.saveAdditional(tag);
+        tag.putInt("BurnTime", (short) this.burnTime);
+        tag.putBoolean("Disabled", this.isDisabled);
+        tag.putBoolean("InPyramid", this.isInsidePyramid);
     }
 
     @Override
     @Nonnull
-    public CompoundNBT write(@Nonnull CompoundNBT compound) {
-        super.write(compound);
-        compound.putInt("BurnTime", (short) this.burnTime);
-        compound.putBoolean("Disabled", this.isDisabled);
-        compound.putBoolean("InPyramid", this.isInsidePyramid);
-        return compound;
-    }
-
-    @Override
-    @Nonnull
-    protected Container createMenu(int windowID, @Nonnull PlayerInventory playerInventory) {
+    protected AbstractContainerMenu createMenu(int windowID, @Nonnull Inventory playerInventory) {
         return new TrapContainer(windowID, playerInventory, this);
     }
 
     @Override
     @Nonnull
-    public ItemStack decrStackSize(int index, int count) {
-        return !isInsidePyramid ? super.decrStackSize(index, count) : ItemStack.EMPTY;
+    public ItemStack removeItem(int index, int count) {
+        return !isInsidePyramid ? super.removeItem(index, count) : ItemStack.EMPTY;
     }
 
     @Override

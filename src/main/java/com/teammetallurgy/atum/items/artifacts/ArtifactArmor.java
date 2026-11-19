@@ -2,29 +2,27 @@ package com.teammetallurgy.atum.items.artifacts;
 
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Multimap;
+import com.mojang.blaze3d.platform.InputConstants;
 import com.teammetallurgy.atum.Atum;
 import com.teammetallurgy.atum.api.IArtifact;
 import com.teammetallurgy.atum.api.IFogReductionItem;
 import com.teammetallurgy.atum.items.TexturedArmorItem;
 import com.teammetallurgy.atum.misc.StackHelper;
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.util.ITooltipFlag;
-import net.minecraft.client.util.InputMappings;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.ai.attributes.Attribute;
-import net.minecraft.entity.ai.attributes.AttributeModifier;
-import net.minecraft.entity.ai.attributes.Attributes;
-import net.minecraft.entity.ai.attributes.ModifiableAttributeInstance;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.inventory.EquipmentSlotType;
-import net.minecraft.item.IArmorMaterial;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.util.text.TextFormatting;
-import net.minecraft.util.text.TranslationTextComponent;
-import net.minecraft.world.World;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.attributes.Attribute;
+import net.minecraft.world.entity.ai.attributes.AttributeInstance;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ArmorMaterial;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.level.Level;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.event.TickEvent;
@@ -41,8 +39,8 @@ import java.util.UUID;
 public abstract class ArtifactArmor extends TexturedArmorItem implements IArtifact, IFogReductionItem {
     private static final AttributeModifier SPEED_BOOST = new AttributeModifier(UUID.fromString("2aa9e06c-cc77-4c0a-b832-58d8aaef1500"), "Artifact boots speed boost", 0.02D, AttributeModifier.Operation.ADDITION);
 
-    public ArtifactArmor(IArmorMaterial material, String name, EquipmentSlotType slot, Properties properties) {
-        super(material, name, slot, properties.group(Atum.GROUP));
+    public ArtifactArmor(ArmorMaterial material, String name, Type type, Properties properties) {
+        super(material, name, type, properties);
     }
 
     public abstract Item getHelmet();
@@ -66,25 +64,21 @@ public abstract class ArtifactArmor extends TexturedArmorItem implements IArtifa
         };
     }
 
-    public boolean hasArmorSetPiece(PlayerEntity player, EquipmentSlotType slotType) {
-        ItemStack stack = player.getItemStackFromSlot(slotType);
-        switch (slotType) {
-            case HEAD:
-                return stack.getItem() == getHelmet();
-            case CHEST:
-                return stack.getItem() == getChestplate();
-            case LEGS:
-                return stack.getItem() == getLeggings();
-            case FEET:
-                return stack.getItem() == getBoots();
-        }
-        return false;
+    public boolean hasArmorSetPiece(Player player, EquipmentSlot slotType) {
+        ItemStack stack = player.getItemBySlot(slotType);
+        return switch (slotType) {
+            case HEAD -> stack.getItem() == getHelmet();
+            case CHEST -> stack.getItem() == getChestplate();
+            case LEGS -> stack.getItem() == getLeggings();
+            case FEET -> stack.getItem() == getBoots();
+            default -> false;
+        };
     }
 
-    private int getArmorPiecesEquipped(PlayerEntity player) {
+    private int getArmorPiecesEquipped(Player player) {
         int pieces = 0;
-        for (EquipmentSlotType slotType : EquipmentSlotType.values()) {
-            if (slotType.getSlotType() == EquipmentSlotType.Group.ARMOR && hasArmorSetPiece(player, slotType)) {
+        for (EquipmentSlot slotType : EquipmentSlot.values()) {
+            if (slotType.getType() == EquipmentSlot.Type.ARMOR && hasArmorSetPiece(player, slotType)) {
                 pieces++;
             }
         }
@@ -93,21 +87,21 @@ public abstract class ArtifactArmor extends TexturedArmorItem implements IArtifa
 
     @Override
     @OnlyIn(Dist.CLIENT)
-    public void addInformation(@Nonnull ItemStack stack, World world, @Nonnull List<ITextComponent> tooltip, @Nonnull ITooltipFlag flag) {
-        PlayerEntity player = Minecraft.getInstance().player;
+    public void appendHoverText(@Nonnull ItemStack stack, Level level, @Nonnull List<Component> tooltip, @Nonnull TooltipFlag flag) {
+        Player player = Minecraft.getInstance().player;
         if (player != null) {
-            tooltip.add(new TranslationTextComponent(Atum.MOD_ID + ".armorset." + this.getEquipmentSlot().getName()).mergeStyle(TextFormatting.GRAY));
-            tooltip.add(new StringTextComponent(""));
+            tooltip.add(Component.translatable(Atum.MOD_ID + ".armorset." + this.getType().getName()).withStyle(ChatFormatting.GRAY));
+            tooltip.add(Component.literal(""));
             String baseLang = Atum.MOD_ID + ".armorset." + this.getGod().getName() + ".";
             ItemStack[] stacks = getArmorSet();
-            tooltip.add(new TranslationTextComponent(baseLang + "name").appendString(" (" + getArmorPiecesEquipped(player) + "/" + stacks.length + ") ").setStyle(this.getName().getStyle().setColor(this.getGod().getColor()))
-                    .append(new TranslationTextComponent(Atum.MOD_ID + ".tooltip.shift").mergeStyle(TextFormatting.DARK_GRAY)));
-            if (InputMappings.isKeyDown(Minecraft.getInstance().getMainWindow().getHandle(), GLFW.GLFW_KEY_LEFT_SHIFT)) {
+            tooltip.add(Component.translatable(baseLang + "name").append(" (" + getArmorPiecesEquipped(player) + "/" + stacks.length + ") ").setStyle(this.getDescription().getStyle().withColor(this.getGod().getColor()))
+                    .append(Component.translatable(Atum.MOD_ID + ".tooltip.shift").withStyle(ChatFormatting.DARK_GRAY)));
+            if (InputConstants.isKeyDown(Minecraft.getInstance().getWindow().getWindow(), GLFW.GLFW_KEY_LEFT_SHIFT)) {
                 for (int i = 0; i < stacks.length; i++) {
-                    tooltip.add(stacks[i].getDisplayName().copyRaw().mergeStyle((hasArmorSetPiece(player, EquipmentSlotType.fromSlotTypeAndIndex(EquipmentSlotType.Group.ARMOR, stacks.length - i - 1)) ? TextFormatting.YELLOW : TextFormatting.DARK_GRAY)));
+                    tooltip.add(stacks[i].getHoverName().plainCopy().withStyle((hasArmorSetPiece(player, EquipmentSlot.byTypeAndIndex(EquipmentSlot.Type.ARMOR, stacks.length - i - 1)) ? ChatFormatting.YELLOW : ChatFormatting.DARK_GRAY)));
                 }
-                tooltip.add(new StringTextComponent(""));
-                tooltip.add(new TranslationTextComponent(baseLang + "desc").mergeStyle(hasFullSet(player) ? TextFormatting.YELLOW : TextFormatting.DARK_GRAY));
+                tooltip.add(Component.literal(""));
+                tooltip.add(Component.translatable(baseLang + "desc").withStyle(hasFullSet(player) ? ChatFormatting.YELLOW : ChatFormatting.DARK_GRAY));
             }
         }
     }
@@ -115,11 +109,11 @@ public abstract class ArtifactArmor extends TexturedArmorItem implements IArtifa
     //Artifact Chestplate
     @Override
     @Nonnull
-    public Multimap<Attribute, AttributeModifier> getAttributeModifiers(@Nonnull EquipmentSlotType slotType) {
+    public Multimap<Attribute, AttributeModifier> getDefaultAttributeModifiers(@Nonnull EquipmentSlot slotType) {
         ImmutableMultimap.Builder<Attribute, AttributeModifier> builder = ImmutableMultimap.builder();
-        builder.putAll(super.getAttributeModifiers(slotType));
+        builder.putAll(super.getDefaultAttributeModifiers(slotType));
 
-        if (this.getChestplate() == this && slotType == EquipmentSlotType.CHEST) {
+        if (this.getChestplate() == this && slotType == EquipmentSlot.CHEST) {
             builder.put(Attributes.ARMOR_TOUGHNESS, new AttributeModifier(UUID.fromString("dfdc4a46-06ab-4a7c-b726-1c53e56036d6"), "Armor toughness", 3.0D, AttributeModifier.Operation.ADDITION));
         }
         return builder.build();
@@ -128,9 +122,9 @@ public abstract class ArtifactArmor extends TexturedArmorItem implements IArtifa
     //Artifact Legs
     @SubscribeEvent
     public static void onKnockback(LivingKnockBackEvent event) {
-        LivingEntity livingEntity = event.getEntityLiving();
-        Item legs = livingEntity.getItemStackFromSlot(EquipmentSlotType.LEGS).getItem();
-        if (legs instanceof ArtifactArmor && legs == ((ArtifactArmor) legs).getLeggings() && livingEntity.isOnGround()) {
+        LivingEntity livingEntity = event.getEntity();
+        Item legs = livingEntity.getItemBySlot(EquipmentSlot.LEGS).getItem();
+        if (legs instanceof ArtifactArmor && legs == ((ArtifactArmor) legs).getLeggings() && livingEntity.onGround()) {
             event.setStrength(event.getStrength() * 0.5F);
         }
     }
@@ -138,14 +132,14 @@ public abstract class ArtifactArmor extends TexturedArmorItem implements IArtifa
     //Artifact Boots
     @SubscribeEvent
     public static void onPlayerTick(TickEvent.PlayerTickEvent event) {
-        PlayerEntity player = event.player;
+        Player player = event.player;
 
-        ModifiableAttributeInstance attribute = player.getAttribute(Attributes.MOVEMENT_SPEED);
+        AttributeInstance attribute = player.getAttribute(Attributes.MOVEMENT_SPEED);
         if (attribute != null) {
-            Item feet = player.getItemStackFromSlot(EquipmentSlotType.FEET).getItem();
+            Item feet = player.getItemBySlot(EquipmentSlot.FEET).getItem();
             if (player.isAlive() && feet instanceof ArtifactArmor && feet == ((ArtifactArmor) feet).getBoots()) {
                 if (!attribute.hasModifier(SPEED_BOOST)) {
-                    attribute.applyNonPersistentModifier(SPEED_BOOST);
+                    attribute.addTransientModifier(SPEED_BOOST);
                 }
             } else if (attribute.hasModifier(SPEED_BOOST)) {
                 attribute.removeModifier(SPEED_BOOST);
@@ -155,6 +149,6 @@ public abstract class ArtifactArmor extends TexturedArmorItem implements IArtifa
 
     @Override
     public float getFogReduction(float fogDensity, ItemStack armorItem) {
-        return fogDensity / 3.25F;
+        return fogDensity * 3.25F;
     }
 }

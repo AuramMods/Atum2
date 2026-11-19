@@ -1,117 +1,119 @@
 package com.teammetallurgy.atum.blocks.stone.khnumite;
 
+import net.minecraft.world.level.block.state.properties.NoteBlockInstrument;
 import com.teammetallurgy.atum.entity.stone.StoneguardEntity;
 import com.teammetallurgy.atum.entity.stone.StonewardenEntity;
 import com.teammetallurgy.atum.init.AtumBlocks;
 import com.teammetallurgy.atum.init.AtumEntities;
 import net.minecraft.advancements.CriteriaTriggers;
-import net.minecraft.block.*;
-import net.minecraft.block.material.Material;
-import net.minecraft.block.material.MaterialColor;
-import net.minecraft.block.pattern.BlockMaterialMatcher;
-import net.minecraft.block.pattern.BlockPattern;
-import net.minecraft.block.pattern.BlockPatternBuilder;
-import net.minecraft.block.pattern.BlockStateMatcher;
-import net.minecraft.dispenser.IBlockSource;
-import net.minecraft.dispenser.OptionalDispenseBehavior;
-import net.minecraft.entity.SpawnReason;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.item.ArmorItem;
-import net.minecraft.item.BlockItemUseContext;
-import net.minecraft.item.ItemStack;
-import net.minecraft.state.StateContainer;
-import net.minecraft.util.CachedBlockInfo;
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.IServerWorld;
-import net.minecraft.world.World;
-import net.minecraft.world.server.ServerWorld;
-import net.minecraftforge.common.ToolType;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.BlockSource;
+import net.minecraft.core.Direction;
+import net.minecraft.core.dispenser.OptionalDispenseItemBehavior;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.MobSpawnType;
+import net.minecraft.world.item.ArmorItem;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.ServerLevelAccessor;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.DispenserBlock;
+import net.minecraft.world.level.block.HorizontalDirectionalBlock;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.pattern.BlockInWorld;
+import net.minecraft.world.level.block.state.pattern.BlockPattern;
+import net.minecraft.world.level.block.state.pattern.BlockPatternBuilder;
+import net.minecraft.world.level.block.state.predicate.BlockStatePredicate;
+import net.minecraft.world.level.material.MapColor;
 
 import javax.annotation.Nonnull;
 
-public class KhnumiteFaceBlock extends HorizontalBlock implements IKhnumite {
+public class KhnumiteFaceBlock extends HorizontalDirectionalBlock implements IKhnumite {
     private BlockPattern stoneguardBasePattern;
     private BlockPattern stoneguardPattern;
     private BlockPattern stonewardenBasePattern;
     private BlockPattern stonewardenPattern;
 
     public KhnumiteFaceBlock() {
-        super(Block.Properties.create(Material.ROCK, MaterialColor.CLAY).hardnessAndResistance(2.0F).harvestTool(ToolType.PICKAXE).harvestLevel(1));
-        this.setDefaultState(this.stateContainer.getBaseState().with(HORIZONTAL_FACING, Direction.NORTH));
+        super(Block.Properties.of().mapColor(MapColor.CLAY).instrument(NoteBlockInstrument.BASEDRUM).strength(2.0F));
+        this.registerDefaultState(this.stateDefinition.any().setValue(FACING, Direction.NORTH));
     }
 
     @Override
-    public void onBlockAdded(BlockState state, World world, BlockPos pos, BlockState oldState, boolean isMoving) {
+    public void onPlace(BlockState state, @Nonnull Level level, @Nonnull BlockPos pos, BlockState oldState, boolean isMoving) {
         if (oldState.getBlock() != state.getBlock()) {
-            this.trySpawnStonemob(world, pos);
+            this.trySpawnStonemob(level, pos);
         }
     }
 
-    private void trySpawnStonemob(World world, BlockPos pos) {
-        BlockPattern.PatternHelper patternHelper = this.getStonewardenPattern().match(world, pos);
+    private void trySpawnStonemob(Level level, BlockPos pos) {
+        BlockPattern.BlockPatternMatch patternHelper = this.getStonewardenPattern().find(level, pos);
 
         if (patternHelper != null) {
-            for (int x = 0; x < this.getStonewardenPattern().getPalmLength(); ++x) {
-                for (int y = 0; y < this.getStonewardenPattern().getThumbLength(); ++y) {
-                    BlockPos patternPos = patternHelper.translateOffset(x, y, 0).getPos();
-                    if (world.getBlockState(patternPos).getBlock() instanceof IKhnumite) {
-                        world.setBlockState(patternPos, Blocks.AIR.getDefaultState(), 2);
+            for (int x = 0; x < this.getStonewardenPattern().getWidth(); ++x) {
+                for (int y = 0; y < this.getStonewardenPattern().getHeight(); ++y) {
+                    BlockPos patternPos = patternHelper.getBlock(x, y, 0).getPos();
+                    if (level.getBlockState(patternPos).getBlock() instanceof IKhnumite) {
+                        level.setBlock(patternPos, Blocks.AIR.defaultBlockState(), 2);
                     }
                 }
             }
 
-            BlockPos stonewardenPos = patternHelper.translateOffset(1, 2, 0).getPos();
-            StonewardenEntity stonewarden = AtumEntities.STONEWARDEN_FRIENDLY.create(world);
+            BlockPos stonewardenPos = patternHelper.getBlock(1, 2, 0).getPos();
+            StonewardenEntity stonewarden = AtumEntities.STONEWARDEN_FRIENDLY.get().create(level);
             if (stonewarden != null) {
                 stonewarden.setPlayerCreated(true);
-                if (world instanceof ServerWorld) {
-                    stonewarden.onInitialSpawn((IServerWorld) world, world.getDifficultyForLocation(pos), SpawnReason.MOB_SUMMONED, null, null);
-                    stonewarden.setLocationAndAngles((double) stonewardenPos.getX() + 0.5D, (double) stonewardenPos.getY() + 0.05D, (double) stonewardenPos.getZ() + 0.5D, 0.0F, 0.0F);
-                    world.addEntity(stonewarden);
+                if (level instanceof ServerLevel) {
+                    stonewarden.finalizeSpawn((ServerLevelAccessor) level, level.getCurrentDifficultyAt(pos), MobSpawnType.MOB_SUMMONED, null, null);
+                    stonewarden.moveTo((double) stonewardenPos.getX() + 0.5D, (double) stonewardenPos.getY() + 0.05D, (double) stonewardenPos.getZ() + 0.5D, 0.0F, 0.0F);
+                    level.addFreshEntity(stonewarden);
                 }
 
-                for (ServerPlayerEntity playerMP : world.getEntitiesWithinAABB(ServerPlayerEntity.class, stonewarden.getBoundingBox().grow(5.0D))) {
+                for (ServerPlayer playerMP : level.getEntitiesOfClass(ServerPlayer.class, stonewarden.getBoundingBox().inflate(5.0D))) {
                     CriteriaTriggers.SUMMONED_ENTITY.trigger(playerMP, stonewarden);
                 }
 
-                for (int x = 0; x < this.getStonewardenPattern().getPalmLength(); ++x) {
-                    for (int y = 0; y < this.getStonewardenPattern().getThumbLength(); ++y) {
-                        CachedBlockInfo worldState1 = patternHelper.translateOffset(x, y, 0);
-                        world.notifyNeighborsOfStateChange(worldState1.getPos(), Blocks.AIR);
+                for (int x = 0; x < this.getStonewardenPattern().getWidth(); ++x) {
+                    for (int y = 0; y < this.getStonewardenPattern().getHeight(); ++y) {
+                        BlockInWorld worldState1 = patternHelper.getBlock(x, y, 0);
+                        level.updateNeighborsAt(worldState1.getPos(), Blocks.AIR);
                     }
                 }
             }
         } else {
-            patternHelper = this.getStoneguardPattern().match(world, pos);
+            patternHelper = this.getStoneguardPattern().find(level, pos);
 
             if (patternHelper != null) {
-                for (int x = 0; x < this.getStoneguardPattern().getPalmLength(); ++x) {
-                    for (int y = 0; y < this.getStoneguardPattern().getThumbLength(); ++y) {
-                        CachedBlockInfo worldState = patternHelper.translateOffset(x, y, 0);
-                        if (world.getBlockState(worldState.getPos()).getBlock() instanceof IKhnumite) {
-                            world.setBlockState(worldState.getPos(), Blocks.AIR.getDefaultState(), 2);
+                for (int x = 0; x < this.getStoneguardPattern().getWidth(); ++x) {
+                    for (int y = 0; y < this.getStoneguardPattern().getHeight(); ++y) {
+                        BlockInWorld worldState = patternHelper.getBlock(x, y, 0);
+                        if (level.getBlockState(worldState.getPos()).getBlock() instanceof IKhnumite) {
+                            level.setBlock(worldState.getPos(), Blocks.AIR.defaultBlockState(), 2);
                         }
                     }
                 }
-                StoneguardEntity stoneguard = AtumEntities.STONEGUARD_FRIENDLY.create(world);
+                StoneguardEntity stoneguard = AtumEntities.STONEGUARD_FRIENDLY.get().create(level);
                 if (stoneguard != null) {
                     stoneguard.setPlayerCreated(true);
-                    if (world instanceof ServerWorld) {
-                        stoneguard.onInitialSpawn((IServerWorld) world, world.getDifficultyForLocation(pos), SpawnReason.MOB_SUMMONED, null, null);
-                        BlockPos stoneguardPos = patternHelper.translateOffset(0, 2, 0).getPos();
-                        stoneguard.setLocationAndAngles((double) stoneguardPos.getX() + 0.5D, (double) stoneguardPos.getY() + 0.05D, (double) stoneguardPos.getZ() + 0.5D, 0.0F, 0.0F);
-                        world.addEntity(stoneguard);
+                    if (level instanceof ServerLevel) {
+                        stoneguard.finalizeSpawn((ServerLevelAccessor) level, level.getCurrentDifficultyAt(pos), MobSpawnType.MOB_SUMMONED, null, null);
+                        BlockPos stoneguardPos = patternHelper.getBlock(0, 2, 0).getPos();
+                        stoneguard.moveTo((double) stoneguardPos.getX() + 0.5D, (double) stoneguardPos.getY() + 0.05D, (double) stoneguardPos.getZ() + 0.5D, 0.0F, 0.0F);
+                        level.addFreshEntity(stoneguard);
                     }
 
-                    for (ServerPlayerEntity playerMP : world.getEntitiesWithinAABB(ServerPlayerEntity.class, stoneguard.getBoundingBox().grow(5.0D))) {
+                    for (ServerPlayer playerMP : level.getEntitiesOfClass(ServerPlayer.class, stoneguard.getBoundingBox().inflate(5.0D))) {
                         CriteriaTriggers.SUMMONED_ENTITY.trigger(playerMP, stoneguard);
                     }
 
-                    for (int x = 0; x < this.getStoneguardPattern().getPalmLength(); ++x) {
-                        for (int y = 0; y < this.getStoneguardPattern().getThumbLength(); ++y) {
-                            CachedBlockInfo worldState = patternHelper.translateOffset(x, y, 0);
-                            world.notifyNeighborsOfStateChange(worldState.getPos(), Blocks.AIR);
+                    for (int x = 0; x < this.getStoneguardPattern().getWidth(); ++x) {
+                        for (int y = 0; y < this.getStoneguardPattern().getHeight(); ++y) {
+                            BlockInWorld worldState = patternHelper.getBlock(x, y, 0);
+                            level.updateNeighborsAt(worldState.getPos(), Blocks.AIR);
                         }
                     }
                 }
@@ -120,66 +122,66 @@ public class KhnumiteFaceBlock extends HorizontalBlock implements IKhnumite {
     }
 
     @Override
-    public BlockState getStateForPlacement(BlockItemUseContext context) {
-        return this.getDefaultState().with(HORIZONTAL_FACING, context.getPlacementHorizontalFacing().getOpposite());
+    public BlockState getStateForPlacement(BlockPlaceContext context) {
+        return this.defaultBlockState().setValue(FACING, context.getHorizontalDirection().getOpposite());
     }
 
     @Override
-    protected void fillStateContainer(StateContainer.Builder<Block, BlockState> builder) {
-        builder.add(HORIZONTAL_FACING);
+    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
+        builder.add(FACING);
     }
 
     public static void addDispenserSupport() {
-        DispenserBlock.registerDispenseBehavior(AtumBlocks.KHNUMITE_FACE.asItem(), new OptionalDispenseBehavior() {
+        DispenserBlock.registerBehavior(AtumBlocks.KHNUMITE_FACE.get().asItem(), new OptionalDispenseItemBehavior() {
             @Override
             @Nonnull
-            protected ItemStack dispenseStack(@Nonnull IBlockSource source, @Nonnull ItemStack stack) {
-                World world = source.getWorld();
-                BlockPos pos = source.getBlockPos().offset(source.getBlockState().get(DispenserBlock.FACING));
-                KhnumiteFaceBlock khnumiteFace = (KhnumiteFaceBlock) AtumBlocks.KHNUMITE_FACE;
+            protected ItemStack execute(@Nonnull BlockSource source, @Nonnull ItemStack stack) {
+                Level level = source.getLevel();
+                BlockPos pos = source.getPos().relative(source.getBlockState().getValue(DispenserBlock.FACING));
+                KhnumiteFaceBlock khnumiteFace = (KhnumiteFaceBlock) AtumBlocks.KHNUMITE_FACE.get();
 
-                if (world.isAirBlock(pos) && khnumiteFace.canDispenserPlace(world, pos)) {
-                    if (!world.isRemote) {
-                        world.setBlockState(pos, khnumiteFace.getDefaultState(), 3);
+                if (level.isEmptyBlock(pos) && khnumiteFace.canDispenserPlace(level, pos)) {
+                    if (!level.isClientSide) {
+                        level.setBlock(pos, khnumiteFace.defaultBlockState(), 3);
                     }
                     stack.shrink(1);
-                    this.setSuccessful(true);
+                    this.setSuccess(true);
                 } else {
-                    this.setSuccessful(ArmorItem.func_226626_a_(source, stack));
+                    this.setSuccess(ArmorItem.dispenseArmor(source, stack));
                 }
                 return stack;
             }
         });
     }
 
-    private boolean canDispenserPlace(World world, BlockPos pos) {
-        return this.getStonewardenBasePattern().match(world, pos) != null || this.getStoneguardBasePattern().match(world, pos) != null;
+    private boolean canDispenserPlace(Level level, BlockPos pos) {
+        return this.getStonewardenBasePattern().find(level, pos) != null || this.getStoneguardBasePattern().find(level, pos) != null;
     }
 
     private BlockPattern getStoneguardBasePattern() {
         if (this.stoneguardBasePattern == null) {
-            this.stoneguardBasePattern = BlockPatternBuilder.start().aisle("   ", "~#~", " # ").where('#', CachedBlockInfo.hasState(BlockStateMatcher.forBlock(AtumBlocks.KHNUMITE_BLOCK))).where('~', CachedBlockInfo.hasState(BlockMaterialMatcher.forMaterial(Material.AIR))).build();
+            this.stoneguardBasePattern = BlockPatternBuilder.start().aisle("   ", "~#~", " # ").where('#', BlockInWorld.hasState(BlockStatePredicate.forBlock(AtumBlocks.KHNUMITE_BLOCK.get()))).where('~', BlockInWorld.hasState(BlockState::isAir)).build();
         }
         return this.stoneguardBasePattern;
     }
 
     private BlockPattern getStoneguardPattern() {
         if (this.stoneguardPattern == null) {
-            this.stoneguardPattern = BlockPatternBuilder.start().aisle(" ^ ", "~#~", " # ").where('^', CachedBlockInfo.hasState(BlockStateMatcher.forBlock(AtumBlocks.KHNUMITE_FACE))).where('#', CachedBlockInfo.hasState(BlockStateMatcher.forBlock(AtumBlocks.KHNUMITE_BLOCK))).where('~', CachedBlockInfo.hasState(BlockMaterialMatcher.forMaterial(Material.AIR))).build();
+            this.stoneguardPattern = BlockPatternBuilder.start().aisle(" ^ ", "~#~", " # ").where('^', BlockInWorld.hasState(BlockStatePredicate.forBlock(AtumBlocks.KHNUMITE_FACE.get()))).where('#', BlockInWorld.hasState(BlockStatePredicate.forBlock(AtumBlocks.KHNUMITE_BLOCK.get()))).where('~', BlockInWorld.hasState(BlockState::isAir)).build();
         }
         return this.stoneguardPattern;
     }
 
     private BlockPattern getStonewardenBasePattern() {
         if (this.stonewardenBasePattern == null) {
-            this.stonewardenBasePattern = BlockPatternBuilder.start().aisle("~ ~", "###", "~#~").where('#', CachedBlockInfo.hasState(BlockStateMatcher.forBlock(AtumBlocks.KHNUMITE_BLOCK))).where('~', CachedBlockInfo.hasState(BlockMaterialMatcher.forMaterial(Material.AIR))).build();
+            this.stonewardenBasePattern = BlockPatternBuilder.start().aisle("~ ~", "###", "~#~").where('#', BlockInWorld.hasState(BlockStatePredicate.forBlock(AtumBlocks.KHNUMITE_BLOCK.get()))).where('~', BlockInWorld.hasState(BlockState::isAir)).build();
         }
         return this.stonewardenBasePattern;
     }
 
     private BlockPattern getStonewardenPattern() {
         if (this.stonewardenPattern == null) {
-            this.stonewardenPattern = BlockPatternBuilder.start().aisle("~^~", "###", "~#~").where('^', CachedBlockInfo.hasState(BlockStateMatcher.forBlock(AtumBlocks.KHNUMITE_FACE))).where('#', CachedBlockInfo.hasState(BlockStateMatcher.forBlock(AtumBlocks.KHNUMITE_BLOCK))).where('~', CachedBlockInfo.hasState(BlockMaterialMatcher.forMaterial(Material.AIR))).build();
+            this.stonewardenPattern = BlockPatternBuilder.start().aisle("~^~", "###", "~#~").where('^', BlockInWorld.hasState(BlockStatePredicate.forBlock(AtumBlocks.KHNUMITE_FACE.get()))).where('#', BlockInWorld.hasState(BlockStatePredicate.forBlock(AtumBlocks.KHNUMITE_BLOCK.get()))).where('~', BlockInWorld.hasState(BlockState::isAir)).build();
         }
         return this.stonewardenPattern;
     }

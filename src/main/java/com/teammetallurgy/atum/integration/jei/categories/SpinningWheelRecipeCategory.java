@@ -1,24 +1,26 @@
 package com.teammetallurgy.atum.integration.jei.categories;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
+import net.minecraft.client.gui.GuiGraphics;
 import com.teammetallurgy.atum.Atum;
 import com.teammetallurgy.atum.api.recipe.recipes.SpinningWheelRecipe;
 import com.teammetallurgy.atum.init.AtumBlocks;
 import com.teammetallurgy.atum.integration.jei.JEIIntegration;
-import mezz.jei.api.constants.VanillaTypes;
-import mezz.jei.api.gui.IRecipeLayout;
+import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
 import mezz.jei.api.gui.drawable.IDrawable;
 import mezz.jei.api.gui.drawable.IDrawableStatic;
-import mezz.jei.api.gui.ingredient.IGuiItemStackGroup;
+import mezz.jei.api.gui.ingredient.IRecipeSlotsView;
 import mezz.jei.api.helpers.IGuiHelper;
-import mezz.jei.api.ingredients.IIngredients;
+import mezz.jei.api.recipe.IFocusGroup;
+import mezz.jei.api.recipe.RecipeIngredientRole;
+import mezz.jei.api.recipe.RecipeType;
 import mezz.jei.api.recipe.category.IRecipeCategory;
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.TextFormatting;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.ItemStack;
 
 import javax.annotation.Nonnull;
 import java.awt.*;
@@ -30,25 +32,19 @@ public class SpinningWheelRecipeCategory implements IRecipeCategory<SpinningWhee
 
     public SpinningWheelRecipeCategory(IGuiHelper guiHelper) {
         this.background = guiHelper.createDrawable(SPINNING_WHEEL_GUI, 0, -6, 68, 32);
-        this.icon = guiHelper.createDrawableIngredient(new ItemStack(AtumBlocks.SPINNING_WHEEL));
+        this.icon = guiHelper.createDrawableItemStack(new ItemStack(AtumBlocks.SPINNING_WHEEL.get()));
     }
 
     @Override
     @Nonnull
-    public ResourceLocation getUid() {
+    public RecipeType<SpinningWheelRecipe> getRecipeType() {
         return JEIIntegration.SPINNING_WHEEL;
     }
 
     @Override
     @Nonnull
-    public Class<? extends SpinningWheelRecipe> getRecipeClass() {
-        return SpinningWheelRecipe.class;
-    }
-
-    @Override
-    @Nonnull
-    public String getTitle() {
-        return new TranslationTextComponent(Atum.MOD_ID + "." + getUid().getPath()).getString();
+    public Component getTitle() {
+        return Component.translatable(Atum.MOD_ID + "." + JEIIntegration.SPINNING_WHEEL.getUid().getPath());
     }
 
     @Override
@@ -64,32 +60,23 @@ public class SpinningWheelRecipeCategory implements IRecipeCategory<SpinningWhee
     }
 
     @Override
-    public void setIngredients(@Nonnull SpinningWheelRecipe recipe, @Nonnull IIngredients ingredients) {
-        ingredients.setInputIngredients(recipe.getIngredients());
-        ingredients.setOutput(VanillaTypes.ITEM, recipe.getRecipeOutput());
-    }
+    public void setRecipe(@Nonnull IRecipeLayoutBuilder builder, @Nonnull SpinningWheelRecipe recipe, @Nonnull IFocusGroup focuses) {
+        builder.addSlot(RecipeIngredientRole.INPUT, 1, 11).addIngredients(recipe.getIngredients().get(0)); // Input
 
-    @Override
-    public void setRecipe(@Nonnull IRecipeLayout recipeLayout, @Nonnull SpinningWheelRecipe recipe, @Nonnull IIngredients ingredients) {
-        IGuiItemStackGroup guiItemStacks = recipeLayout.getItemStacks();
-
-        guiItemStacks.init(0, true, 0, 10);
-        guiItemStacks.init(1, false, 46, 10);
-        guiItemStacks.set(ingredients);
-
-        guiItemStacks.addTooltipCallback((slotIndex, input, ingredient, tooltip) -> {
-            if (slotIndex == 1) {
-                boolean showAdvanced = Minecraft.getInstance().gameSettings.advancedItemTooltips || Screen.hasShiftDown();
+        ClientLevel clientLevel = Minecraft.getInstance().level;
+        if (clientLevel != null) {
+            builder.addSlot(RecipeIngredientRole.INPUT, 47, 11).addItemStack(recipe.getResultItem(clientLevel.registryAccess())).addTooltipCallback((recipeSlotView, tooltip) -> { // Output
+                boolean showAdvanced = Minecraft.getInstance().options.advancedItemTooltips || Screen.hasShiftDown();
                 if (showAdvanced) {
-                    tooltip.add(new TranslationTextComponent("jei.tooltip.recipe.id", recipe.getId()).mergeStyle(TextFormatting.DARK_GRAY));
+                    tooltip.add(Component.translatable("jei.tooltip.recipe.id", recipe.getId()).withStyle(ChatFormatting.DARK_GRAY));
                 }
-            }
-        });
+            });
+        }
     }
 
     @Override
-    public void draw(SpinningWheelRecipe recipe, @Nonnull MatrixStack matrixStack, double mouseX, double mouseY) {
+    public void draw(SpinningWheelRecipe recipe, @Nonnull IRecipeSlotsView recipeSlotsView, @Nonnull GuiGraphics graphics, double mouseX, double mouseY) {
         Minecraft mc = Minecraft.getInstance();
-        mc.fontRenderer.func_243248_b(matrixStack, new TranslationTextComponent("gui.atum.rotations", recipe.getRotations()), 25, 0, Color.gray.getRGB());
+        graphics.drawString(mc.font, Component.translatable("gui.atum.rotations", recipe.getRotations()), 25, 0, Color.gray.getRGB(), false);
     }
 }

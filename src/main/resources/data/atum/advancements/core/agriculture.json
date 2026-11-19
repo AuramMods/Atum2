@@ -18,19 +18,46 @@
     "emmer": {
       "trigger": "minecraft:placed_block",
       "conditions": {
-        "block": "atum:emmer_wheat"
+        "location": [
+          {
+            "condition": "minecraft:location_check",
+            "predicate": {
+              "block": {
+                "blocks": ["atum:emmer_wheat"]
+              }
+            }
+          }
+        ]
       }
     },
     "flax": {
       "trigger": "minecraft:placed_block",
       "conditions": {
-        "block": "atum:flax_block"
+        "location": [
+          {
+            "condition": "minecraft:location_check",
+            "predicate": {
+              "block": {
+                "blocks": ["atum:flax_block"]
+              }
+            }
+          }
+        ]
       }
     },
     "melon_stem": {
       "trigger": "minecraft:placed_block",
       "conditions": {
-        "block": "minecraft:melon_stem"
+        "location": [
+          {
+            "condition": "minecraft:location_check",
+            "predicate": {
+              "block": {
+                "blocks": ["minecraft:melon_stem"]
+              }
+            }
+          }
+        ]
       }
     }
   }

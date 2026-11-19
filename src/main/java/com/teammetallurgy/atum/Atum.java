@@ -1,25 +1,25 @@
 package com.teammetallurgy.atum;
 
-import com.mojang.serialization.Codec;
 import com.teammetallurgy.atum.api.AtumAPI;
+import com.teammetallurgy.atum.api.recipe.AtumRecipeTypes;
 import com.teammetallurgy.atum.blocks.stone.khnumite.KhnumiteFaceBlock;
 import com.teammetallurgy.atum.client.ClientHandler;
 import com.teammetallurgy.atum.commands.AtumWeather;
-import com.teammetallurgy.atum.init.AtumStructures;
+import com.teammetallurgy.atum.entity.ai.brain.sensor.AtumSensorTypes;
+import com.teammetallurgy.atum.init.*;
 import com.teammetallurgy.atum.integration.IntegrationHandler;
 import com.teammetallurgy.atum.misc.AtumConfig;
-import com.teammetallurgy.atum.misc.AtumItemGroup;
-import com.teammetallurgy.atum.misc.AtumRegistry;
 import com.teammetallurgy.atum.network.NetworkHandler;
 import com.teammetallurgy.atum.world.SandstormHandler;
-import com.teammetallurgy.atum.world.biome.AtumBiomeProvider;
-import com.teammetallurgy.atum.world.gen.AtumChunkGenerator;
-import net.minecraft.block.WoodType;
-import net.minecraft.item.ItemGroup;
-import net.minecraft.util.RegistryKey;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.registry.Registry;
-import net.minecraft.world.World;
+import com.teammetallurgy.atum.world.gen.feature.tree.TreePlacerTypes;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.properties.WoodType;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
@@ -32,41 +32,61 @@ import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.InterModEnqueueEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.minecraftforge.registries.DeferredRegister;
+import net.minecraftforge.registries.IForgeRegistry;
+import net.minecraftforge.registries.RegistryBuilder;
+import net.minecraftforge.registries.RegistryObject;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import top.theillusivec4.curios.api.SlotTypeMessage;
 import top.theillusivec4.curios.api.SlotTypePreset;
 
+import java.util.function.Supplier;
+
 @Mod(value = Atum.MOD_ID)
 public class Atum {
     public static final String MOD_ID = "atum";
+    public static final ResourceLocation LOCATION = new ResourceLocation(MOD_ID, "atum");
     public static final Logger LOG = LogManager.getLogger(StringUtils.capitalize(MOD_ID));
-    public static final ItemGroup GROUP = new AtumItemGroup();
-    public static final RegistryKey<World> ATUM = RegistryKey.getOrCreateKey(Registry.WORLD_KEY, new ResourceLocation(MOD_ID, "atum"));
-    public static final Codec<AtumBiomeProvider> ATUM_LAYERD = Registry.register(Registry.BIOME_PROVIDER_CODEC, new ResourceLocation(MOD_ID, "atum_layered"), AtumBiomeProvider.CODEC);
-    public static final Codec<AtumChunkGenerator> ATUM_NOISE = Registry.register(Registry.CHUNK_GENERATOR_CODEC, new ResourceLocation(MOD_ID, "noise"), AtumChunkGenerator.CODEC);
-    public static final WoodType PALM = WoodType.create("atum_palm");
-    public static final WoodType DEADWOOD = WoodType.create("atum_deadwood");
+    private static final DeferredRegister<CreativeModeTab> CREATIVE_TABS = DeferredRegister.create(Registries.CREATIVE_MODE_TAB, MOD_ID);
+    public static final RegistryObject<CreativeModeTab> GROUP = CREATIVE_TABS.register("tab", () ->
+            CreativeModeTab.builder().icon(() -> new ItemStack(AtumItems.SCARAB.get()))
+                    .title(Component.translatable("tabs." + MOD_ID + ".tab"))
+                    .displayItems((parameters, output) -> AtumItems.ITEMS_FOR_TAB_LIST.forEach(item -> output.accept(item.get())))
+                    .build());
+    public static final ResourceKey<Level> ATUM = ResourceKey.create(Registries.DIMENSION, LOCATION);
+    public static final WoodType PALM = WoodType.register(new WoodType("atum_palm", AtumBlockSetType.PALM));
+    public static final WoodType DEADWOOD = WoodType.register(new WoodType("atum_deadwood", AtumBlockSetType.DEADWOOD));
+    public static final DeferredRegister<AtumVillagerProfession> ATUM_PROFESSION_DEFERRED = DeferredRegister
+            .create(new ResourceLocation(MOD_ID, "atum_villager"), Atum.MOD_ID);
+    public static Supplier<IForgeRegistry<AtumVillagerProfession>> villagerProfession = ATUM_PROFESSION_DEFERRED
+            .makeRegistry(() -> new RegistryBuilder<AtumVillagerProfession>()
+                    .setName(new ResourceLocation(Atum.MOD_ID, "villager_profession")).setMaxID(Integer.MAX_VALUE >> 5)
+                    .allowModification());
 
     public Atum() {
         final IEventBus modBus = FMLJavaModLoadingContext.get().getModEventBus();
         modBus.addListener(this::setupCommon);
         modBus.addListener(this::setupClient);
         modBus.addListener(this::interModComms);
+        this.registerDeferredRegistries(modBus);
         MinecraftForge.EVENT_BUS.addListener(this::onCommandRegistering);
         ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, AtumConfig.spec);
         IntegrationHandler.INSTANCE.addSupport();
         AtumAPI.Tags.init();
-        AtumRegistry.registerDeferredRegistries(modBus);
     }
 
     private void setupCommon(FMLCommonSetupEvent event) {
         IntegrationHandler.INSTANCE.init();
+        event.enqueueWork(AtumRecipes::addBrewingRecipes);
+        event.enqueueWork(AtumBlocks::setBlockInfo);
+        event.enqueueWork(AtumItems::setItemInfo);
+        event.enqueueWork(() -> WoodType.register(PALM));
+        event.enqueueWork(() -> WoodType.register(DEADWOOD));
         if (AtumConfig.SANDSTORM.sandstormEnabled.get()) {
             MinecraftForge.EVENT_BUS.register(SandstormHandler.INSTANCE);
         }
-        MinecraftForge.EVENT_BUS.register(AtumStructures.PYRAMID_STRUCTURE);
         KhnumiteFaceBlock.addDispenserSupport();
         NetworkHandler.initialize();
         IntegrationHandler.INSTANCE.setup();
@@ -83,9 +103,35 @@ public class Atum {
     }
 
     private void interModComms(InterModEnqueueEvent event) {
-        InterModComms.sendTo("curios", SlotTypeMessage.REGISTER_TYPE, () -> SlotTypePreset.CHARM.getMessageBuilder().build());
-        InterModComms.sendTo("curios", SlotTypeMessage.REGISTER_TYPE, () -> SlotTypePreset.NECKLACE.getMessageBuilder().build());
-        InterModComms.sendTo("curios", SlotTypeMessage.REGISTER_TYPE, () -> SlotTypePreset.RING.getMessageBuilder().build());
-        InterModComms.sendTo("curios", SlotTypeMessage.REGISTER_TYPE, () -> SlotTypePreset.BRACELET.getMessageBuilder().build());
+        InterModComms.sendTo("curios", SlotTypeMessage.REGISTER_TYPE,
+                () -> SlotTypePreset.CHARM.getMessageBuilder().build());
+        InterModComms.sendTo("curios", SlotTypeMessage.REGISTER_TYPE,
+                () -> SlotTypePreset.NECKLACE.getMessageBuilder().build());
+        InterModComms.sendTo("curios", SlotTypeMessage.REGISTER_TYPE,
+                () -> SlotTypePreset.RING.getMessageBuilder().build());
+        InterModComms.sendTo("curios", SlotTypeMessage.REGISTER_TYPE,
+                () -> SlotTypePreset.BRACELET.getMessageBuilder().build());
+    }
+
+    public void registerDeferredRegistries(IEventBus modBus) {
+        CREATIVE_TABS.register(modBus);
+        AtumBlocks.BLOCK_DEFERRED.register(modBus);
+        AtumItems.ITEM_DEFERRED.register(modBus);
+        AtumEntities.ENTITY_DEFERRED.register(modBus);
+        AtumTileEntities.BLOCK_ENTITY_DEFERRED.register(modBus);
+        AtumFeatures.FEATURES_DEFERRED.register(modBus);
+        AtumStructures.STRUCTURE_TYPE_DEFERRED.register(modBus);
+        AtumStructurePieces.STRUCTURE_PIECES_DEFERRED.register(modBus);
+        AtumEffects.MOB_EFFECT_DEFERRED.register(modBus);
+        TreePlacerTypes.FOLIAGE_PLACER_DEFERRED.register(modBus);
+        AtumMenuType.MENU_TYPE_DEFERRED.register(modBus);
+        AtumPoiTypes.POI_DEFERRED.register(modBus);
+        AtumSounds.SOUND_DEFERRED.register(modBus);
+        AtumParticles.PARTICLE_DEFERRED.register(modBus);
+        ATUM_PROFESSION_DEFERRED.register(modBus);
+        AtumSensorTypes.SENSOR_TYPE_DEFERRED.register(modBus);
+        AtumDataSerializer.DATA_SERIALIZER_DEFERRED.register(modBus);
+        AtumRecipeTypes.RECIPE_TYPE_DEFERRED.register(modBus);
+        AtumRecipeSerializers.RECIPE_SERIALIZER_DEFERRED.register(modBus);
     }
 }

@@ -1,37 +1,44 @@
 package com.teammetallurgy.atum.items.artifacts.ra;
 
-import com.teammetallurgy.atum.api.AtumMats;
 import com.teammetallurgy.atum.api.God;
+import com.teammetallurgy.atum.api.material.AtumArmorMaterials;
+import com.teammetallurgy.atum.client.ClientHandler;
 import com.teammetallurgy.atum.client.model.armor.RaArmorModel;
 import com.teammetallurgy.atum.init.AtumItems;
 import com.teammetallurgy.atum.items.artifacts.ArtifactArmor;
 import com.teammetallurgy.atum.misc.StackHelper;
-import net.minecraft.client.renderer.entity.model.BipedModel;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.inventory.EquipmentSlotType;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Rarity;
-import net.minecraft.potion.EffectInstance;
-import net.minecraft.potion.Effects;
-import net.minecraft.world.World;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.model.HumanoidModel;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Rarity;
+import net.minecraft.world.level.Level;
+import net.minecraftforge.client.extensions.common.IClientItemExtensions;
+import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
+import java.util.function.Consumer;
 
 public class RaArmor extends ArtifactArmor {
 
-    public RaArmor(EquipmentSlotType slot) {
-        super(AtumMats.NEBU_ARMOR, "ra_armor", slot, new Item.Properties().rarity(Rarity.RARE));
+    public RaArmor(Type type) {
+        super(AtumArmorMaterials.NEBU, "ra_armor", type, new Item.Properties().rarity(Rarity.RARE));
         this.setHasRender();
     }
 
     @Override
-    @OnlyIn(Dist.CLIENT)
-    public <A extends BipedModel<?>> A getArmorModel(LivingEntity entityLiving, @Nonnull ItemStack stack, EquipmentSlotType armorSlot, A _default) {
-        return (A) new RaArmorModel(armorSlot, hasFullSet(entityLiving));
+    public void initializeClient(@Nonnull Consumer<IClientItemExtensions> consumer) {
+        consumer.accept(new IClientItemExtensions() {
+            @Override
+            public @NotNull HumanoidModel<?> getHumanoidArmorModel(LivingEntity livingEntity, ItemStack itemStack, EquipmentSlot equipmentSlot, HumanoidModel<?> original) {
+                return new RaArmorModel(Minecraft.getInstance().getEntityModels().bakeLayer(ClientHandler.RA_ARMOR), equipmentSlot, hasFullSet(livingEntity));
+            }
+        });
     }
 
     @Override
@@ -41,29 +48,29 @@ public class RaArmor extends ArtifactArmor {
 
     @Override
     public Item getHelmet() {
-        return AtumItems.HALO_OF_RA;
+        return AtumItems.HALO_OF_RA.get();
     }
 
     @Override
     public Item getChestplate() {
-        return AtumItems.BODY_OF_RA;
+        return AtumItems.BODY_OF_RA.get();
     }
 
     @Override
     public Item getLeggings() {
-        return AtumItems.LEGS_OF_RA;
+        return AtumItems.LEGS_OF_RA.get();
     }
 
     @Override
     public Item getBoots() {
-        return AtumItems.FEET_OF_RA;
+        return AtumItems.FEET_OF_RA.get();
     }
 
     @Override
-    public void onArmorTick(ItemStack stack, World world, PlayerEntity player) {
-        super.onArmorTick(stack, world, player);
-        if (StackHelper.hasFullArmorSet(player, AtumItems.HALO_OF_RA, AtumItems.BODY_OF_RA, AtumItems.LEGS_OF_RA, AtumItems.FEET_OF_RA)) {
-            player.addPotionEffect(new EffectInstance(Effects.FIRE_RESISTANCE, 300, 0, true, false));
+    public void onArmorTick(ItemStack stack, Level level, Player player) {
+        super.onArmorTick(stack, level, player);
+        if (StackHelper.hasFullArmorSet(player, AtumItems.HALO_OF_RA.get(), AtumItems.BODY_OF_RA.get(), AtumItems.LEGS_OF_RA.get(), AtumItems.FEET_OF_RA.get())) {
+            player.addEffect(new MobEffectInstance(MobEffects.FIRE_RESISTANCE, 300, 0, true, false));
         }
     }
 }

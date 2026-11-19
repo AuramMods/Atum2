@@ -1,13 +1,14 @@
 package com.teammetallurgy.atum.blocks.wood;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.LadderBlock;
-import net.minecraft.block.SoundType;
-import net.minecraft.block.material.Material;
+import net.minecraft.world.level.material.PushReaction;
+import net.minecraft.world.level.material.MapColor;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.LadderBlock;
+import net.minecraft.world.level.block.SoundType;
 
 public class AtumLadderBlock extends LadderBlock {
 
     public AtumLadderBlock() {
-        super(Block.Properties.create(Material.MISCELLANEOUS).hardnessAndResistance(0.4F).sound(SoundType.LADDER).notSolid());
+        super(Block.Properties.of().mapColor(MapColor.NONE).pushReaction(PushReaction.DESTROY).strength(0.4F).sound(SoundType.LADDER).noOcclusion());
     }
 }

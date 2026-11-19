@@ -6,47 +6,50 @@ import com.teammetallurgy.atum.entity.animal.DesertWolfEntity;
 import com.teammetallurgy.atum.entity.animal.TarantulaEntity;
 import com.teammetallurgy.atum.entity.bandit.BanditBaseEntity;
 import com.teammetallurgy.atum.entity.stone.StoneBaseEntity;
-import net.minecraft.entity.CreatureAttribute;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.ILivingEntityData;
-import net.minecraft.entity.SpawnReason;
-import net.minecraft.entity.ai.goal.*;
-import net.minecraft.entity.monster.MonsterEntity;
-import net.minecraft.entity.monster.ZombifiedPiglinEntity;
-import net.minecraft.entity.passive.WolfEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.network.datasync.DataParameter;
-import net.minecraft.network.datasync.DataSerializers;
-import net.minecraft.network.datasync.EntityDataManager;
-import net.minecraft.pathfinding.GroundPathNavigator;
-import net.minecraft.potion.EffectInstance;
-import net.minecraft.potion.Effects;
-import net.minecraft.util.DamageSource;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.SoundEvent;
-import net.minecraft.util.SoundEvents;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
+import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.syncher.EntityDataAccessor;
+import net.minecraft.network.syncher.EntityDataSerializers;
+import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.util.Mth;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.DifficultyInstance;
-import net.minecraft.world.IServerWorld;
-import net.minecraft.world.IWorld;
-import net.minecraft.world.World;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.MobSpawnType;
+import net.minecraft.world.entity.MobType;
+import net.minecraft.world.entity.SpawnGroupData;
+import net.minecraft.world.entity.ai.goal.*;
+import net.minecraft.world.entity.ai.goal.target.HurtByTargetGoal;
+import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
+import net.minecraft.world.entity.ai.navigation.GroundPathNavigation;
+import net.minecraft.world.entity.animal.Wolf;
+import net.minecraft.world.entity.monster.Monster;
+import net.minecraft.world.entity.monster.ZombifiedPiglin;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.registries.ForgeRegistries;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Objects;
-import java.util.Random;
 
-public class UndeadBaseEntity extends MonsterEntity implements ITexture {
-    private static final DataParameter<Integer> VARIANT = EntityDataManager.createKey(UndeadBaseEntity.class, DataSerializers.VARINT);
+public class UndeadBaseEntity extends Monster implements ITexture {
+    private static final EntityDataAccessor<Integer> VARIANT = SynchedEntityData.defineId(UndeadBaseEntity.class, EntityDataSerializers.INT);
     private String texturePath;
 
-    public UndeadBaseEntity(EntityType<? extends UndeadBaseEntity> entityType, World world) {
-        super(entityType, world);
-        new GroundPathNavigator(this, world).getNodeProcessor().setCanEnterDoors(true);
+    public UndeadBaseEntity(EntityType<? extends UndeadBaseEntity> entityType, Level level) {
+        super(entityType, level);
+        new GroundPathNavigation(this, level).getNodeEvaluator().setCanPassDoors(true);
     }
 
     boolean hasSkinVariants() {
@@ -55,48 +58,48 @@ public class UndeadBaseEntity extends MonsterEntity implements ITexture {
 
     @Override
     protected void registerGoals() {
-        this.goalSelector.addGoal(0, new SwimGoal(this));
+        this.goalSelector.addGoal(0, new FloatGoal(this));
         this.goalSelector.addGoal(6, new MoveTowardsRestrictionGoal(this, 1.0D));
-        this.goalSelector.addGoal(7, new WaterAvoidingRandomWalkingGoal(this, 1.0D));
-        this.goalSelector.addGoal(8, new LookAtGoal(this, PlayerEntity.class, 8.0F));
-        this.goalSelector.addGoal(8, new LookRandomlyGoal(this));
+        this.goalSelector.addGoal(7, new WaterAvoidingRandomStrollGoal(this, 1.0D));
+        this.goalSelector.addGoal(8, new LookAtPlayerGoal(this, Player.class, 8.0F));
+        this.goalSelector.addGoal(8, new RandomLookAroundGoal(this));
         this.applyEntityAI();
     }
 
     void applyEntityAI() {
         this.targetSelector.addGoal(0, new HurtByTargetGoal(this, UndeadBaseEntity.class));
-        boolean checkSight = this.isNonBoss();
-        this.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(this, PlayerEntity.class, checkSight));
+        boolean checkSight = this.canChangeDimensions();
+        this.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(this, Player.class, checkSight));
         this.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(this, BanditBaseEntity.class, checkSight));
         this.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(this, StoneBaseEntity.class, checkSight));
         this.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(this, DesertWolfEntity.class, checkSight));
-        this.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(this, WolfEntity.class, checkSight));
-        this.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(this, ZombifiedPiglinEntity.class, checkSight));
+        this.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(this, Wolf.class, checkSight));
+        this.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(this, ZombifiedPiglin.class, checkSight));
         this.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(this, TarantulaEntity.class, checkSight));
     }
 
     @Override
-    public boolean canAttack(@Nonnull EntityType<?> type) {
-        return type != this.getType() && super.canAttack(type);
+    public boolean canAttackType(@Nonnull EntityType<?> type) {
+        return type != this.getType() && super.canAttackType(type);
     }
 
     @Override
-    protected void registerData() {
-        super.registerData();
+    protected void defineSynchedData() {
+        super.defineSynchedData();
         if (this.hasSkinVariants()) {
-            this.dataManager.register(VARIANT, 0);
+            this.entityData.define(VARIANT, 0);
         }
     }
 
     @Override
-    public ILivingEntityData onInitialSpawn(@Nonnull IServerWorld world, @Nonnull DifficultyInstance difficulty, @Nonnull SpawnReason spawnReason, @Nullable ILivingEntityData livingData, @Nullable CompoundNBT nbt) {
-        livingData = super.onInitialSpawn(world, difficulty, spawnReason, livingData, nbt);
+    public SpawnGroupData finalizeSpawn(@Nonnull ServerLevelAccessor level, @Nonnull DifficultyInstance difficulty, @Nonnull MobSpawnType spawnReason, @Nullable SpawnGroupData livingData, @Nullable CompoundTag nbt) {
+        livingData = super.finalizeSpawn(level, difficulty, spawnReason, livingData, nbt);
 
-        this.setCanPickUpLoot(this.rand.nextFloat() < 0.55F * difficulty.getClampedAdditionalDifficulty());
+        this.setCanPickUpLoot(this.random.nextFloat() < 0.55F * difficulty.getSpecialMultiplier());
 
-        if (this.hasSkinVariants() && spawnReason != SpawnReason.CONVERSION) {
-            final int variant = MathHelper.nextInt(world.getRandom(), 0, this.getVariantAmount());
-            this.setVariantWithAbilities(variant, difficulty);
+        if (this.hasSkinVariants() && spawnReason != MobSpawnType.CONVERSION) {
+            final int variant = Mth.nextInt(level.getRandom(), 0, this.getVariantAmount());
+            this.setVariantWithAbilities(variant, this.random, difficulty);
         }
         return livingData;
     }
@@ -105,61 +108,60 @@ public class UndeadBaseEntity extends MonsterEntity implements ITexture {
         return 6;
     }
 
-    public void setVariantWithAbilities(int variant, DifficultyInstance difficulty) {
+    public void setVariantWithAbilities(int variant, RandomSource randomSource, DifficultyInstance difficulty) {
         this.setVariant(variant);
-        this.setVariantAbilities(difficulty, variant);
+        this.setVariantAbilities(difficulty, randomSource, variant);
     }
 
-    void setVariantAbilities(DifficultyInstance difficulty, int variant) {
+    void setVariantAbilities(DifficultyInstance difficulty, RandomSource randomSource, int variant) {
     }
 
     @Override
-    public boolean isPotionApplicable(@Nonnull EffectInstance potionEffect) {
-        return potionEffect.getPotion() != Effects.POISON && super.isPotionApplicable(potionEffect);
+    public boolean canBeAffected(@Nonnull MobEffectInstance potionEffect) {
+        return potionEffect.getEffect() != MobEffects.POISON && super.canBeAffected(potionEffect);
     }
 
     @Override
     protected SoundEvent getAmbientSound() {
-        return SoundEvents.ENTITY_ZOMBIE_AMBIENT;
+        return SoundEvents.ZOMBIE_AMBIENT;
     }
 
     @Override
     protected SoundEvent getHurtSound(@Nonnull DamageSource damageSource) {
-        return SoundEvents.ENTITY_ZOMBIE_HURT;
+        return SoundEvents.ZOMBIE_HURT;
     }
 
     @Override
     protected SoundEvent getDeathSound() {
-        return SoundEvents.ENTITY_ZOMBIE_DEATH;
+        return SoundEvents.ZOMBIE_DEATH;
     }
 
     @Override
     public void tick() {
         super.tick();
-        if (this.world.isRemote && this.dataManager.isDirty()) {
-            this.dataManager.setClean();
+        if (this.level().isClientSide && this.entityData.isDirty()) {
             this.texturePath = null;
         }
     }
 
     @Override
-    public void livingTick() {
-        if (this.isAlive() && this.shouldBurnInDay() && this.isInDaylight()) {
-            this.setFire(8);
+    public void aiStep() {
+        if (this.isAlive() && this.shouldBurnInDay() && this.isSunBurnTick()) {
+            this.setSecondsOnFire(8);
         }
-        super.livingTick();
+        super.aiStep();
     }
 
     @Override
     public void baseTick() {
-        if (this.getFireTimer() > 0) {
-            int fire = this.getFireTimer();
-            if (!this.isImmuneToFire()) {
-                if (this.getFireTimer() % 20 == 0) {
-                    this.attackEntityFrom(DamageSource.ON_FIRE, getBurnDamage());
+        if (this.getRemainingFireTicks() > 0) {
+            int fire = this.getRemainingFireTicks();
+            if (!this.fireImmune()) {
+                if (this.getRemainingFireTicks() % 20 == 0) {
+                    this.hurt(this.damageSources().onFire(), getBurnDamage());
                 }
                 --fire;
-                this.forceFireTicks(fire);
+                this.setRemainingFireTicks(fire);
             }
         }
         super.baseTick();
@@ -175,33 +177,33 @@ public class UndeadBaseEntity extends MonsterEntity implements ITexture {
 
     @Override
     @Nonnull
-    public CreatureAttribute getCreatureAttribute() {
-        return CreatureAttribute.UNDEAD;
+    public MobType getMobType() {
+        return MobType.UNDEAD;
     }
 
     @Override
-    public boolean canSpawn(@Nonnull IWorld world, @Nonnull SpawnReason spawnReason) {
-        return spawnReason == SpawnReason.SPAWNER || super.canSpawn(world, spawnReason);
+    public boolean checkSpawnRules(@Nonnull LevelAccessor level, @Nonnull MobSpawnType spawnReason) {
+        return spawnReason == MobSpawnType.SPAWNER || super.checkSpawnRules(level, spawnReason);
     }
 
-    public static boolean canSpawn(EntityType<? extends UndeadBaseEntity> undeadBase, IServerWorld world, SpawnReason spawnReason, BlockPos pos, Random random) {
-        return (spawnReason == SpawnReason.SPAWNER || pos.getY() > 62) && canMonsterSpawnInLight(undeadBase, world, spawnReason, pos, random);
+    public static boolean canSpawn(EntityType<? extends UndeadBaseEntity> undeadBase, ServerLevelAccessor levelAccessor, MobSpawnType spawnReason, BlockPos pos, RandomSource random) {
+        return (spawnReason == MobSpawnType.SPAWNER || pos.getY() > 62) && checkMonsterSpawnRules(undeadBase, levelAccessor, spawnReason, pos, random);
     }
 
     void setVariant(int variant) {
-        this.dataManager.set(VARIANT, variant);
+        this.entityData.set(VARIANT, variant);
         this.texturePath = null;
     }
 
     public int getVariant() {
-        return this.dataManager.get(VARIANT);
+        return this.entityData.get(VARIANT);
     }
 
     @Override
     @OnlyIn(Dist.CLIENT)
     public String getTexture() {
         if (this.texturePath == null) {
-            String entityName = Objects.requireNonNull(this.getType().getRegistryName()).getPath();
+            String entityName = Objects.requireNonNull(ForgeRegistries.ENTITY_TYPES.getKey(this.getType())).getPath();
 
             if (this.hasSkinVariants()) {
                 this.texturePath = new ResourceLocation(Atum.MOD_ID, "textures/entity/" + entityName + "_" + this.getVariant()) + ".png";
@@ -213,16 +215,16 @@ public class UndeadBaseEntity extends MonsterEntity implements ITexture {
     }
 
     @Override
-    public void writeAdditional(@Nonnull CompoundNBT compound) {
-        super.writeAdditional(compound);
+    public void addAdditionalSaveData(@Nonnull CompoundTag compound) {
+        super.addAdditionalSaveData(compound);
         if (this.hasSkinVariants()) {
             compound.putInt("Variant", this.getVariant());
         }
     }
 
     @Override
-    public void readAdditional(@Nonnull CompoundNBT compound) {
-        super.readAdditional(compound);
+    public void readAdditionalSaveData(@Nonnull CompoundTag compound) {
+        super.readAdditionalSaveData(compound);
         if (this.hasSkinVariants()) {
             this.setVariant(compound.getInt("Variant"));
         }

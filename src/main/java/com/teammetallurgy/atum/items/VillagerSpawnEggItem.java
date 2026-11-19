@@ -1,34 +1,35 @@
 package com.teammetallurgy.atum.items;
 
-import com.teammetallurgy.atum.Atum;
 import com.teammetallurgy.atum.entity.villager.AtumVillagerEntity;
 import com.teammetallurgy.atum.init.AtumEntities;
-import net.minecraft.entity.EntityType;
-import net.minecraft.item.Item;
-import net.minecraft.item.SpawnEggItem;
-import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.item.Item;
+import net.minecraftforge.common.ForgeSpawnEggItem;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.Random;
 
-public class VillagerSpawnEggItem extends SpawnEggItem {
+public class VillagerSpawnEggItem extends ForgeSpawnEggItem {
 
     public VillagerSpawnEggItem() {
-        super(AtumEntities.VILLAGER_MALE, 0x9D7A62, 0x452D25, new Item.Properties().group(Atum.GROUP));
-        EGGS.put(AtumEntities.VILLAGER_FEMALE, this);
+        super(AtumEntities.VILLAGER_MALE, 0x9D7A62, 0x452D25, new Item.Properties());
+        //BY_ID.put(AtumEntities.VILLAGER_FEMALE.get(), this);
     }
 
     @Override
     @Nonnull
-    public EntityType<?> getType(@Nullable CompoundNBT nbt) {
-        EntityType<? extends AtumVillagerEntity> villager = AtumEntities.VILLAGER_MALE;
+    public EntityType<?> getType(@Nullable CompoundTag nbt) {
+        EntityType<? extends AtumVillagerEntity> villager = AtumEntities.VILLAGER_MALE.get();
+        Random random = new Random();
         if (random.nextDouble() > 0.5D) {
-            villager = AtumEntities.VILLAGER_FEMALE;
+            villager = AtumEntities.VILLAGER_FEMALE.get();
         }
         if (nbt != null && nbt.contains("EntityTag", 10)) {
-            CompoundNBT compoundnbt = nbt.getCompound("EntityTag");
+            CompoundTag compoundnbt = nbt.getCompound("EntityTag");
             if (compoundnbt.contains("id", 8)) {
-                return EntityType.byKey(compoundnbt.getString("id")).orElse(villager);
+                return EntityType.byString(compoundnbt.getString("id")).orElse(villager);
             }
         }
         return villager;
