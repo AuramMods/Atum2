@@ -1,0 +1,7 @@
+{
+  "type": "atum:mineshaft",
+  "biomes": "#forge:is_atum",
+  "spawn_overrides": {},
+  "step": "underground_structures",
+  "variant": "deadwood"
+}

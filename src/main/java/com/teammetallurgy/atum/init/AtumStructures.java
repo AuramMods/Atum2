@@ -6,6 +6,7 @@ import com.teammetallurgy.atum.world.gen.structure.girafitomb.GirafiTombStructur
 import com.teammetallurgy.atum.world.gen.structure.pyramid.PyramidStructure;
 import com.teammetallurgy.atum.world.gen.structure.ruins.RuinStructure;
 import com.teammetallurgy.atum.world.gen.structure.tomb.TombStructure;
+import com.teammetallurgy.atum.world.gen.structure.mineshaft.AtumMineshaftStructure;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
@@ -20,6 +21,8 @@ public class AtumStructures {
     public static final RegistryObject<StructureType<TombStructure>> TOMB = register("tomb", TombStructure.CODEC);
     public static final RegistryObject<StructureType<RuinStructure>> RUIN = register("ruin", RuinStructure.CODEC);
     public static final RegistryObject<StructureType<PyramidStructure>> PYRAMID = register("pyramid", PyramidStructure.CODEC);
+
+    public static final RegistryObject<StructureType<AtumMineshaftStructure>> MINESHAFT = register("mineshaft", AtumMineshaftStructure.CODEC);
 
     //Structure Resource Keys (Only used in certain instance, only add if needed)
     public static final ResourceKey<Structure> PYRAMID_KEY = createKey("pyramid");
@@ -36,10 +39,4 @@ public class AtumStructures {
     private static <T extends Structure> StructureType<T> structureTypeFromCodec(Codec<T> structureCodec) {
         return () -> structureCodec;
     }
-
-    //Structure Features //TODO Remove. Kept for reference for now
-//    public static final ConfiguredStructureFeature<AtumMineshaftConfig, ? extends StructureFeature<AtumMineshaftConfig>> MINESHAFT_DEADWOOD_FEATURE = register("mineshaft_deadwood", MINESHAFT_STRUCTURE, new AtumMineshaftConfig(AtumConfig.WORLD_GEN.mineshaftProbability.get().floatValue(), AtumMineshaftStructure.Type.DEADWOOD));
-//    public static final ConfiguredStructureFeature<AtumMineshaftConfig, ? extends StructureFeature<AtumMineshaftConfig>> MINESHAFT_LIMESTONE_FEATURE = register("mineshaft_limestone", MINESHAFT_STRUCTURE, new AtumMineshaftConfig(AtumConfig.WORLD_GEN.mineshaftProbability.get().floatValue(), AtumMineshaftStructure.Type.LIMESTONE));
-//    public static final ConfiguredStructureFeature<AtumMineshaftConfig, ? extends StructureFeature<AtumMineshaftConfig>> MINESHAFT_DEADWOOD_SURFACE_FEATURE = register("mineshaft_deadwood_surface", MINESHAFT_STRUCTURE, new AtumMineshaftConfig(AtumConfig.WORLD_GEN.mineshaftProbability.get().floatValue(), AtumMineshaftStructure.Type.DEADWOOD_SURFACE));
-//    public static final ConfiguredStructureFeature<AtumMineshaftConfig, ? extends StructureFeature<AtumMineshaftConfig>> MINESHAFT_LIMESTONE_SURFACE_FEATURE = register("mineshaft_limestone_surface", MINESHAFT_STRUCTURE, new AtumMineshaftConfig(AtumConfig.WORLD_GEN.mineshaftProbability.get().floatValue(), AtumMineshaftStructure.Type.LIMESTONE_SURFACE));
 }

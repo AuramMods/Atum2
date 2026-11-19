@@ -1,7 +1,7 @@
-/*
 package com.teammetallurgy.atum.world.gen.structure.mineshaft;
 
 import com.google.common.collect.Lists;
+import com.teammetallurgy.atum.Atum;
 import com.teammetallurgy.atum.blocks.lighting.AtumWallTorchUnlitBlock;
 import com.teammetallurgy.atum.init.AtumBlocks;
 import com.teammetallurgy.atum.init.AtumEntities;
@@ -11,11 +11,14 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.NbtOps;
+import net.minecraft.nbt.Tag;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.vehicle.MinecartChest;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.ChunkPos;
-import net.minecraft.world.level.StructureFeatureManager;
+import net.minecraft.world.level.StructureManager;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.RailBlock;
@@ -25,32 +28,33 @@ import net.minecraft.world.level.block.entity.SpawnerBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.RailShape;
 import net.minecraft.world.level.chunk.ChunkGenerator;
-import net.minecraft.world.level.levelgen.feature.StructurePieceType;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.level.levelgen.structure.StructurePiece;
-import net.minecraft.world.level.levelgen.structure.templatesystem.StructureManager;
+import net.minecraft.world.level.levelgen.structure.StructurePieceAccessor;
+import net.minecraft.world.level.levelgen.structure.pieces.StructurePieceSerializationContext;
+import net.minecraft.world.level.levelgen.structure.pieces.StructurePieceType;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.List;
-import java.util.Random;
 
-public class AtumMineshaftPieces { // TODO
+public class AtumMineshaftPieces {
+    private static final BlockState CAVE_AIR = Blocks.CAVE_AIR.defaultBlockState();
 
-    private static Piece createRandomShaftPiece(List<StructurePiece> list, Random rand, int x, int y, int z, @Nullable Direction direction, int componentType, AtumMineshaftStructure.Type type) {
+    private static Piece createRandomShaftPiece(StructurePieceAccessor pieces, RandomSource rand, int x, int y, int z, @Nullable Direction direction, int componentType, AtumMineshaftStructure.Type type) {
         int i = rand.nextInt(100);
         if (i >= 80) {
-            BoundingBox box = Cross.findCrossing(list, rand, x, y, z, direction);
+            BoundingBox box = Cross.findCrossing(pieces, rand, x, y, z, direction);
             if (box != null) {
                 return new Cross(componentType, box, direction, type);
             }
         } else if (i >= 70) {
-            BoundingBox box = Stairs.findStairs(list, rand, x, y, z, direction);
+            BoundingBox box = Stairs.findStairs(pieces, x, y, z, direction);
             if (box != null) {
                 return new Stairs(componentType, box, direction, type);
             }
         } else {
-            BoundingBox box = Corridor.findCorridorSize(list, rand, x, y, z, direction);
+            BoundingBox box = Corridor.findCorridorSize(pieces, rand, x, y, z, direction);
             if (box != null) {
                 return new Corridor(componentType, rand, box, direction, type);
             }
@@ -59,15 +63,15 @@ public class AtumMineshaftPieces { // TODO
         return null;
     }
 
-    private static Piece generateAndAddPiece(StructurePiece structurePiece, List<StructurePiece> list, Random p_189938_2_, int x, int y, int z, Direction direction, int componentType) {
+    private static Piece generateAndAddPiece(StructurePiece structurePiece, StructurePieceAccessor pieces, RandomSource random, int x, int y, int z, Direction direction, int componentType) {
         if (componentType > 8) {
             return null;
-        } else if (Math.abs(x - structurePiece.getBoundingBox().x0) <= 80 && Math.abs(z - structurePiece.getBoundingBox().z0) <= 80) {
+        } else if (Math.abs(x - structurePiece.getBoundingBox().minX()) <= 80 && Math.abs(z - structurePiece.getBoundingBox().minZ()) <= 80) {
             AtumMineshaftStructure.Type type = ((Piece) structurePiece).mineShaftType;
-            Piece piece = createRandomShaftPiece(list, p_189938_2_, x, y, z, direction, componentType + 1, type);
+            Piece piece = createRandomShaftPiece(pieces, random, x, y, z, direction, componentType + 1, type);
             if (piece != null) {
-                list.add(piece);
-                piece.addChildren(structurePiece, list, p_189938_2_);
+                pieces.addPiece(piece);
+                piece.addChildren(structurePiece, pieces, random);
             }
             return piece;
         } else {
@@ -81,8 +85,8 @@ public class AtumMineshaftPieces { // TODO
         private boolean spawnerPlaced;
         private final int sectionCount;
 
-        public Corridor(StructureManager manager, CompoundTag nbt) {
-            super(AtumStructurePieces.MINESHAFT_CORRIDOR, nbt);
+        public Corridor(CompoundTag nbt) {
+            super(AtumStructurePieces.MINESHAFT_CORRIDOR.get(), nbt);
             this.hasRails = nbt.getBoolean("hr");
             this.hasTarantula = nbt.getBoolean("sc");
             this.spawnerPlaced = nbt.getBoolean("hps");
@@ -90,18 +94,17 @@ public class AtumMineshaftPieces { // TODO
         }
 
         @Override
-        protected void addAdditionalSaveData(CompoundTag tagCompound) {
-            super.addAdditionalSaveData(tagCompound);
+        protected void addAdditionalSaveData(StructurePieceSerializationContext context, CompoundTag tagCompound) {
+            super.addAdditionalSaveData(context, tagCompound);
             tagCompound.putBoolean("hr", this.hasRails);
             tagCompound.putBoolean("sc", this.hasTarantula);
             tagCompound.putBoolean("hps", this.spawnerPlaced);
             tagCompound.putInt("Num", this.sectionCount);
         }
 
-        public Corridor(int componentType, Random rand, BoundingBox box, Direction direction, AtumMineshaftStructure.Type type) {
-            super(AtumStructurePieces.MINESHAFT_CORRIDOR, componentType, type);
+        public Corridor(int componentType, RandomSource rand, BoundingBox box, Direction direction, AtumMineshaftStructure.Type type) {
+            super(AtumStructurePieces.MINESHAFT_CORRIDOR.get(), componentType, type, box);
             this.setOrientation(direction);
-            this.boundingBox = box;
             this.hasRails = rand.nextInt(3) == 0;
             this.hasTarantula = !this.hasRails && rand.nextInt(23) == 0;
             if (this.getOrientation().getAxis() == Direction.Axis.Z) {
@@ -111,40 +114,18 @@ public class AtumMineshaftPieces { // TODO
             }
         }
 
-        public static BoundingBox findCorridorSize(List<StructurePiece> list, Random rand, int x, int y, int z, Direction facing) {
-            BoundingBox box = new BoundingBox(x, y, z, x, y + 3 - 1, z);
-
-            int i;
-            for (i = rand.nextInt(3) + 2; i > 0; --i) {
-                int j = i * 5;
-                switch (facing) {
-                    case NORTH:
-                    default:
-                        box.x1 = x + 3 - 1;
-                        box.z0 = z - (j - 1);
-                        break;
-                    case SOUTH:
-                        box.x1 = x + 3 - 1;
-                        box.z1 = z + j - 1;
-                        break;
-                    case WEST:
-                        box.x0 = x - (j - 1);
-                        box.z1 = z + 3 - 1;
-                        break;
-                    case EAST:
-                        box.x1 = x + j - 1;
-                        box.z1 = z + 3 - 1;
-                }
-
-                if (StructurePiece.findCollisionPiece(list, box) == null) {
-                    break;
+        public static BoundingBox findCorridorSize(StructurePieceAccessor pieces, RandomSource random, int x, int y, int z, Direction direction) {
+            for (int sections = random.nextInt(3) + 2; sections > 0; sections--) {
+                BoundingBox box = BoundingBox.orientBox(x, y, z, 0, 0, 0, 3, 3, sections * 5, direction);
+                if (pieces.findCollisionPiece(box) == null) {
+                    return box;
                 }
             }
-            return i > 0 ? box : null;
+            return null;
         }
 
         @Override
-        public void addChildren(@Nonnull StructurePiece component, @Nonnull List<StructurePiece> list, Random rand) {
+        public void addChildren(@Nonnull StructurePiece component, @Nonnull StructurePieceAccessor pieces, RandomSource rand) {
             int i = this.getGenDepth();
             int j = rand.nextInt(4);
             Direction direction = this.getOrientation();
@@ -153,59 +134,59 @@ public class AtumMineshaftPieces { // TODO
                     case NORTH:
                     default:
                         if (j <= 1) {
-                            generateAndAddPiece(component, list, rand, this.boundingBox.x0, this.boundingBox.y0 - 1 + rand.nextInt(3), this.boundingBox.z0 - 1, direction, i);
+                            generateAndAddPiece(component, pieces, rand, this.boundingBox.minX(), this.boundingBox.minY() - 1 + rand.nextInt(3), this.boundingBox.minZ() - 1, direction, i);
                         } else if (j == 2) {
-                            generateAndAddPiece(component, list, rand, this.boundingBox.x0 - 1, this.boundingBox.y0 - 1 + rand.nextInt(3), this.boundingBox.z0, Direction.WEST, i);
+                            generateAndAddPiece(component, pieces, rand, this.boundingBox.minX() - 1, this.boundingBox.minY() - 1 + rand.nextInt(3), this.boundingBox.minZ(), Direction.WEST, i);
                         } else {
-                            generateAndAddPiece(component, list, rand, this.boundingBox.x1 + 1, this.boundingBox.y0 - 1 + rand.nextInt(3), this.boundingBox.z0, Direction.EAST, i);
+                            generateAndAddPiece(component, pieces, rand, this.boundingBox.maxX() + 1, this.boundingBox.minY() - 1 + rand.nextInt(3), this.boundingBox.minZ(), Direction.EAST, i);
                         }
                         break;
                     case SOUTH:
                         if (j <= 1) {
-                            generateAndAddPiece(component, list, rand, this.boundingBox.x0, this.boundingBox.y0 - 1 + rand.nextInt(3), this.boundingBox.z1 + 1, direction, i);
+                            generateAndAddPiece(component, pieces, rand, this.boundingBox.minX(), this.boundingBox.minY() - 1 + rand.nextInt(3), this.boundingBox.maxZ() + 1, direction, i);
                         } else if (j == 2) {
-                            generateAndAddPiece(component, list, rand, this.boundingBox.x0 - 1, this.boundingBox.y0 - 1 + rand.nextInt(3), this.boundingBox.z1 - 3, Direction.WEST, i);
+                            generateAndAddPiece(component, pieces, rand, this.boundingBox.minX() - 1, this.boundingBox.minY() - 1 + rand.nextInt(3), this.boundingBox.maxZ() - 3, Direction.WEST, i);
                         } else {
-                            generateAndAddPiece(component, list, rand, this.boundingBox.x1 + 1, this.boundingBox.y0 - 1 + rand.nextInt(3), this.boundingBox.z1 - 3, Direction.EAST, i);
+                            generateAndAddPiece(component, pieces, rand, this.boundingBox.maxX() + 1, this.boundingBox.minY() - 1 + rand.nextInt(3), this.boundingBox.maxZ() - 3, Direction.EAST, i);
                         }
                         break;
                     case WEST:
                         if (j <= 1) {
-                            generateAndAddPiece(component, list, rand, this.boundingBox.x0 - 1, this.boundingBox.y0 - 1 + rand.nextInt(3), this.boundingBox.z0, direction, i);
+                            generateAndAddPiece(component, pieces, rand, this.boundingBox.minX() - 1, this.boundingBox.minY() - 1 + rand.nextInt(3), this.boundingBox.minZ(), direction, i);
                         } else if (j == 2) {
-                            generateAndAddPiece(component, list, rand, this.boundingBox.x0, this.boundingBox.y0 - 1 + rand.nextInt(3), this.boundingBox.z0 - 1, Direction.NORTH, i);
+                            generateAndAddPiece(component, pieces, rand, this.boundingBox.minX(), this.boundingBox.minY() - 1 + rand.nextInt(3), this.boundingBox.minZ() - 1, Direction.NORTH, i);
                         } else {
-                            generateAndAddPiece(component, list, rand, this.boundingBox.x0, this.boundingBox.y0 - 1 + rand.nextInt(3), this.boundingBox.z1 + 1, Direction.SOUTH, i);
+                            generateAndAddPiece(component, pieces, rand, this.boundingBox.minX(), this.boundingBox.minY() - 1 + rand.nextInt(3), this.boundingBox.maxZ() + 1, Direction.SOUTH, i);
                         }
                         break;
                     case EAST:
                         if (j <= 1) {
-                            generateAndAddPiece(component, list, rand, this.boundingBox.x1 + 1, this.boundingBox.y0 - 1 + rand.nextInt(3), this.boundingBox.z0, direction, i);
+                            generateAndAddPiece(component, pieces, rand, this.boundingBox.maxX() + 1, this.boundingBox.minY() - 1 + rand.nextInt(3), this.boundingBox.minZ(), direction, i);
                         } else if (j == 2) {
-                            generateAndAddPiece(component, list, rand, this.boundingBox.x1 - 3, this.boundingBox.y0 - 1 + rand.nextInt(3), this.boundingBox.z0 - 1, Direction.NORTH, i);
+                            generateAndAddPiece(component, pieces, rand, this.boundingBox.maxX() - 3, this.boundingBox.minY() - 1 + rand.nextInt(3), this.boundingBox.minZ() - 1, Direction.NORTH, i);
                         } else {
-                            generateAndAddPiece(component, list, rand, this.boundingBox.x1 - 3, this.boundingBox.y0 - 1 + rand.nextInt(3), this.boundingBox.z1 + 1, Direction.SOUTH, i);
+                            generateAndAddPiece(component, pieces, rand, this.boundingBox.maxX() - 3, this.boundingBox.minY() - 1 + rand.nextInt(3), this.boundingBox.maxZ() + 1, Direction.SOUTH, i);
                         }
                 }
             }
 
             if (i < 8) {
                 if (direction != Direction.NORTH && direction != Direction.SOUTH) {
-                    for (int i1 = this.boundingBox.x0 + 3; i1 + 3 <= this.boundingBox.x1; i1 += 5) {
+                    for (int i1 = this.boundingBox.minX() + 3; i1 + 3 <= this.boundingBox.maxX(); i1 += 5) {
                         int j1 = rand.nextInt(5);
                         if (j1 == 0) {
-                            generateAndAddPiece(component, list, rand, i1, this.boundingBox.y0, this.boundingBox.z0 - 1, Direction.NORTH, i + 1);
+                            generateAndAddPiece(component, pieces, rand, i1, this.boundingBox.minY(), this.boundingBox.minZ() - 1, Direction.NORTH, i + 1);
                         } else if (j1 == 1) {
-                            generateAndAddPiece(component, list, rand, i1, this.boundingBox.y0, this.boundingBox.z1 + 1, Direction.SOUTH, i + 1);
+                            generateAndAddPiece(component, pieces, rand, i1, this.boundingBox.minY(), this.boundingBox.maxZ() + 1, Direction.SOUTH, i + 1);
                         }
                     }
                 } else {
-                    for (int k = this.boundingBox.z0 + 3; k + 3 <= this.boundingBox.z1; k += 5) {
+                    for (int k = this.boundingBox.minZ() + 3; k + 3 <= this.boundingBox.maxZ(); k += 5) {
                         int l = rand.nextInt(5);
                         if (l == 0) {
-                            generateAndAddPiece(component, list, rand, this.boundingBox.x0 - 1, this.boundingBox.y0, k, Direction.WEST, i + 1);
+                            generateAndAddPiece(component, pieces, rand, this.boundingBox.minX() - 1, this.boundingBox.minY(), k, Direction.WEST, i + 1);
                         } else if (l == 1) {
-                            generateAndAddPiece(component, list, rand, this.boundingBox.x1 + 1, this.boundingBox.y0, k, Direction.EAST, i + 1);
+                            generateAndAddPiece(component, pieces, rand, this.boundingBox.maxX() + 1, this.boundingBox.minY(), k, Direction.EAST, i + 1);
                         }
                     }
                 }
@@ -214,9 +195,9 @@ public class AtumMineshaftPieces { // TODO
         }
 
         @Override
-        protected boolean createChest(@Nonnull WorldGenLevel level, BoundingBox box, @Nonnull Random rand, int x, int y, int z, @Nonnull ResourceLocation loot) {
+        protected boolean createChest(@Nonnull WorldGenLevel level, BoundingBox box, @Nonnull RandomSource rand, int x, int y, int z, @Nonnull ResourceLocation loot) {
             BlockPos blockpos = new BlockPos(this.getWorldX(x, z), this.getWorldY(y), this.getWorldZ(x, z));
-            if (box.isInside(blockpos) && level.getBlockState(blockpos).isAir(level, blockpos) && !level.getBlockState(blockpos.below()).isAir(level, blockpos.below())) {
+            if (box.isInside(blockpos) && level.getBlockState(blockpos).isAir() && !level.getBlockState(blockpos.below()).isAir()) {
                 BlockState plankState = Blocks.RAIL.defaultBlockState().setValue(RailBlock.SHAPE, rand.nextBoolean() ? RailShape.NORTH_SOUTH : RailShape.EAST_WEST);
                 this.placeBlock(level, plankState, x, y, z, box);
                 MinecartChest chestMinecraftEntity = new MinecartChest(level.getLevel(), (float) blockpos.getX() + 0.5F, (float) blockpos.getY() + 0.5F, (float) blockpos.getZ() + 0.5F);
@@ -229,9 +210,9 @@ public class AtumMineshaftPieces { // TODO
         }
 
         @Override
-        public boolean postProcess(@Nonnull WorldGenLevel level, @Nonnull StructureFeatureManager manager, @Nonnull ChunkGenerator generator, @Nonnull Random rand, @Nonnull BoundingBox box, @Nonnull ChunkPos chunkPos, BlockPos pos) {
+        public void postProcess(@Nonnull WorldGenLevel level, @Nonnull StructureManager manager, @Nonnull ChunkGenerator generator, @Nonnull RandomSource rand, @Nonnull BoundingBox box, @Nonnull ChunkPos chunkPos, BlockPos pos) {
             if (this.edgesLiquid(level, box)) {
-                return false;
+                return;
             } else {
                 int i1 = this.sectionCount * 5 - 1;
                 BlockState plankState = this.getPlanksBlock();
@@ -275,12 +256,12 @@ public class AtumMineshaftPieces { // TODO
                                 int chance = rand.nextInt(100);
                                 if (chance < 40) {
                                     if (type == AtumMineshaftStructure.Type.DEADWOOD || type == AtumMineshaftStructure.Type.DEADWOOD_SURFACE) {
-                                        ((SpawnerBlockEntity) tileEntity).getSpawner().setEntityId(AtumEntities.FORSAKEN);
+                                        ((SpawnerBlockEntity) tileEntity).setEntityId(AtumEntities.FORSAKEN.get(), rand);
                                     } else if (type == AtumMineshaftStructure.Type.LIMESTONE || type == AtumMineshaftStructure.Type.LIMESTONE_SURFACE) {
-                                        ((SpawnerBlockEntity) tileEntity).getSpawner().setEntityId(AtumEntities.STONEGUARD);
+                                        ((SpawnerBlockEntity) tileEntity).setEntityId(AtumEntities.STONEGUARD.get(), rand);
                                     }
                                 } else {
-                                    ((SpawnerBlockEntity) tileEntity).getSpawner().setEntityId(AtumEntities.TARANTULA);
+                                    ((SpawnerBlockEntity) tileEntity).setEntityId(AtumEntities.TARANTULA.get(), rand);
                                 }
                             }
                         }
@@ -306,11 +287,10 @@ public class AtumMineshaftPieces { // TODO
                         }
                     }
                 }
-                return true;
             }
         }
 
-        private void placeSupport(WorldGenLevel level, BoundingBox box, int x, int yMin, int zMin, int yMax, int zMax, Random rand) {
+        private void placeSupport(WorldGenLevel level, BoundingBox box, int x, int yMin, int zMin, int yMax, int zMax, RandomSource rand) {
             if (this.isSupportingBox(level, box, x, zMax, yMax, zMin)) {
                 BlockState plankState = this.getPlanksBlock();
                 BlockState fenceState = this.getFenceBlock();
@@ -328,7 +308,7 @@ public class AtumMineshaftPieces { // TODO
             }
         }
 
-        private void placeCobWeb(WorldGenLevel level, BoundingBox box, Random rand, float chance, int x, int y, int z) {
+        private void placeCobWeb(WorldGenLevel level, BoundingBox box, RandomSource rand, float chance, int x, int y, int z) {
             if (this.isInterior(level, x, y, z, box)) {
                 this.maybeGenerateBlock(level, box, rand, chance, x, y, z, Blocks.COBWEB.defaultBlockState());
             }
@@ -339,133 +319,111 @@ public class AtumMineshaftPieces { // TODO
         private final Direction corridorDirection;
         private final boolean isMultipleFloors;
 
-        public Cross(StructureManager manager, CompoundTag nbt) {
-            super(AtumStructurePieces.MINESHAFT_CROSSING, nbt);
+        public Cross(CompoundTag nbt) {
+            super(AtumStructurePieces.MINESHAFT_CROSSING.get(), nbt);
             this.isMultipleFloors = nbt.getBoolean("tf");
             this.corridorDirection = Direction.from2DDataValue(nbt.getInt("D"));
         }
 
         @Override
-        protected void addAdditionalSaveData(CompoundTag tagCompound) {
-            super.addAdditionalSaveData(tagCompound);
+        protected void addAdditionalSaveData(StructurePieceSerializationContext context, CompoundTag tagCompound) {
+            super.addAdditionalSaveData(context, tagCompound);
             tagCompound.putBoolean("tf", this.isMultipleFloors);
             tagCompound.putInt("D", this.corridorDirection.get2DDataValue());
         }
 
         public Cross(int componentType, BoundingBox box, @Nullable Direction direction, AtumMineshaftStructure.Type type) {
-            super(AtumStructurePieces.MINESHAFT_CROSSING, componentType, type);
+            super(AtumStructurePieces.MINESHAFT_CROSSING.get(), componentType, type, box);
             this.corridorDirection = direction;
-            this.boundingBox = box;
             this.isMultipleFloors = box.getYSpan() > 3;
         }
 
-        public static BoundingBox findCrossing(List<StructurePiece> list, Random rand, int x, int y, int z, Direction facing) {
-            BoundingBox box = new BoundingBox(x, y, z, x, y + 3 - 1, z);
-            if (rand.nextInt(4) == 0) {
-                box.y1 += 4;
-            }
-
-            switch (facing) {
-                case NORTH:
-                default:
-                    box.x0 = x - 1;
-                    box.x1 = x + 3;
-                    box.z0 = z - 4;
-                    break;
-                case SOUTH:
-                    box.x0 = x - 1;
-                    box.x1 = x + 3;
-                    box.z1 = z + 3 + 1;
-                    break;
-                case WEST:
-                    box.x0 = x - 4;
-                    box.z0 = z - 1;
-                    box.z1 = z + 3;
-                    break;
-                case EAST:
-                    box.x1 = x + 3 + 1;
-                    box.z0 = z - 1;
-                    box.z1 = z + 3;
-            }
-
-            return StructurePiece.findCollisionPiece(list, box) != null ? null : box;
+        public static BoundingBox findCrossing(StructurePieceAccessor pieces, RandomSource random, int x, int y, int z, Direction direction) {
+            int height = random.nextInt(4) == 0 ? 7 : 3;
+            BoundingBox box = switch (direction) {
+                case NORTH -> new BoundingBox(x - 1, y, z - 4, x + 3, y + height - 1, z);
+                case SOUTH -> new BoundingBox(x - 1, y, z, x + 3, y + height - 1, z + 4);
+                case WEST -> new BoundingBox(x - 4, y, z - 1, x, y + height - 1, z + 3);
+                case EAST -> new BoundingBox(x, y, z - 1, x + 4, y + height - 1, z + 3);
+                default -> throw new IllegalArgumentException("Mineshaft entrance must be horizontal");
+            };
+            return pieces.findCollisionPiece(box) == null ? box : null;
         }
 
         @Override
-        public void addChildren(@Nonnull StructurePiece component, @Nonnull List<StructurePiece> list, @Nonnull Random rand) {
+        public void addChildren(@Nonnull StructurePiece component, @Nonnull StructurePieceAccessor pieces, @Nonnull RandomSource rand) {
             int i = this.getGenDepth();
             switch (this.corridorDirection) {
                 case NORTH:
                 default:
-                    generateAndAddPiece(component, list, rand, this.boundingBox.x0 + 1, this.boundingBox.y0, this.boundingBox.z0 - 1, Direction.NORTH, i);
-                    generateAndAddPiece(component, list, rand, this.boundingBox.x0 - 1, this.boundingBox.y0, this.boundingBox.z0 + 1, Direction.WEST, i);
-                    generateAndAddPiece(component, list, rand, this.boundingBox.x1 + 1, this.boundingBox.y0, this.boundingBox.z0 + 1, Direction.EAST, i);
+                    generateAndAddPiece(component, pieces, rand, this.boundingBox.minX() + 1, this.boundingBox.minY(), this.boundingBox.minZ() - 1, Direction.NORTH, i);
+                    generateAndAddPiece(component, pieces, rand, this.boundingBox.minX() - 1, this.boundingBox.minY(), this.boundingBox.minZ() + 1, Direction.WEST, i);
+                    generateAndAddPiece(component, pieces, rand, this.boundingBox.maxX() + 1, this.boundingBox.minY(), this.boundingBox.minZ() + 1, Direction.EAST, i);
                     break;
                 case SOUTH:
-                    generateAndAddPiece(component, list, rand, this.boundingBox.x0 + 1, this.boundingBox.y0, this.boundingBox.z1 + 1, Direction.SOUTH, i);
-                    generateAndAddPiece(component, list, rand, this.boundingBox.x0 - 1, this.boundingBox.y0, this.boundingBox.z0 + 1, Direction.WEST, i);
-                    generateAndAddPiece(component, list, rand, this.boundingBox.x1 + 1, this.boundingBox.y0, this.boundingBox.z0 + 1, Direction.EAST, i);
+                    generateAndAddPiece(component, pieces, rand, this.boundingBox.minX() + 1, this.boundingBox.minY(), this.boundingBox.maxZ() + 1, Direction.SOUTH, i);
+                    generateAndAddPiece(component, pieces, rand, this.boundingBox.minX() - 1, this.boundingBox.minY(), this.boundingBox.minZ() + 1, Direction.WEST, i);
+                    generateAndAddPiece(component, pieces, rand, this.boundingBox.maxX() + 1, this.boundingBox.minY(), this.boundingBox.minZ() + 1, Direction.EAST, i);
                     break;
                 case WEST:
-                    generateAndAddPiece(component, list, rand, this.boundingBox.x0 + 1, this.boundingBox.y0, this.boundingBox.z0 - 1, Direction.NORTH, i);
-                    generateAndAddPiece(component, list, rand, this.boundingBox.x0 + 1, this.boundingBox.y0, this.boundingBox.z1 + 1, Direction.SOUTH, i);
-                    generateAndAddPiece(component, list, rand, this.boundingBox.x0 - 1, this.boundingBox.y0, this.boundingBox.z0 + 1, Direction.WEST, i);
+                    generateAndAddPiece(component, pieces, rand, this.boundingBox.minX() + 1, this.boundingBox.minY(), this.boundingBox.minZ() - 1, Direction.NORTH, i);
+                    generateAndAddPiece(component, pieces, rand, this.boundingBox.minX() + 1, this.boundingBox.minY(), this.boundingBox.maxZ() + 1, Direction.SOUTH, i);
+                    generateAndAddPiece(component, pieces, rand, this.boundingBox.minX() - 1, this.boundingBox.minY(), this.boundingBox.minZ() + 1, Direction.WEST, i);
                     break;
                 case EAST:
-                    generateAndAddPiece(component, list, rand, this.boundingBox.x0 + 1, this.boundingBox.y0, this.boundingBox.z0 - 1, Direction.NORTH, i);
-                    generateAndAddPiece(component, list, rand, this.boundingBox.x0 + 1, this.boundingBox.y0, this.boundingBox.z1 + 1, Direction.SOUTH, i);
-                    generateAndAddPiece(component, list, rand, this.boundingBox.x1 + 1, this.boundingBox.y0, this.boundingBox.z0 + 1, Direction.EAST, i);
+                    generateAndAddPiece(component, pieces, rand, this.boundingBox.minX() + 1, this.boundingBox.minY(), this.boundingBox.minZ() - 1, Direction.NORTH, i);
+                    generateAndAddPiece(component, pieces, rand, this.boundingBox.minX() + 1, this.boundingBox.minY(), this.boundingBox.maxZ() + 1, Direction.SOUTH, i);
+                    generateAndAddPiece(component, pieces, rand, this.boundingBox.maxX() + 1, this.boundingBox.minY(), this.boundingBox.minZ() + 1, Direction.EAST, i);
             }
 
             if (this.isMultipleFloors) {
                 if (rand.nextBoolean()) {
-                    generateAndAddPiece(component, list, rand, this.boundingBox.x0 + 1, this.boundingBox.y0 + 3 + 1, this.boundingBox.z0 - 1, Direction.NORTH, i);
+                    generateAndAddPiece(component, pieces, rand, this.boundingBox.minX() + 1, this.boundingBox.minY() + 3 + 1, this.boundingBox.minZ() - 1, Direction.NORTH, i);
                 }
 
                 if (rand.nextBoolean()) {
-                    generateAndAddPiece(component, list, rand, this.boundingBox.x0 - 1, this.boundingBox.y0 + 3 + 1, this.boundingBox.z0 + 1, Direction.WEST, i);
+                    generateAndAddPiece(component, pieces, rand, this.boundingBox.minX() - 1, this.boundingBox.minY() + 3 + 1, this.boundingBox.minZ() + 1, Direction.WEST, i);
                 }
 
                 if (rand.nextBoolean()) {
-                    generateAndAddPiece(component, list, rand, this.boundingBox.x1 + 1, this.boundingBox.y0 + 3 + 1, this.boundingBox.z0 + 1, Direction.EAST, i);
+                    generateAndAddPiece(component, pieces, rand, this.boundingBox.maxX() + 1, this.boundingBox.minY() + 3 + 1, this.boundingBox.minZ() + 1, Direction.EAST, i);
                 }
 
                 if (rand.nextBoolean()) {
-                    generateAndAddPiece(component, list, rand, this.boundingBox.x0 + 1, this.boundingBox.y0 + 3 + 1, this.boundingBox.z1 + 1, Direction.SOUTH, i);
+                    generateAndAddPiece(component, pieces, rand, this.boundingBox.minX() + 1, this.boundingBox.minY() + 3 + 1, this.boundingBox.maxZ() + 1, Direction.SOUTH, i);
                 }
             }
         }
 
         @Override
-        public boolean postProcess(@Nonnull WorldGenLevel level, StructureFeatureManager manager, @Nonnull ChunkGenerator generator, @Nonnull Random rand, @Nonnull BoundingBox box, @Nonnull ChunkPos chunkPos, BlockPos pos) {
+        public void postProcess(@Nonnull WorldGenLevel level, StructureManager manager, @Nonnull ChunkGenerator generator, @Nonnull RandomSource rand, @Nonnull BoundingBox box, @Nonnull ChunkPos chunkPos, BlockPos pos) {
             if (this.edgesLiquid(level, box)) {
-                return false;
+                return;
             } else {
                 BlockState plankState = this.getPlanksBlock();
                 if (this.isMultipleFloors) {
-                    this.generateBox(level, box, this.boundingBox.x0 + 1, this.boundingBox.y0, this.boundingBox.z0, this.boundingBox.x1 - 1, this.boundingBox.y0 + 3 - 1, this.boundingBox.z1, CAVE_AIR, CAVE_AIR, false);
-                    this.generateBox(level, box, this.boundingBox.x0, this.boundingBox.y0, this.boundingBox.z0 + 1, this.boundingBox.x1, this.boundingBox.y0 + 3 - 1, this.boundingBox.z1 - 1, CAVE_AIR, CAVE_AIR, false);
-                    this.generateBox(level, box, this.boundingBox.x0 + 1, this.boundingBox.y1 - 2, this.boundingBox.z0, this.boundingBox.x1 - 1, this.boundingBox.y1, this.boundingBox.z1, CAVE_AIR, CAVE_AIR, false);
-                    this.generateBox(level, box, this.boundingBox.x0, this.boundingBox.y1 - 2, this.boundingBox.z0 + 1, this.boundingBox.x1, this.boundingBox.y1, this.boundingBox.z1 - 1, CAVE_AIR, CAVE_AIR, false);
-                    this.generateBox(level, box, this.boundingBox.x0 + 1, this.boundingBox.y0 + 3, this.boundingBox.z0 + 1, this.boundingBox.x1 - 1, this.boundingBox.y0 + 3, this.boundingBox.z1 - 1, CAVE_AIR, CAVE_AIR, false);
+                    this.generateBox(level, box, this.boundingBox.minX() + 1, this.boundingBox.minY(), this.boundingBox.minZ(), this.boundingBox.maxX() - 1, this.boundingBox.minY() + 3 - 1, this.boundingBox.maxZ(), CAVE_AIR, CAVE_AIR, false);
+                    this.generateBox(level, box, this.boundingBox.minX(), this.boundingBox.minY(), this.boundingBox.minZ() + 1, this.boundingBox.maxX(), this.boundingBox.minY() + 3 - 1, this.boundingBox.maxZ() - 1, CAVE_AIR, CAVE_AIR, false);
+                    this.generateBox(level, box, this.boundingBox.minX() + 1, this.boundingBox.maxY() - 2, this.boundingBox.minZ(), this.boundingBox.maxX() - 1, this.boundingBox.maxY(), this.boundingBox.maxZ(), CAVE_AIR, CAVE_AIR, false);
+                    this.generateBox(level, box, this.boundingBox.minX(), this.boundingBox.maxY() - 2, this.boundingBox.minZ() + 1, this.boundingBox.maxX(), this.boundingBox.maxY(), this.boundingBox.maxZ() - 1, CAVE_AIR, CAVE_AIR, false);
+                    this.generateBox(level, box, this.boundingBox.minX() + 1, this.boundingBox.minY() + 3, this.boundingBox.minZ() + 1, this.boundingBox.maxX() - 1, this.boundingBox.minY() + 3, this.boundingBox.maxZ() - 1, CAVE_AIR, CAVE_AIR, false);
                 } else {
-                    this.generateBox(level, box, this.boundingBox.x0 + 1, this.boundingBox.y0, this.boundingBox.z0, this.boundingBox.x1 - 1, this.boundingBox.y1, this.boundingBox.z1, CAVE_AIR, CAVE_AIR, false);
-                    this.generateBox(level, box, this.boundingBox.x0, this.boundingBox.y0, this.boundingBox.z0 + 1, this.boundingBox.x1, this.boundingBox.y1, this.boundingBox.z1 - 1, CAVE_AIR, CAVE_AIR, false);
+                    this.generateBox(level, box, this.boundingBox.minX() + 1, this.boundingBox.minY(), this.boundingBox.minZ(), this.boundingBox.maxX() - 1, this.boundingBox.maxY(), this.boundingBox.maxZ(), CAVE_AIR, CAVE_AIR, false);
+                    this.generateBox(level, box, this.boundingBox.minX(), this.boundingBox.minY(), this.boundingBox.minZ() + 1, this.boundingBox.maxX(), this.boundingBox.maxY(), this.boundingBox.maxZ() - 1, CAVE_AIR, CAVE_AIR, false);
                 }
 
-                this.placeSupportPillar(level, box, this.boundingBox.x0 + 1, this.boundingBox.y0, this.boundingBox.z0 + 1, this.boundingBox.y1);
-                this.placeSupportPillar(level, box, this.boundingBox.x0 + 1, this.boundingBox.y0, this.boundingBox.z1 - 1, this.boundingBox.y1);
-                this.placeSupportPillar(level, box, this.boundingBox.x1 - 1, this.boundingBox.y0, this.boundingBox.z0 + 1, this.boundingBox.y1);
-                this.placeSupportPillar(level, box, this.boundingBox.x1 - 1, this.boundingBox.y0, this.boundingBox.z1 - 1, this.boundingBox.y1);
+                this.placeSupportPillar(level, box, this.boundingBox.minX() + 1, this.boundingBox.minY(), this.boundingBox.minZ() + 1, this.boundingBox.maxY());
+                this.placeSupportPillar(level, box, this.boundingBox.minX() + 1, this.boundingBox.minY(), this.boundingBox.maxZ() - 1, this.boundingBox.maxY());
+                this.placeSupportPillar(level, box, this.boundingBox.maxX() - 1, this.boundingBox.minY(), this.boundingBox.minZ() + 1, this.boundingBox.maxY());
+                this.placeSupportPillar(level, box, this.boundingBox.maxX() - 1, this.boundingBox.minY(), this.boundingBox.maxZ() - 1, this.boundingBox.maxY());
 
-                for (int i = this.boundingBox.x0; i <= this.boundingBox.x1; ++i) {
-                    for (int j = this.boundingBox.z0; j <= this.boundingBox.z1; ++j) {
-                        if (this.getBlock(level, i, this.boundingBox.y0 - 1, j, box).isAir() && this.isInterior(level, i, this.boundingBox.y0 - 1, j, box)) {
-                            this.placeBlock(level, plankState, i, this.boundingBox.y0 - 1, j, box);
+                for (int i = this.boundingBox.minX(); i <= this.boundingBox.maxX(); ++i) {
+                    for (int j = this.boundingBox.minZ(); j <= this.boundingBox.maxZ(); ++j) {
+                        if (this.getBlock(level, i, this.boundingBox.minY() - 1, j, box).isAir() && this.isInterior(level, i, this.boundingBox.minY() - 1, j, box)) {
+                            this.placeBlock(level, plankState, i, this.boundingBox.minY() - 1, j, box);
                         }
                     }
                 }
-                return true;
             }
         }
 
@@ -479,8 +437,8 @@ public class AtumMineshaftPieces { // TODO
     abstract static class Piece extends StructurePiece {
         protected AtumMineshaftStructure.Type mineShaftType;
 
-        public Piece(StructurePieceType structurePieceType, int componentType, AtumMineshaftStructure.Type type) {
-            super(structurePieceType, componentType);
+        public Piece(StructurePieceType structurePieceType, int componentType, AtumMineshaftStructure.Type type, BoundingBox bounds) {
+            super(structurePieceType, componentType, bounds);
             this.mineShaftType = type;
         }
 
@@ -490,7 +448,7 @@ public class AtumMineshaftPieces { // TODO
         }
 
         @Override
-        protected void addAdditionalSaveData(CompoundTag tagCompound) {
+        protected void addAdditionalSaveData(StructurePieceSerializationContext context, CompoundTag tagCompound) {
             tagCompound.putInt("MST", this.mineShaftType.ordinal());
         }
 
@@ -499,10 +457,10 @@ public class AtumMineshaftPieces { // TODO
                 case DEADWOOD:
                 case DEADWOOD_SURFACE:
                 default:
-                    return AtumBlocks.DEADWOOD_PLANKS.defaultBlockState();
+                    return AtumBlocks.DEADWOOD_PLANKS.get().defaultBlockState();
                 case LIMESTONE:
                 case LIMESTONE_SURFACE:
-                    return AtumBlocks.LIMESTONE_BRICK_LARGE.defaultBlockState();
+                    return AtumBlocks.LIMESTONE_BRICK_LARGE.get().defaultBlockState();
             }
         }
 
@@ -511,10 +469,10 @@ public class AtumMineshaftPieces { // TODO
                 case DEADWOOD:
                 case DEADWOOD_SURFACE:
                 default:
-                    return AtumBlocks.DEADWOOD_FENCE.defaultBlockState();
+                    return AtumBlocks.DEADWOOD_FENCE.get().defaultBlockState();
                 case LIMESTONE:
                 case LIMESTONE_SURFACE:
-                    return AtumBlocks.LARGE_WALL.defaultBlockState();
+                    return AtumBlocks.LARGE_WALL.get().defaultBlockState();
             }
         }
 
@@ -523,11 +481,44 @@ public class AtumMineshaftPieces { // TODO
                 case DEADWOOD:
                 case DEADWOOD_SURFACE:
                 default:
-                    return AtumWallTorchUnlitBlock.UNLIT.get(AtumBlocks.DEADWOOD_TORCH).defaultBlockState();
+                    return AtumWallTorchUnlitBlock.UNLIT.get(AtumBlocks.DEADWOOD_TORCH).get().defaultBlockState();
                 case LIMESTONE:
                 case LIMESTONE_SURFACE:
-                    return AtumWallTorchUnlitBlock.UNLIT.get(AtumBlocks.LIMESTONE_TORCH).defaultBlockState();
+                    return AtumWallTorchUnlitBlock.UNLIT.get(AtumBlocks.LIMESTONE_TORCH).get().defaultBlockState();
             }
+        }
+
+        protected boolean edgesLiquid(WorldGenLevel level, BoundingBox chunkBounds) {
+            int minX = Math.max(this.boundingBox.minX() - 1, chunkBounds.minX());
+            int minY = Math.max(this.boundingBox.minY() - 1, chunkBounds.minY());
+            int minZ = Math.max(this.boundingBox.minZ() - 1, chunkBounds.minZ());
+            int maxX = Math.min(this.boundingBox.maxX() + 1, chunkBounds.maxX());
+            int maxY = Math.min(this.boundingBox.maxY() + 1, chunkBounds.maxY());
+            int maxZ = Math.min(this.boundingBox.maxZ() + 1, chunkBounds.maxZ());
+            var cursor = new BlockPos.MutableBlockPos();
+            for (int x = minX; x <= maxX; x++) {
+                for (int z = minZ; z <= maxZ; z++) {
+                    if (!level.getFluidState(cursor.set(x, minY, z)).isEmpty()
+                            || !level.getFluidState(cursor.set(x, maxY, z)).isEmpty()) {
+                        return true;
+                    }
+                }
+            }
+            for (int y = minY + 1; y < maxY; y++) {
+                for (int x = minX; x <= maxX; x++) {
+                    if (!level.getFluidState(cursor.set(x, y, minZ)).isEmpty()
+                            || !level.getFluidState(cursor.set(x, y, maxZ)).isEmpty()) {
+                        return true;
+                    }
+                }
+                for (int z = minZ + 1; z < maxZ; z++) {
+                    if (!level.getFluidState(cursor.set(minX, y, z)).isEmpty()
+                            || !level.getFluidState(cursor.set(maxX, y, z)).isEmpty()) {
+                        return true;
+                    }
+                }
+            }
+            return false;
         }
 
         protected boolean isSupportingBox(BlockGetter blockReader, BoundingBox box, int xStart, int xEnd, int x, int z) {
@@ -543,23 +534,21 @@ public class AtumMineshaftPieces { // TODO
     public static class Room extends Piece {
         private final List<BoundingBox> connectedRooms = Lists.newLinkedList();
 
-        public Room(int componentType, Random rand, int x, int z, AtumMineshaftStructure.Type type) {
-            super(AtumStructurePieces.MINESHAFT_ROOM, componentType, type);
-            this.mineShaftType = type;
-            this.boundingBox = new BoundingBox(x, 50, z, x + 7 + rand.nextInt(6), 54 + rand.nextInt(6), z + 7 + rand.nextInt(6));
+        public Room(int componentType, RandomSource rand, int x, int z, AtumMineshaftStructure.Type type) {
+            super(AtumStructurePieces.MINESHAFT_ROOM.get(), componentType, type,
+                    new BoundingBox(x, 50, z, x + 7 + rand.nextInt(6), 54 + rand.nextInt(6), z + 7 + rand.nextInt(6)));
         }
 
-        public Room(StructureManager manager, CompoundTag nbt) {
-            super(AtumStructurePieces.MINESHAFT_ROOM, nbt);
-            ListTag listnbt = nbt.getList("Entrances", 11);
-
-            for (int i = 0; i < listnbt.size(); ++i) {
-                this.connectedRooms.add(new BoundingBox(listnbt.getIntArray(i)));
+        public Room(CompoundTag nbt) {
+            super(AtumStructurePieces.MINESHAFT_ROOM.get(), nbt);
+            ListTag entrances = nbt.getList("Entrances", Tag.TAG_INT_ARRAY);
+            for (Tag entrance : entrances) {
+                BoundingBox.CODEC.parse(NbtOps.INSTANCE, entrance).resultOrPartial(Atum.LOG::warn).ifPresent(this.connectedRooms::add);
             }
         }
 
         @Override
-        public void addChildren(@Nonnull StructurePiece component, @Nonnull List<StructurePiece> list, @Nonnull Random rand) {
+        public void addChildren(@Nonnull StructurePiece component, @Nonnull StructurePieceAccessor pieces, @Nonnull RandomSource rand) {
             int i = this.getGenDepth();
             int j = this.boundingBox.getYSpan() - 3 - 1;
             if (j <= 0) {
@@ -573,10 +562,10 @@ public class AtumMineshaftPieces { // TODO
                     break;
                 }
 
-                Piece piece = generateAndAddPiece(component, list, rand, this.boundingBox.x0 + k, this.boundingBox.y0 + rand.nextInt(j) + 1, this.boundingBox.z0 - 1, Direction.NORTH, i);
+                Piece piece = generateAndAddPiece(component, pieces, rand, this.boundingBox.minX() + k, this.boundingBox.minY() + rand.nextInt(j) + 1, this.boundingBox.minZ() - 1, Direction.NORTH, i);
                 if (piece != null) {
                     BoundingBox box = piece.getBoundingBox();
-                    this.connectedRooms.add(new BoundingBox(box.x0, box.y0, this.boundingBox.z0, box.x1, box.y1, this.boundingBox.z0 + 1));
+                    this.connectedRooms.add(new BoundingBox(box.minX(), box.minY(), this.boundingBox.minZ(), box.maxX(), box.maxY(), this.boundingBox.minZ() + 1));
                 }
             }
 
@@ -586,10 +575,10 @@ public class AtumMineshaftPieces { // TODO
                     break;
                 }
 
-                Piece piece = generateAndAddPiece(component, list, rand, this.boundingBox.x0 + k, this.boundingBox.y0 + rand.nextInt(j) + 1, this.boundingBox.z1 + 1, Direction.SOUTH, i);
+                Piece piece = generateAndAddPiece(component, pieces, rand, this.boundingBox.minX() + k, this.boundingBox.minY() + rand.nextInt(j) + 1, this.boundingBox.maxZ() + 1, Direction.SOUTH, i);
                 if (piece != null) {
                     BoundingBox box = piece.getBoundingBox();
-                    this.connectedRooms.add(new BoundingBox(box.x0, box.y0, this.boundingBox.z1 - 1, box.x1, box.y1, this.boundingBox.z1));
+                    this.connectedRooms.add(new BoundingBox(box.minX(), box.minY(), this.boundingBox.maxZ() - 1, box.maxX(), box.maxY(), this.boundingBox.maxZ()));
                 }
             }
 
@@ -599,10 +588,10 @@ public class AtumMineshaftPieces { // TODO
                     break;
                 }
 
-                Piece piece = generateAndAddPiece(component, list, rand, this.boundingBox.x0 - 1, this.boundingBox.y0 + rand.nextInt(j) + 1, this.boundingBox.z0 + k, Direction.WEST, i);
+                Piece piece = generateAndAddPiece(component, pieces, rand, this.boundingBox.minX() - 1, this.boundingBox.minY() + rand.nextInt(j) + 1, this.boundingBox.minZ() + k, Direction.WEST, i);
                 if (piece != null) {
                     BoundingBox box = piece.getBoundingBox();
-                    this.connectedRooms.add(new BoundingBox(this.boundingBox.x0, box.y0, box.z0, this.boundingBox.x0 + 1, box.y1, box.z1));
+                    this.connectedRooms.add(new BoundingBox(this.boundingBox.minX(), box.minY(), box.minZ(), this.boundingBox.minX() + 1, box.maxY(), box.maxZ()));
                 }
             }
 
@@ -612,29 +601,28 @@ public class AtumMineshaftPieces { // TODO
                     break;
                 }
 
-                StructurePiece piece = generateAndAddPiece(component, list, rand, this.boundingBox.x1 + 1, this.boundingBox.y0 + rand.nextInt(j) + 1, this.boundingBox.z0 + k, Direction.EAST, i);
+                StructurePiece piece = generateAndAddPiece(component, pieces, rand, this.boundingBox.maxX() + 1, this.boundingBox.minY() + rand.nextInt(j) + 1, this.boundingBox.minZ() + k, Direction.EAST, i);
                 if (piece != null) {
                     BoundingBox box = piece.getBoundingBox();
-                    this.connectedRooms.add(new BoundingBox(this.boundingBox.x1 - 1, box.y0, box.z0, this.boundingBox.x1, box.y1, box.z1));
+                    this.connectedRooms.add(new BoundingBox(this.boundingBox.maxX() - 1, box.minY(), box.minZ(), this.boundingBox.maxX(), box.maxY(), box.maxZ()));
                 }
             }
 
         }
 
         @Override
-        public boolean postProcess(@Nonnull WorldGenLevel level, @Nonnull StructureFeatureManager manager, @Nonnull ChunkGenerator generator, @Nonnull Random rand, @Nonnull BoundingBox box, @Nonnull ChunkPos chunkPos, BlockPos pos) {
+        public void postProcess(@Nonnull WorldGenLevel level, @Nonnull StructureManager manager, @Nonnull ChunkGenerator generator, @Nonnull RandomSource rand, @Nonnull BoundingBox box, @Nonnull ChunkPos chunkPos, BlockPos pos) {
             if (this.edgesLiquid(level, box)) {
-                return false;
+                return;
             } else {
-                this.generateBox(level, box, this.boundingBox.x0, this.boundingBox.y0, this.boundingBox.z0, this.boundingBox.x1, this.boundingBox.y0, this.boundingBox.z1, AtumBlocks.SAND.defaultBlockState(), CAVE_AIR, true);
-                this.generateBox(level, box, this.boundingBox.x0, this.boundingBox.y0 + 1, this.boundingBox.z0, this.boundingBox.x1, Math.min(this.boundingBox.y0 + 3, this.boundingBox.y1), this.boundingBox.z1, CAVE_AIR, CAVE_AIR, false);
+                this.generateBox(level, box, this.boundingBox.minX(), this.boundingBox.minY(), this.boundingBox.minZ(), this.boundingBox.maxX(), this.boundingBox.minY(), this.boundingBox.maxZ(), AtumBlocks.STRANGE_SAND.get().defaultBlockState(), CAVE_AIR, true);
+                this.generateBox(level, box, this.boundingBox.minX(), this.boundingBox.minY() + 1, this.boundingBox.minZ(), this.boundingBox.maxX(), Math.min(this.boundingBox.minY() + 3, this.boundingBox.maxY()), this.boundingBox.maxZ(), CAVE_AIR, CAVE_AIR, false);
 
                 for (BoundingBox connectedRooms : this.connectedRooms) {
-                    this.generateBox(level, box, connectedRooms.x0, connectedRooms.y1 - 2, connectedRooms.z0, connectedRooms.x1, connectedRooms.y1, connectedRooms.z1, CAVE_AIR, CAVE_AIR, false);
+                    this.generateBox(level, box, connectedRooms.minX(), connectedRooms.maxY() - 2, connectedRooms.minZ(), connectedRooms.maxX(), connectedRooms.maxY(), connectedRooms.maxZ(), CAVE_AIR, CAVE_AIR, false);
                 }
 
-                this.generateUpperHalfSphere(level, box, this.boundingBox.x0, this.boundingBox.y0 + 4, this.boundingBox.z0, this.boundingBox.x1, this.boundingBox.y1, this.boundingBox.z1, CAVE_AIR, false);
-                return true;
+                this.generateUpperHalfSphere(level, box, this.boundingBox.minX(), this.boundingBox.minY() + 4, this.boundingBox.minZ(), this.boundingBox.maxX(), this.boundingBox.maxY(), this.boundingBox.maxZ(), CAVE_AIR, false);
             }
         }
 
@@ -649,12 +637,12 @@ public class AtumMineshaftPieces { // TODO
         }
 
         @Override
-        protected void addAdditionalSaveData(CompoundTag tagCompound) {
-            super.addAdditionalSaveData(tagCompound);
+        protected void addAdditionalSaveData(StructurePieceSerializationContext context, CompoundTag tagCompound) {
+            super.addAdditionalSaveData(context, tagCompound);
             ListTag listnbt = new ListTag();
 
             for (BoundingBox connectedRooms : this.connectedRooms) {
-                listnbt.add(connectedRooms.createTag());
+                BoundingBox.CODEC.encodeStart(NbtOps.INSTANCE, connectedRooms).resultOrPartial(Atum.LOG::warn).ifPresent(listnbt::add);
             }
             tagCompound.put("Entrances", listnbt);
         }
@@ -663,65 +651,46 @@ public class AtumMineshaftPieces { // TODO
     public static class Stairs extends Piece {
 
         public Stairs(int componentType, BoundingBox box, Direction direction, AtumMineshaftStructure.Type type) {
-            super(AtumStructurePieces.MINESHAFT_STAIRS, componentType, type);
+            super(AtumStructurePieces.MINESHAFT_STAIRS.get(), componentType, type, box);
             this.setOrientation(direction);
-            this.boundingBox = box;
         }
 
-        public Stairs(StructureManager manager, CompoundTag nbt) {
-            super(AtumStructurePieces.MINESHAFT_STAIRS, nbt);
+        public Stairs(CompoundTag nbt) {
+            super(AtumStructurePieces.MINESHAFT_STAIRS.get(), nbt);
         }
 
-        public static BoundingBox findStairs(List<StructurePiece> list, Random rand, int x, int y, int z, Direction facing) {
-            BoundingBox box = new BoundingBox(x, y - 5, z, x, y + 3 - 1, z);
-            switch (facing) {
-                case NORTH:
-                default:
-                    box.x1 = x + 3 - 1;
-                    box.z0 = z - 8;
-                    break;
-                case SOUTH:
-                    box.x1 = x + 3 - 1;
-                    box.z1 = z + 8;
-                    break;
-                case WEST:
-                    box.x0 = x - 8;
-                    box.z1 = z + 3 - 1;
-                    break;
-                case EAST:
-                    box.x1 = x + 8;
-                    box.z1 = z + 3 - 1;
-            }
-            return StructurePiece.findCollisionPiece(list, box) != null ? null : box;
+        public static BoundingBox findStairs(StructurePieceAccessor pieces, int x, int y, int z, Direction direction) {
+            BoundingBox box = BoundingBox.orientBox(x, y, z, 0, -5, 0, 3, 8, 9, direction);
+            return pieces.findCollisionPiece(box) == null ? box : null;
         }
 
         @Override
-        public void addChildren(@Nonnull StructurePiece component, @Nonnull List<StructurePiece> list, @Nonnull Random rand) {
+        public void addChildren(@Nonnull StructurePiece component, @Nonnull StructurePieceAccessor pieces, @Nonnull RandomSource rand) {
             int i = this.getGenDepth();
             Direction direction = this.getOrientation();
             if (direction != null) {
                 switch (direction) {
                     case NORTH:
                     default:
-                        generateAndAddPiece(component, list, rand, this.boundingBox.x0, this.boundingBox.y0, this.boundingBox.z0 - 1, Direction.NORTH, i);
+                        generateAndAddPiece(component, pieces, rand, this.boundingBox.minX(), this.boundingBox.minY(), this.boundingBox.minZ() - 1, Direction.NORTH, i);
                         break;
                     case SOUTH:
-                        generateAndAddPiece(component, list, rand, this.boundingBox.x0, this.boundingBox.y0, this.boundingBox.z1 + 1, Direction.SOUTH, i);
+                        generateAndAddPiece(component, pieces, rand, this.boundingBox.minX(), this.boundingBox.minY(), this.boundingBox.maxZ() + 1, Direction.SOUTH, i);
                         break;
                     case WEST:
-                        generateAndAddPiece(component, list, rand, this.boundingBox.x0 - 1, this.boundingBox.y0, this.boundingBox.z0, Direction.WEST, i);
+                        generateAndAddPiece(component, pieces, rand, this.boundingBox.minX() - 1, this.boundingBox.minY(), this.boundingBox.minZ(), Direction.WEST, i);
                         break;
                     case EAST:
-                        generateAndAddPiece(component, list, rand, this.boundingBox.x1 + 1, this.boundingBox.y0, this.boundingBox.z0, Direction.EAST, i);
+                        generateAndAddPiece(component, pieces, rand, this.boundingBox.maxX() + 1, this.boundingBox.minY(), this.boundingBox.minZ(), Direction.EAST, i);
                 }
             }
 
         }
 
         @Override
-        public boolean postProcess(@Nonnull WorldGenLevel level, @Nonnull StructureFeatureManager manager, @Nonnull ChunkGenerator generator, @Nonnull Random rand, @Nonnull BoundingBox box, @Nonnull ChunkPos chunkPos, BlockPos pos) {
+        public void postProcess(@Nonnull WorldGenLevel level, @Nonnull StructureManager manager, @Nonnull ChunkGenerator generator, @Nonnull RandomSource rand, @Nonnull BoundingBox box, @Nonnull ChunkPos chunkPos, BlockPos pos) {
             if (this.edgesLiquid(level, box)) {
-                return false;
+                return;
             } else {
                 this.generateBox(level, box, 0, 5, 0, 2, 7, 1, CAVE_AIR, CAVE_AIR, false);
                 this.generateBox(level, box, 0, 0, 7, 2, 2, 8, CAVE_AIR, CAVE_AIR, false);
@@ -729,8 +698,7 @@ public class AtumMineshaftPieces { // TODO
                 for (int i = 0; i < 5; ++i) {
                     this.generateBox(level, box, 0, 5 - i - (i < 4 ? 1 : 0), 2 + i, 2, 7 - i, 2 + i, CAVE_AIR, CAVE_AIR, false);
                 }
-                return true;
             }
         }
     }
-}*/
+}

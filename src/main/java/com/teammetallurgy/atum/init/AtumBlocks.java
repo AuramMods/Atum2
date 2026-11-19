@@ -605,6 +605,7 @@ public class AtumBlocks {
         AtumItems.registerItem(() -> new StandingAndWallBlockItem(unlitTorch.get(), wallTorchUnlit.get(), new Item.Properties(), Direction.DOWN), name + "_unlit");
         RegistryObject<Item> litTorchItem = AtumItems.registerItem(() -> new StandingAndWallBlockItem(litTorch.get(), wallTorchLit.get(), new Item.Properties(), Direction.DOWN), name);
         AtumTorchUnlitBlock.UNLIT.put(litTorch, unlitTorch);
+        AtumWallTorchUnlitBlock.UNLIT.put(litTorch, wallTorchUnlit);
         AtumItems.ITEMS_FOR_TAB_LIST.add(litTorchItem);
         return litTorch;
     }

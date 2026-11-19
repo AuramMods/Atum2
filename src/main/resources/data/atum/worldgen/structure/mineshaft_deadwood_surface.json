@@ -1,0 +1,7 @@
+{
+  "type": "atum:mineshaft",
+  "biomes": "#atum:has_structure/mineshaft_surface",
+  "spawn_overrides": {},
+  "step": "underground_structures",
+  "variant": "deadwood_surface"
+}

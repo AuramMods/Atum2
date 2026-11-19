@@ -8,6 +8,7 @@ import com.teammetallurgy.atum.world.gen.structure.pyramid.PyramidStructure;
 import com.teammetallurgy.atum.world.gen.structure.ruins.RuinPieces;
 import com.teammetallurgy.atum.world.gen.structure.tomb.TombPieces;
 import com.teammetallurgy.atum.world.gen.structure.tomb.TombStructure;
+import com.teammetallurgy.atum.world.gen.structure.mineshaft.AtumMineshaftPieces;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
@@ -28,10 +29,10 @@ public class AtumStructurePieces {
     public static final RegistryObject<StructurePieceType> PYRAMID = registerTemplate("pyramid_template", "pyramid",
             PyramidPieces.PyramidTemplate::new, data -> PyramidStructure.PYRAMID);
     public static final RegistryObject<StructurePieceType> PYRAMID_MAZE = register((manager, nbt) -> new PyramidPieces.Maze(nbt), "maze");
-    //public static final StructurePieceType MINESHAFT_CORRIDOR = register(AtumMineshaftPieces.Corridor::new, "mineshaft_corridor");
-    //public static final StructurePieceType MINESHAFT_CROSSING = register(AtumMineshaftPieces.Cross::new, "mineshaft_crossing");
-    //public static final StructurePieceType MINESHAFT_ROOM = register(AtumMineshaftPieces.Room::new, "mineshaft_room");
-    //public static final StructurePieceType MINESHAFT_STAIRS = register(AtumMineshaftPieces.Stairs::new, "mineshaft_stairs");
+    public static final RegistryObject<StructurePieceType> MINESHAFT_CORRIDOR = register((manager, data) -> new AtumMineshaftPieces.Corridor(data), "mineshaft_corridor");
+    public static final RegistryObject<StructurePieceType> MINESHAFT_CROSSING = register((manager, data) -> new AtumMineshaftPieces.Cross(data), "mineshaft_crossing");
+    public static final RegistryObject<StructurePieceType> MINESHAFT_ROOM = register((manager, data) -> new AtumMineshaftPieces.Room(data), "mineshaft_room");
+    public static final RegistryObject<StructurePieceType> MINESHAFT_STAIRS = register((manager, data) -> new AtumMineshaftPieces.Stairs(data), "mineshaft_stairs");
 
     static {
         register((manager, nbt) -> new PyramidPieces.Maze(nbt), "pyramid_maze");

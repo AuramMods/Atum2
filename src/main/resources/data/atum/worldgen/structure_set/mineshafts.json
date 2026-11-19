@@ -1,0 +1,19 @@
+{
+  "placement": {
+    "type": "minecraft:random_spread",
+    "frequency": 0.112,
+    "salt": 94805116,
+    "separation": 0,
+    "spacing": 4
+  },
+  "structures": [
+    {
+      "structure": "atum:mineshaft_deadwood",
+      "weight": 1
+    },
+    {
+      "structure": "atum:mineshaft_limestone",
+      "weight": 1
+    }
+  ]
+}
