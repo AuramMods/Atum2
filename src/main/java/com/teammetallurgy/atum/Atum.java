@@ -94,8 +94,10 @@ public class Atum {
     }
 
     private void setupClient(FMLClientSetupEvent event) {
-        ClientHandler.init();
-        IntegrationHandler.INSTANCE.clientSide();
+        event.enqueueWork(() -> {
+            ClientHandler.init();
+            IntegrationHandler.INSTANCE.clientSide();
+        });
     }
 
     @SubscribeEvent

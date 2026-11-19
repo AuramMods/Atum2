@@ -34,12 +34,12 @@ import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
 import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.api.distmarker.OnlyIn;
 
 import javax.annotation.Nonnull;
 import java.util.Map;
 
-@Mod.EventBusSubscriber(modid = Atum.MOD_ID, value = Dist.CLIENT)
+@OnlyIn(Dist.CLIENT)
 public class ItemStackRenderer extends BlockEntityWithoutLevelRenderer {
     private static final Map<String, ResourceLocation> SHIELD_CACHE = Maps.newHashMap();
     private static final Material ATEMS_PROTECTION_MATERIAL = getShieldMaterial("atems_protection");
