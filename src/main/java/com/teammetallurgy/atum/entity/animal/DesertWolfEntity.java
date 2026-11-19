@@ -552,13 +552,10 @@ public class DesertWolfEntity extends TamableAnimal implements PlayerRideableJum
     public static void openInventoryOverride(ScreenEvent.Opening event) {
         if (event.getScreen() instanceof EffectRenderingInventoryScreen) {
             Player player = Minecraft.getInstance().player;
-            if (player != null && player.getVehicle() instanceof DesertWolfEntity desertWolf) {
-                if (player.getUUID() == player.getUUID()) {
-                    if (desertWolf.isAlpha() && desertWolf.isVehicle()) {
-                        event.setCanceled(true);
-                        NetworkHandler.sendToServer(new OpenWolfGuiPacket(desertWolf.getId()));
-                    }
-                }
+            if (player != null && player.getVehicle() instanceof DesertWolfEntity desertWolf
+                    && desertWolf.isAlpha() && desertWolf.isTame()) {
+                event.setCanceled(true);
+                NetworkHandler.sendToServer(new OpenWolfGuiPacket(desertWolf.getId()));
             }
         }
     }

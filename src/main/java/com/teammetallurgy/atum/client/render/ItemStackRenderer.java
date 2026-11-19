@@ -8,6 +8,7 @@ import com.teammetallurgy.atum.Atum;
 import com.teammetallurgy.atum.blocks.stone.limestone.chest.LimestoneChestBlock;
 import com.teammetallurgy.atum.blocks.stone.limestone.chest.SarcophagusBlock;
 import com.teammetallurgy.atum.client.ClientHandler;
+import com.teammetallurgy.atum.client.model.TefnutsCallModel;
 import com.teammetallurgy.atum.client.model.shield.AbstractShieldModel;
 import com.teammetallurgy.atum.client.model.shield.AtemsProtectionModel;
 import com.teammetallurgy.atum.client.model.shield.BrigandShieldModel;
@@ -17,7 +18,6 @@ import com.teammetallurgy.atum.init.AtumBlocks;
 import com.teammetallurgy.atum.init.AtumItems;
 import com.teammetallurgy.atum.init.AtumTileEntities;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.model.TridentModel;
 import net.minecraft.client.model.geom.EntityModelSet;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
@@ -48,11 +48,11 @@ public class ItemStackRenderer extends BlockEntityWithoutLevelRenderer {
     private final AtemsProtectionModel atemsProtection;
     private final BrigandShieldModel brigandShield;
     private final StoneguardShieldModel stoneguardShield;
-    private final TridentModel tefnutsCall;
+    private final TefnutsCallModel tefnutsCall;
 
     public ItemStackRenderer(BlockEntityRenderDispatcher dispatcher, EntityModelSet modelSet) {
         super(dispatcher, modelSet);
-        this.tefnutsCall = new TridentModel(modelSet.bakeLayer(ClientHandler.TEFNUTS_CALL));
+        this.tefnutsCall = new TefnutsCallModel(modelSet.bakeLayer(ClientHandler.TEFNUTS_CALL));
         this.atemsProtection = new AtemsProtectionModel(modelSet.bakeLayer(ClientHandler.ATEMS_PROTECTION));
         this.brigandShield = new BrigandShieldModel(modelSet.bakeLayer(ClientHandler.BRIGAND_SHIELD));
         this.stoneguardShield = new StoneguardShieldModel(modelSet.bakeLayer(ClientHandler.STONEGUARD_SHIELD));
@@ -100,7 +100,8 @@ public class ItemStackRenderer extends BlockEntityWithoutLevelRenderer {
                 VertexConsumer vertexBuilder = ItemRenderer.getFoilBuffer(buffer, this.tefnutsCall.renderType(TefnutsCallRender.TEFNUTS_CALL_TEXTURE), false, stack.hasFoil());
 
                 LocalPlayer player = Minecraft.getInstance().player;
-                if (player != null && player.isUsingItem() && (displayContext == ItemDisplayContext.THIRD_PERSON_LEFT_HAND || displayContext == ItemDisplayContext.THIRD_PERSON_RIGHT_HAND)) {
+                if (player != null && player.isUsingItem() && player.getUseItem() == stack
+                        && (displayContext == ItemDisplayContext.THIRD_PERSON_LEFT_HAND || displayContext == ItemDisplayContext.THIRD_PERSON_RIGHT_HAND)) {
                     poseStack.rotateAround(Axis.XP.rotationDegrees(180.0F), 0.0F, 0.75F, 0.0F);
                 }
                 this.tefnutsCall.renderToBuffer(poseStack, vertexBuilder, combinedLight, combinedOverlay, 1.0F, 1.0F, 1.0F, 1.0F);

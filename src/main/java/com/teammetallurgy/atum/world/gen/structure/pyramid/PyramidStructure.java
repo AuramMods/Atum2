@@ -125,8 +125,9 @@ public class PyramidStructure extends AtumStructure {
             StructureManager structureManager = serverLevel.structureManager();
             Structure structure = structureManager.registryAccess().registryOrThrow(Registries.STRUCTURE).get(AtumStructures.PYRAMID_KEY);
             if (structure != null) {
-                BoundingBox box = structureManager.getStructureAt(sarcophagusPos, structure).getBoundingBox();
-                if (box.isInside(sarcophagusPos)) {
+                StructureStart start = structureManager.getStructureAt(sarcophagusPos, structure);
+                if (start.isValid()) {
+                    BoundingBox box = start.getBoundingBox();
                     DimensionHelper.getData(serverLevel).addBeatenPyramid(box);
                     changePyramidBlocks(serverLevel, box);
                 }

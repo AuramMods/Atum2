@@ -5,8 +5,8 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
 import com.teammetallurgy.atum.Atum;
 import com.teammetallurgy.atum.client.ClientHandler;
+import com.teammetallurgy.atum.client.model.TefnutsCallModel;
 import com.teammetallurgy.atum.entity.projectile.arrow.TefnutsCallEntity;
-import net.minecraft.client.model.TridentModel;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
@@ -19,11 +19,11 @@ import javax.annotation.Nonnull;
 
 public class TefnutsCallRender extends EntityRenderer<TefnutsCallEntity> {
     public static final ResourceLocation TEFNUTS_CALL_TEXTURE = new ResourceLocation(Atum.MOD_ID, "textures/entity/tefnuts_call.png");
-    private final TridentModel tefnutsCallModel;
+    private final TefnutsCallModel tefnutsCallModel;
 
     public TefnutsCallRender(EntityRendererProvider.Context context) {
         super(context);
-        this.tefnutsCallModel = new TridentModel(context.bakeLayer(ClientHandler.TEFNUTS_CALL));
+        this.tefnutsCallModel = new TefnutsCallModel(context.bakeLayer(ClientHandler.TEFNUTS_CALL));
     }
 
     @Override

@@ -20,19 +20,30 @@ import net.minecraftforge.network.NetworkRegistry;
 import net.minecraftforge.network.simple.SimpleChannel;
 
 public class NetworkHandler {
+    private static final String PROTOCOL_VERSION = "ATUM2";
     private static final SimpleChannel CHANNEL = NetworkRegistry.ChannelBuilder
             .named(new ResourceLocation(Atum.MOD_ID, "atum_channel"))
-            .clientAcceptedVersions(v -> true)
-            .serverAcceptedVersions(v -> true)
-            .networkProtocolVersion(() -> "ATUM1")
+            .clientAcceptedVersions(PROTOCOL_VERSION::equals)
+            .serverAcceptedVersions(PROTOCOL_VERSION::equals)
+            .networkProtocolVersion(() -> PROTOCOL_VERSION)
             .simpleChannel();
 
     public static void initialize() {
-        CHANNEL.registerMessage(0, OpenWolfGuiPacket.class, OpenWolfGuiPacket::encode, OpenWolfGuiPacket::decode, OpenWolfGuiPacket.Handler::handle);
-        CHANNEL.registerMessage(1, WeatherPacket.class, WeatherPacket::encode, WeatherPacket::decode, WeatherPacket.Handler::handle);
-        CHANNEL.registerMessage(2, StormStrengthPacket.class, StormStrengthPacket::encode, StormStrengthPacket::decode, StormStrengthPacket.Handler::handle);
-        CHANNEL.registerMessage(3, SyncHandStackSizePacket.class, SyncHandStackSizePacket::encode, SyncHandStackSizePacket::decode, SyncHandStackSizePacket.Handler::handle);
-        CHANNEL.registerMessage(4, SyncArrowFlightPathPacket.class, SyncArrowFlightPathPacket::encode, SyncArrowFlightPathPacket::decode, SyncArrowFlightPathPacket.Handler::handle);
+        CHANNEL.messageBuilder(OpenWolfGuiPacket.class, 0, NetworkDirection.PLAY_TO_SERVER)
+                .encoder(OpenWolfGuiPacket::encode).decoder(OpenWolfGuiPacket::decode)
+                .consumerMainThread(OpenWolfGuiPacket.Handler::handle).add();
+        CHANNEL.messageBuilder(WeatherPacket.class, 1, NetworkDirection.PLAY_TO_CLIENT)
+                .encoder(WeatherPacket::encode).decoder(WeatherPacket::decode)
+                .consumerMainThread(WeatherPacket.Handler::handle).add();
+        CHANNEL.messageBuilder(StormStrengthPacket.class, 2, NetworkDirection.PLAY_TO_CLIENT)
+                .encoder(StormStrengthPacket::encode).decoder(StormStrengthPacket::decode)
+                .consumerMainThread(StormStrengthPacket.Handler::handle).add();
+        CHANNEL.messageBuilder(SyncHandStackSizePacket.class, 3, NetworkDirection.PLAY_TO_CLIENT)
+                .encoder(SyncHandStackSizePacket::encode).decoder(SyncHandStackSizePacket::decode)
+                .consumerMainThread(SyncHandStackSizePacket.Handler::handle).add();
+        CHANNEL.messageBuilder(SyncArrowFlightPathPacket.class, 4, NetworkDirection.PLAY_TO_CLIENT)
+                .encoder(SyncArrowFlightPathPacket::encode).decoder(SyncArrowFlightPathPacket::decode)
+                .consumerMainThread(SyncArrowFlightPathPacket.Handler::handle).add();
     }
 
     public static void sendTo(ServerPlayer playerMP, Object toSend) {

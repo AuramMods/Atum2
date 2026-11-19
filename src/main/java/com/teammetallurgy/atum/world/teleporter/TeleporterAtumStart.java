@@ -3,6 +3,7 @@ package com.teammetallurgy.atum.world.teleporter;
 import com.teammetallurgy.atum.Atum;
 import com.teammetallurgy.atum.init.AtumFeatures;
 import com.teammetallurgy.atum.misc.AtumConfig;
+import com.teammetallurgy.atum.misc.SpawnHelper;
 import com.teammetallurgy.atum.world.DimensionHelper;
 import com.teammetallurgy.atum.world.gen.feature.BonusCrateFeature;
 import com.teammetallurgy.atum.world.gen.feature.StartStructureFeature;
@@ -29,7 +30,7 @@ public class TeleporterAtumStart implements ITeleporter {
                 return portal;
             }
         }
-        return new PortalInfo(Vec3.atBottomCenterOf(spawn.above()), Vec3.ZERO, entity.getYRot(), entity.getXRot());
+        return new PortalInfo(Vec3.atBottomCenterOf(SpawnHelper.getDefaultAtumSpawn(destWorld)), Vec3.ZERO, entity.getYRot(), entity.getXRot());
     }
 
     @Override

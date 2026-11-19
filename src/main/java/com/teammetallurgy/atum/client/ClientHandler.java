@@ -6,6 +6,7 @@ import com.teammetallurgy.atum.client.gui.block.KilnScreen;
 import com.teammetallurgy.atum.client.gui.block.TrapScreen;
 import com.teammetallurgy.atum.client.gui.entity.AlphaDesertWolfScreen;
 import com.teammetallurgy.atum.client.gui.entity.CamelScreen;
+import com.teammetallurgy.atum.client.model.TefnutsCallModel;
 import com.teammetallurgy.atum.client.model.armor.AtemArmorModel;
 import com.teammetallurgy.atum.client.model.armor.RaArmorModel;
 import com.teammetallurgy.atum.client.model.entity.*;
@@ -27,7 +28,6 @@ import net.minecraft.client.color.item.ItemColors;
 import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.client.model.BlazeModel;
 import net.minecraft.client.model.HumanoidModel;
-import net.minecraft.client.model.TridentModel;
 import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.client.model.geom.builders.CubeDeformation;
 import net.minecraft.client.model.geom.builders.LayerDefinition;
@@ -125,7 +125,6 @@ public class ClientHandler {
             }
         }, AtumBlocks.DRY_GRASS.get(), AtumBlocks.TALL_DRY_GRASS.get());
         ItemProperties.register(AtumItems.ANUBIS_WRATH.get(), new ResourceLocation("tier"), (stack, level, entity, i) -> AnubisWrathItem.getTier(stack));
-        //ItemProperties.register(AtumItems.TEFNUTS_CALL.get(), new ResourceLocation("throwing"), (stack, level, entity, i) -> entity != null && entity.isUsingItem() && entity.getUseItem() == stack ? 1.0F : 0.0F);
         registerBowModelProperties(AtumItems.SHORT_BOW.get());
         registerBowModelProperties(AtumItems.ANPUTS_GROUNDING.get());
         registerBowModelProperties(AtumItems.HORUS_SOARING.get());
@@ -258,7 +257,7 @@ public class ClientHandler {
         event.registerLayerDefinition(DESERT_WOLF_SADDLE, () -> LayerDefinition.create(DesertWolfModel.createMesh(new CubeDeformation(0.01F)), 64, 32));
         event.registerLayerDefinition(SERVAL, () -> LayerDefinition.create(ServalModel.createMesh(CubeDeformation.NONE), 64, 32));
         event.registerLayerDefinition(SERVAL_COLLAR, () -> LayerDefinition.create(ServalModel.createMesh(new CubeDeformation(0.01F)), 64, 32));
-        event.registerLayerDefinition(TEFNUTS_CALL, TridentModel::createLayer);
+        event.registerLayerDefinition(TEFNUTS_CALL, TefnutsCallModel::createLayer);
         event.registerLayerDefinition(ATEM_ARMOR, AtemArmorModel::createLayer);
         event.registerLayerDefinition(RA_ARMOR, RaArmorModel::createLayer);
         event.registerLayerDefinition(ATEMS_PROTECTION, AtemsProtectionModel::createLayer);

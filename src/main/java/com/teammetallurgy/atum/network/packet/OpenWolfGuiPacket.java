@@ -3,7 +3,6 @@ package com.teammetallurgy.atum.network.packet;
 import com.teammetallurgy.atum.entity.animal.DesertWolfEntity;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.entity.Entity;
 import net.minecraftforge.common.util.FakePlayer;
 import net.minecraftforge.network.NetworkEvent;
 import net.minecraftforge.network.NetworkHooks;
@@ -27,13 +26,11 @@ public class OpenWolfGuiPacket {
 
 	public static class Handler {
 		public static void handle(OpenWolfGuiPacket message, Supplier<NetworkEvent.Context> ctx) {
-			ServerPlayer playerMP = ctx.get().getSender();
-			if (playerMP != null && !(playerMP instanceof FakePlayer)) {
-				Entity entity = playerMP.level().getEntity(message.wolfID);
-				if (entity instanceof DesertWolfEntity wolf) {
-					NetworkHooks.openScreen(playerMP, wolf, buf -> buf.writeInt(wolf.getId()));
-				}
-				ctx.get().setPacketHandled(true);
+			ServerPlayer player = ctx.get().getSender();
+			if (player != null && !(player instanceof FakePlayer)
+					&& player.getVehicle() instanceof DesertWolfEntity wolf
+					&& wolf.getId() == message.wolfID && wolf.isAlpha() && wolf.isTame()) {
+				NetworkHooks.openScreen(player, wolf, buffer -> buffer.writeInt(wolf.getId()));
 			}
 		}
 	}

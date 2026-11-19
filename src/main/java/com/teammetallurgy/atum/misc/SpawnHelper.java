@@ -3,12 +3,14 @@ package com.teammetallurgy.atum.misc;
 import com.teammetallurgy.atum.Atum;
 import com.teammetallurgy.atum.world.DimensionHelper;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.AbstractMap;
@@ -34,20 +36,20 @@ public class SpawnHelper {
         BlockPos spawnPos = serverPlayer.getRespawnPosition();
 
         Optional<Vec3> bedPos = Optional.empty();
-        if (spawnPos != null) {
+        if (spawnPos != null && spawnLevel != null) {
             bedPos = Player.findRespawnPositionAndUseSpawnBlock(spawnLevel, spawnPos, serverPlayer.getRespawnAngle(), forcedSpawn, false);
         }
 
         boolean reset = false;
         if (atumSpawn) {
             ServerLevel atumLevel = serverLevel.getServer().getLevel(Atum.ATUM);
-            BlockPos defaultSpawnPos = DimensionHelper.getSurfacePos(atumLevel, atumLevel.getSharedSpawnPos()).above();
+            BlockPos defaultSpawnPos = getDefaultAtumSpawn(atumLevel);
+            BlockPos sharedSpawn = atumLevel.getSharedSpawnPos();
             // best attempt at checking whether this is the default atum spawnpoint
             boolean isSpawnPosDefault = forcedSpawn &&
-                    spawnLevel.dimension() == Atum.ATUM &&
+                    spawnLevel == atumLevel &&
                     spawnPos != null &&
-                    spawnPos.getX() == defaultSpawnPos.getX() &&
-                    spawnPos.getZ() == defaultSpawnPos.getZ();
+                    (sameColumn(spawnPos, defaultSpawnPos) || sameColumn(spawnPos, sharedSpawn));
 
             if (bedPos.isEmpty() || isSpawnPosDefault) {
                 if (!forcedSpawn && spawnPos != null) {
@@ -75,6 +77,25 @@ public class SpawnHelper {
         }
 
         return new AbstractMap.SimpleEntry<>(spawnLevel, spawnPos);
+    }
+
+    public static BlockPos getDefaultAtumSpawn(ServerLevel level) {
+        BlockPos sharedSpawn = level.getSharedSpawnPos();
+        for (BlockPos column : BlockPos.spiralAround(sharedSpawn, 8, Direction.EAST, Direction.SOUTH)) {
+            BlockPos surface = level.getHeightmapPos(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, column);
+            BlockPos ground = surface.below();
+            if (level.getWorldBorder().isWithinBounds(surface)
+                    && level.isEmptyBlock(surface) && level.isEmptyBlock(surface.above())
+                    && level.getBlockState(ground).isFaceSturdy(level, ground, Direction.UP)
+                    && level.getFluidState(ground).isEmpty()) {
+                return surface;
+            }
+        }
+        return DimensionHelper.getSurfacePos(level, sharedSpawn).above();
+    }
+
+    private static boolean sameColumn(BlockPos first, BlockPos second) {
+        return first.getX() == second.getX() && first.getZ() == second.getZ();
     }
 
     /**
