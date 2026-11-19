@@ -1,0 +1,14 @@
+{
+  "placement": {
+    "type": "minecraft:random_spread",
+    "salt": 38616855,
+    "separation": 16,
+    "spacing": 26
+  },
+  "structures": [
+    {
+      "structure": "atum:village_generic",
+      "weight": 1
+    }
+  ]
+}

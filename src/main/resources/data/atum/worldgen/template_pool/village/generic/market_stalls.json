@@ -1,0 +1,132 @@
+{
+  "name": "atum:village/generic/market_stalls",
+  "fallback": "atum:village/generic/terminators",
+  "elements": [
+    {
+      "weight": 2,
+      "element": {
+        "element_type": "minecraft:legacy_single_pool_element",
+        "location": "atum:village/generic/market_stalls/market_stall_1",
+        "processors": "atum:legacy_jigsaw",
+        "projection": "rigid"
+      }
+    },
+    {
+      "weight": 2,
+      "element": {
+        "element_type": "minecraft:legacy_single_pool_element",
+        "location": "atum:village/generic/market_stalls/market_stall_2",
+        "processors": "atum:legacy_jigsaw",
+        "projection": "rigid"
+      }
+    },
+    {
+      "weight": 2,
+      "element": {
+        "element_type": "minecraft:legacy_single_pool_element",
+        "location": "atum:village/generic/market_stalls/market_stall_3",
+        "processors": "atum:legacy_jigsaw",
+        "projection": "rigid"
+      }
+    },
+    {
+      "weight": 2,
+      "element": {
+        "element_type": "minecraft:legacy_single_pool_element",
+        "location": "atum:village/generic/market_stalls/market_stall_4",
+        "processors": "atum:legacy_jigsaw",
+        "projection": "rigid"
+      }
+    },
+    {
+      "weight": 2,
+      "element": {
+        "element_type": "minecraft:legacy_single_pool_element",
+        "location": "atum:village/generic/market_stalls/market_stall_5",
+        "processors": "atum:legacy_jigsaw",
+        "projection": "rigid"
+      }
+    },
+    {
+      "weight": 2,
+      "element": {
+        "element_type": "minecraft:legacy_single_pool_element",
+        "location": "atum:village/generic/market_stalls/market_stall_6",
+        "processors": "atum:legacy_jigsaw",
+        "projection": "rigid"
+      }
+    },
+    {
+      "weight": 2,
+      "element": {
+        "element_type": "minecraft:legacy_single_pool_element",
+        "location": "atum:village/generic/market_stalls/market_stall_7",
+        "processors": "atum:legacy_jigsaw",
+        "projection": "rigid"
+      }
+    },
+    {
+      "weight": 2,
+      "element": {
+        "element_type": "minecraft:legacy_single_pool_element",
+        "location": "atum:village/generic/market_stalls/market_stall_8",
+        "processors": "atum:legacy_jigsaw",
+        "projection": "rigid"
+      }
+    },
+    {
+      "weight": 2,
+      "element": {
+        "element_type": "minecraft:legacy_single_pool_element",
+        "location": "atum:village/generic/market_stalls/market_stall_9",
+        "processors": "atum:legacy_jigsaw",
+        "projection": "rigid"
+      }
+    },
+    {
+      "weight": 2,
+      "element": {
+        "element_type": "minecraft:legacy_single_pool_element",
+        "location": "atum:village/generic/market_stalls/market_stall_10",
+        "processors": "atum:legacy_jigsaw",
+        "projection": "rigid"
+      }
+    },
+    {
+      "weight": 2,
+      "element": {
+        "element_type": "minecraft:legacy_single_pool_element",
+        "location": "atum:village/generic/market_stalls/market_stall_11",
+        "processors": "atum:legacy_jigsaw",
+        "projection": "rigid"
+      }
+    },
+    {
+      "weight": 2,
+      "element": {
+        "element_type": "minecraft:legacy_single_pool_element",
+        "location": "atum:village/generic/market_stalls/market_stall_12",
+        "processors": "atum:legacy_jigsaw",
+        "projection": "rigid"
+      }
+    },
+    {
+      "weight": 2,
+      "element": {
+        "element_type": "minecraft:legacy_single_pool_element",
+        "location": "atum:village/generic/market_stalls/market_stall_13",
+        "processors": "atum:legacy_jigsaw",
+        "projection": "rigid"
+      }
+    },
+    {
+      "weight": 2,
+      "element": {
+        "element_type": "minecraft:legacy_single_pool_element",
+        "location": "atum:village/generic/market_stalls/market_stall_14",
+        "processors": "atum:legacy_jigsaw",
+        "projection": "rigid"
+      }
+    }
+  ]
+}

@@ -1,0 +1,51 @@
+{
+  "name": "atum:village/generic/streets",
+  "fallback": "atum:village/generic/terminators",
+  "elements": [
+    {
+      "weight": 5,
+      "element": {
+        "element_type": "minecraft:legacy_single_pool_element",
+        "location": "atum:village/generic/streets/straight_1",
+        "processors": "atum:legacy_jigsaw",
+        "projection": "terrain_matching"
+      }
+    },
+    {
+      "weight": 3,
+      "element": {
+        "element_type": "minecraft:legacy_single_pool_element",
+        "location": "atum:village/generic/streets/fourway_1",
+        "processors": "atum:legacy_jigsaw",
+        "projection": "terrain_matching"
+      }
+    },
+    {
+      "weight": 3,
+      "element": {
+        "element_type": "minecraft:legacy_single_pool_element",
+        "location": "atum:village/generic/streets/threeway_1",
+        "processors": "atum:legacy_jigsaw",
+        "projection": "terrain_matching"
+      }
+    },
+    {
+      "weight": 3,
+      "element": {
+        "element_type": "minecraft:legacy_single_pool_element",
+        "location": "atum:village/generic/streets/turn_1",
+        "processors": "atum:legacy_jigsaw",
+        "projection": "terrain_matching"
+      }
+    },
+    {
+      "weight": 3,
+      "element": {
+        "element_type": "minecraft:legacy_single_pool_element",
+        "location": "atum:village/generic/streets/turn_2",
+        "processors": "atum:legacy_jigsaw",
+        "projection": "terrain_matching"
+      }
+    }
+  ]
+}

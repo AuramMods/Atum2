@@ -13,6 +13,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.registries.RegistryObject;
 
 import javax.annotation.Nullable;
@@ -38,6 +39,10 @@ public record AtumVillagerProfession(String name, Predicate<Holder<PoiType>> hel
     public static final RegistryObject<AtumVillagerProfession> TAILOR = register("tailor", PoiTypes.SHEPHERD, SoundEvents.VILLAGER_WORK_SHEPHERD);
     public static final RegistryObject<AtumVillagerProfession> TOOLSMITH = register("toolsmith", PoiTypes.TOOLSMITH, SoundEvents.VILLAGER_WORK_TOOLSMITH);
     public static final RegistryObject<AtumVillagerProfession> WEAPONSMITH = register("weaponsmith", PoiTypes.WEAPONSMITH, SoundEvents.VILLAGER_WORK_WEAPONSMITH);
+
+    public static void register(IEventBus modBus) {
+        Atum.ATUM_PROFESSION_DEFERRED.register(modBus);
+    }
 
     public ImmutableSet<Item> getSpecificItems() {
         return this.specificItems.stream().map(Supplier::get).collect(Collectors.collectingAndThen(Collectors.toSet(), ImmutableSet::copyOf));

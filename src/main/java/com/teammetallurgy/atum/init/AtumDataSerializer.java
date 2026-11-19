@@ -35,6 +35,10 @@ public class AtumDataSerializer {
         }
     };
 
+    static {
+        register("villager_data", VILLAGER_DATA);
+    }
+
     public static RegistryObject<EntityDataSerializer<?>> register(String name, EntityDataSerializer<?> dataSerializerEntry) {
         return DATA_SERIALIZER_DEFERRED.register(name, () -> dataSerializerEntry);
     }

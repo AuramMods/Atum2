@@ -1,7 +1,7 @@
 {
   "replace": false,
   "values": [
-    "atum:strange_sand",
+    "atum:sand",
     "atum:limestone_gravel",
     "atum:fertile_soil"
   ]

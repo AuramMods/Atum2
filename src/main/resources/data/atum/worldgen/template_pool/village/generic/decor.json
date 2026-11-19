@@ -1,0 +1,57 @@
+{
+  "name": "atum:village/generic/decor",
+  "fallback": "minecraft:empty",
+  "elements": [
+    {
+      "weight": 1,
+      "element": {
+        "element_type": "minecraft:legacy_single_pool_element",
+        "location": "atum:village/generic/decor/torch_1",
+        "processors": "atum:legacy_jigsaw",
+        "projection": "rigid"
+      }
+    },
+    {
+      "weight": 1,
+      "element": {
+        "element_type": "minecraft:legacy_single_pool_element",
+        "location": "atum:village/generic/decor/torch_2",
+        "processors": "atum:legacy_jigsaw",
+        "projection": "rigid"
+      }
+    },
+    {
+      "weight": 1,
+      "element": {
+        "element_type": "minecraft:legacy_single_pool_element",
+        "location": "atum:village/generic/decor/torch_3",
+        "processors": "atum:legacy_jigsaw",
+        "projection": "rigid"
+      }
+    },
+    {
+      "weight": 1,
+      "element": {
+        "element_type": "minecraft:legacy_single_pool_element",
+        "location": "atum:village/generic/decor/torch_4",
+        "processors": "atum:legacy_jigsaw",
+        "projection": "rigid"
+      }
+    },
+    {
+      "weight": 1,
+      "element": {
+        "element_type": "minecraft:legacy_single_pool_element",
+        "location": "atum:village/generic/decor/tree_1",
+        "processors": "atum:legacy_jigsaw",
+        "projection": "rigid"
+      }
+    },
+    {
+      "weight": 10,
+      "element": {
+        "element_type": "minecraft:empty_pool_element"
+      }
+    }
+  ]
+}

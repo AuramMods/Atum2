@@ -1,0 +1,249 @@
+{
+  "name": "atum:village/generic/houses",
+  "fallback": "atum:village/generic/terminators",
+  "elements": [
+    {
+      "weight": 2,
+      "element": {
+        "element_type": "minecraft:legacy_single_pool_element",
+        "location": "atum:village/generic/houses/generic_small_house_1",
+        "processors": "atum:legacy_jigsaw",
+        "projection": "rigid"
+      }
+    },
+    {
+      "weight": 2,
+      "element": {
+        "element_type": "minecraft:legacy_single_pool_element",
+        "location": "atum:village/generic/houses/generic_small_house_2",
+        "processors": "atum:legacy_jigsaw",
+        "projection": "rigid"
+      }
+    },
+    {
+      "weight": 2,
+      "element": {
+        "element_type": "minecraft:legacy_single_pool_element",
+        "location": "atum:village/generic/houses/generic_small_house_3",
+        "processors": "atum:legacy_jigsaw",
+        "projection": "rigid"
+      }
+    },
+    {
+      "weight": 2,
+      "element": {
+        "element_type": "minecraft:legacy_single_pool_element",
+        "location": "atum:village/generic/houses/generic_small_house_4",
+        "processors": "atum:legacy_jigsaw",
+        "projection": "rigid"
+      }
+    },
+    {
+      "weight": 2,
+      "element": {
+        "element_type": "minecraft:legacy_single_pool_element",
+        "location": "atum:village/generic/houses/generic_small_house_5",
+        "processors": "atum:legacy_jigsaw",
+        "projection": "rigid"
+      }
+    },
+    {
+      "weight": 1,
+      "element": {
+        "element_type": "minecraft:legacy_single_pool_element",
+        "location": "atum:village/generic/houses/generic_small_house_6",
+        "processors": "atum:legacy_jigsaw",
+        "projection": "rigid"
+      }
+    },
+    {
+      "weight": 2,
+      "element": {
+        "element_type": "minecraft:legacy_single_pool_element",
+        "location": "atum:village/generic/houses/generic_small_house_7",
+        "processors": "atum:legacy_jigsaw",
+        "projection": "rigid"
+      }
+    },
+    {
+      "weight": 2,
+      "element": {
+        "element_type": "minecraft:legacy_single_pool_element",
+        "location": "atum:village/generic/houses/generic_small_house_8",
+        "processors": "atum:legacy_jigsaw",
+        "projection": "rigid"
+      }
+    },
+    {
+      "weight": 2,
+      "element": {
+        "element_type": "minecraft:legacy_single_pool_element",
+        "location": "atum:village/generic/houses/animal_pen_1",
+        "processors": "atum:legacy_jigsaw",
+        "projection": "rigid"
+      }
+    },
+    {
+      "weight": 5,
+      "element": {
+        "element_type": "minecraft:legacy_single_pool_element",
+        "location": "atum:village/generic/houses/farm_1",
+        "processors": "atum:legacy_jigsaw",
+        "projection": "rigid"
+      }
+    },
+    {
+      "weight": 4,
+      "element": {
+        "element_type": "minecraft:legacy_single_pool_element",
+        "location": "atum:village/generic/houses/farm_2",
+        "processors": "atum:legacy_jigsaw",
+        "projection": "rigid"
+      }
+    },
+    {
+      "weight": 3,
+      "element": {
+        "element_type": "minecraft:legacy_single_pool_element",
+        "location": "atum:village/generic/houses/farm_3",
+        "processors": "atum:legacy_jigsaw",
+        "projection": "rigid"
+      }
+    },
+    {
+      "weight": 2,
+      "element": {
+        "element_type": "minecraft:legacy_single_pool_element",
+        "location": "atum:village/generic/houses/market_1",
+        "processors": "atum:legacy_jigsaw",
+        "projection": "rigid"
+      }
+    },
+    {
+      "weight": 2,
+      "element": {
+        "element_type": "minecraft:legacy_single_pool_element",
+        "location": "atum:village/generic/houses/palm_grove_1",
+        "processors": "atum:legacy_jigsaw",
+        "projection": "rigid"
+      }
+    },
+    {
+      "weight": 2,
+      "element": {
+        "element_type": "minecraft:legacy_single_pool_element",
+        "location": "atum:village/generic/houses/wolf_kennel_1",
+        "processors": "atum:legacy_jigsaw",
+        "projection": "rigid"
+      }
+    },
+    {
+      "weight": 1,
+      "element": {
+        "element_type": "minecraft:legacy_single_pool_element",
+        "location": "atum:village/generic/houses/quail_coop_1",
+        "processors": "atum:legacy_jigsaw",
+        "projection": "rigid"
+      }
+    },
+    {
+      "weight": 2,
+      "element": {
+        "element_type": "minecraft:legacy_single_pool_element",
+        "location": "atum:village/generic/houses/alchemist",
+        "processors": "atum:legacy_jigsaw",
+        "projection": "rigid"
+      }
+    },
+    {
+      "weight": 2,
+      "element": {
+        "element_type": "minecraft:legacy_single_pool_element",
+        "location": "atum:village/generic/houses/armorsmith",
+        "processors": "atum:legacy_jigsaw",
+        "projection": "rigid"
+      }
+    },
+    {
+      "weight": 2,
+      "element": {
+        "element_type": "minecraft:legacy_single_pool_element",
+        "location": "atum:village/generic/houses/butcher",
+        "processors": "atum:legacy_jigsaw",
+        "projection": "rigid"
+      }
+    },
+    {
+      "weight": 2,
+      "element": {
+        "element_type": "minecraft:legacy_single_pool_element",
+        "location": "atum:village/generic/houses/cartographer",
+        "processors": "atum:legacy_jigsaw",
+        "projection": "rigid"
+      }
+    },
+    {
+      "weight": 1,
+      "element": {
+        "element_type": "minecraft:legacy_single_pool_element",
+        "location": "atum:village/generic/houses/curator",
+        "processors": "atum:legacy_jigsaw",
+        "projection": "rigid"
+      }
+    },
+    {
+      "weight": 2,
+      "element": {
+        "element_type": "minecraft:legacy_single_pool_element",
+        "location": "atum:village/generic/houses/fletcher",
+        "processors": "atum:legacy_jigsaw",
+        "projection": "rigid"
+      }
+    },
+    {
+      "weight": 2,
+      "element": {
+        "element_type": "minecraft:legacy_single_pool_element",
+        "location": "atum:village/generic/houses/glassblower",
+        "processors": "atum:legacy_jigsaw",
+        "projection": "rigid"
+      }
+    },
+    {
+      "weight": 2,
+      "element": {
+        "element_type": "minecraft:legacy_single_pool_element",
+        "location": "atum:village/generic/houses/hunter",
+        "processors": "atum:legacy_jigsaw",
+        "projection": "rigid"
+      }
+    },
+    {
+      "weight": 2,
+      "element": {
+        "element_type": "minecraft:legacy_single_pool_element",
+        "location": "atum:village/generic/houses/tailor",
+        "processors": "atum:legacy_jigsaw",
+        "projection": "rigid"
+      }
+    },
+    {
+      "weight": 2,
+      "element": {
+        "element_type": "minecraft:legacy_single_pool_element",
+        "location": "atum:village/generic/houses/librarian",
+        "processors": "atum:legacy_jigsaw",
+        "projection": "rigid"
+      }
+    },
+    {
+      "weight": 2,
+      "element": {
+        "element_type": "minecraft:legacy_single_pool_element",
+        "location": "atum:village/generic/houses/weaponsmith",
+        "processors": "atum:legacy_jigsaw",
+        "projection": "rigid"
+      }
+    }
+  ]
+}

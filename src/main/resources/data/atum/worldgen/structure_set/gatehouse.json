@@ -1,0 +1,14 @@
+{
+  "placement": {
+    "type": "minecraft:random_spread",
+    "salt": 10162700,
+    "separation": 11,
+    "spacing": 16
+  },
+  "structures": [
+    {
+      "structure": "atum:gatehouse",
+      "weight": 1
+    }
+  ]
+}

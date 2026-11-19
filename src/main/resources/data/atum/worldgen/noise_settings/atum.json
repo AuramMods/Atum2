@@ -1715,7 +1715,7 @@
                               "then_run": {
                                 "type": "minecraft:block",
                                 "result_state": {
-                                  "Name": "atum:strange_sand"
+                                  "Name": "atum:sand"
                                 }
                               }
                             },
@@ -1936,7 +1936,7 @@
                               {
                                 "type": "minecraft:block",
                                 "result_state": {
-                                  "Name": "atum:strange_sand"
+                                  "Name": "atum:sand"
                                 }
                               }
                             ]
@@ -2248,7 +2248,7 @@
                                 "then_run": {
                                   "type": "minecraft:block",
                                   "result_state": {
-                                    "Name": "atum:strange_sand"
+                                    "Name": "atum:sand"
                                   }
                                 }
                               },

@@ -6,7 +6,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "atum:strange_sand"
+          "name": "atum:sand"
         }
       ],
       "conditions": [

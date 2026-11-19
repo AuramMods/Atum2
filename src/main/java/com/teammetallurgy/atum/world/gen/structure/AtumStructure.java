@@ -31,7 +31,7 @@ public abstract class AtumStructure extends Structure {
             for (int z = boundingBox.minZ(); z <= boundingBox.maxZ(); ++z) {
                 mutablePos.set(x, calculateBoundingBoxminY, z);
 
-                if (!StructureHelper.doesChunkHaveStructure(genLevel.getLevel(), mutablePos, AtumStructures.PYRAMID_KEY)) {
+                if (!StructureHelper.doesChunkHaveStructure(manager, mutablePos, AtumStructures.PYRAMID_KEY)) {
                     if (!genLevel.isEmptyBlock(mutablePos) && calculateBoundingBox.isInside(mutablePos) && piecesContainer.isInsidePiece(mutablePos)) {
                         for (int i1 = calculateBoundingBoxminY - 1; i1 > minBuild; --i1) {
                             mutablePos.setY(i1);

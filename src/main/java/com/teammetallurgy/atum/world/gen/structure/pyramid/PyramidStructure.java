@@ -75,7 +75,7 @@ public class PyramidStructure extends AtumStructure {
         for (int x = boundingBox.minX(); x <= boundingBox.maxX(); ++x) {
             for (int z = boundingBox.minZ(); z <= boundingBox.maxZ(); ++z) {
                 mutablePos.set(x, calculateBoundingBoxminY, z);
-                if (!StructureHelper.doesChunkHaveStructure(genLevel.getLevel(), mutablePos, BuiltinStructures.VILLAGE_DESERT)) { //TODO Replace with our village, when implemented
+                if (!StructureHelper.doesChunkHaveStructure(manager, mutablePos, AtumStructures.GENERIC_VILLAGE)) {
 
                     if (!genLevel.isEmptyBlock(mutablePos) && calculateBoundingBox.isInside(mutablePos) && piecesContainer.isInsidePiece(mutablePos)) {
                         for (int i1 = calculateBoundingBoxminY - 1; i1 > minBuild; --i1) {

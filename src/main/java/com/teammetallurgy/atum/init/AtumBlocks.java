@@ -51,8 +51,8 @@ import static net.minecraft.world.level.block.state.BlockBehaviour.Properties.of
 public class AtumBlocks {
     public static final DeferredRegister<Block> BLOCK_DEFERRED = DeferredRegister.create(ForgeRegistries.BLOCKS, Atum.MOD_ID);
     public static final RegistryObject<Block> PORTAL = registerBlock(PortalBlock::new, null, "portal");
-    public static final RegistryObject<Block> STRANGE_SAND = registerBlock(StrangeSandBlock::new, "strange_sand");
-    public static final RegistryObject<Block> STRANGE_SAND_LAYERED = registerBlock(SandLayersBlock::new, "strange_sand_layer");
+    public static final RegistryObject<Block> STRANGE_SAND = registerBlock(StrangeSandBlock::new, "sand");
+    public static final RegistryObject<Block> STRANGE_SAND_LAYERED = registerBlock(SandLayersBlock::new, "sand_layer");
     public static final RegistryObject<Block> LIMESTONE_GRAVEL = registerBlock(LimestoneGravelBlock::new, "limestone_gravel");
     public static final RegistryObject<Block> DATE_BLOCK = registerBlock(DateBlock::new, null, "date_block");
     public static final RegistryObject<Block> EMMER_WHEAT = registerBlock(EmmerBlock::new, null, "emmer_wheat");

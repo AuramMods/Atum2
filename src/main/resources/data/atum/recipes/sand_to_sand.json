@@ -2,7 +2,7 @@
   "type": "minecraft:crafting_shapeless",
   "ingredients": [
     {
-      "item": "atum:strange_sand"
+      "item": "atum:sand"
     }
   ],
   "result": {

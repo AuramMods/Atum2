@@ -1,0 +1,24 @@
+{
+  "name": "atum:village/generic/town_centers",
+  "fallback": "minecraft:empty",
+  "elements": [
+    {
+      "weight": 60,
+      "element": {
+        "element_type": "minecraft:legacy_single_pool_element",
+        "location": "atum:village/generic/town_centers/town_center_1",
+        "processors": "atum:legacy_jigsaw",
+        "projection": "rigid"
+      }
+    },
+    {
+      "weight": 40,
+      "element": {
+        "element_type": "minecraft:legacy_single_pool_element",
+        "location": "atum:village/generic/town_centers/town_center_2",
+        "processors": "atum:legacy_jigsaw",
+        "projection": "rigid"
+      }
+    }
+  ]
+}

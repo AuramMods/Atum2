@@ -1,0 +1,33 @@
+{
+  "name": "atum:village/spawner/bandits",
+  "fallback": "minecraft:empty",
+  "elements": [
+    {
+      "weight": 2,
+      "element": {
+        "element_type": "minecraft:legacy_single_pool_element",
+        "location": "atum:village/spawner/bandits/barbarian",
+        "processors": "atum:legacy_jigsaw",
+        "projection": "rigid"
+      }
+    },
+    {
+      "weight": 5,
+      "element": {
+        "element_type": "minecraft:legacy_single_pool_element",
+        "location": "atum:village/spawner/bandits/brigand",
+        "processors": "atum:legacy_jigsaw",
+        "projection": "rigid"
+      }
+    },
+    {
+      "weight": 5,
+      "element": {
+        "element_type": "minecraft:legacy_single_pool_element",
+        "location": "atum:village/spawner/bandits/nomad",
+        "processors": "atum:legacy_jigsaw",
+        "projection": "rigid"
+      }
+    }
+  ]
+}

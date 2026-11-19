@@ -1,0 +1,24 @@
+{
+  "name": "atum:village/desert_wolfs",
+  "fallback": "minecraft:empty",
+  "elements": [
+    {
+      "weight": 10,
+      "element": {
+        "element_type": "minecraft:legacy_single_pool_element",
+        "location": "atum:village/animals/desert_wolf",
+        "processors": "atum:legacy_jigsaw",
+        "projection": "rigid"
+      }
+    },
+    {
+      "weight": 1,
+      "element": {
+        "element_type": "minecraft:legacy_single_pool_element",
+        "location": "atum:village/animals/alpha_desert_wolf",
+        "processors": "atum:legacy_jigsaw",
+        "projection": "rigid"
+      }
+    }
+  ]
+}

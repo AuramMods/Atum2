@@ -23,6 +23,7 @@ public class AtumStructures {
 
     //Structure Resource Keys (Only used in certain instance, only add if needed)
     public static final ResourceKey<Structure> PYRAMID_KEY = createKey("pyramid");
+    public static final ResourceKey<Structure> GENERIC_VILLAGE = createKey("village_generic");
 
     private static <S extends Structure> RegistryObject<StructureType<S>> register(String name, Codec<S> codec) {
         return STRUCTURE_TYPE_DEFERRED.register(name, () -> structureTypeFromCodec(codec));
@@ -41,6 +42,4 @@ public class AtumStructures {
 //    public static final ConfiguredStructureFeature<AtumMineshaftConfig, ? extends StructureFeature<AtumMineshaftConfig>> MINESHAFT_LIMESTONE_FEATURE = register("mineshaft_limestone", MINESHAFT_STRUCTURE, new AtumMineshaftConfig(AtumConfig.WORLD_GEN.mineshaftProbability.get().floatValue(), AtumMineshaftStructure.Type.LIMESTONE));
 //    public static final ConfiguredStructureFeature<AtumMineshaftConfig, ? extends StructureFeature<AtumMineshaftConfig>> MINESHAFT_DEADWOOD_SURFACE_FEATURE = register("mineshaft_deadwood_surface", MINESHAFT_STRUCTURE, new AtumMineshaftConfig(AtumConfig.WORLD_GEN.mineshaftProbability.get().floatValue(), AtumMineshaftStructure.Type.DEADWOOD_SURFACE));
 //    public static final ConfiguredStructureFeature<AtumMineshaftConfig, ? extends StructureFeature<AtumMineshaftConfig>> MINESHAFT_LIMESTONE_SURFACE_FEATURE = register("mineshaft_limestone_surface", MINESHAFT_STRUCTURE, new AtumMineshaftConfig(AtumConfig.WORLD_GEN.mineshaftProbability.get().floatValue(), AtumMineshaftStructure.Type.LIMESTONE_SURFACE));
-//    public static final ConfiguredStructureFeature<JigsawConfiguration, ? extends StructureFeature<JigsawConfiguration>> GATEHOUSE_FEATURE = register("gatehouse", GATEHOUSE, new JigsawConfiguration(() -> GatehousePools.POOL, 5));
-//    public static final ConfiguredStructureFeature<JigsawConfiguration, ? extends StructureFeature<JigsawConfiguration>> GENERIC_VILLAGE = register("village_generic", StructureFeature.VILLAGE, new JigsawConfiguration(() -> GenericVillagePools.POOL, 6));
 }

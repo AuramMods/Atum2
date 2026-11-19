@@ -1,0 +1,60 @@
+{
+  "name": "atum:ruinedwalls/walls",
+  "fallback": "atum:ruinedwalls/terminators",
+  "elements": [
+    {
+      "weight": 2,
+      "element": {
+        "element_type": "minecraft:legacy_single_pool_element",
+        "location": "atum:ruinedwalls/walls/wall1",
+        "processors": "atum:legacy_jigsaw",
+        "projection": "terrain_matching"
+      }
+    },
+    {
+      "weight": 2,
+      "element": {
+        "element_type": "minecraft:legacy_single_pool_element",
+        "location": "atum:ruinedwalls/walls/corner1",
+        "processors": "atum:legacy_jigsaw",
+        "projection": "terrain_matching"
+      }
+    },
+    {
+      "weight": 2,
+      "element": {
+        "element_type": "minecraft:legacy_single_pool_element",
+        "location": "atum:ruinedwalls/walls/corner2",
+        "processors": "atum:legacy_jigsaw",
+        "projection": "terrain_matching"
+      }
+    },
+    {
+      "weight": 2,
+      "element": {
+        "element_type": "minecraft:legacy_single_pool_element",
+        "location": "atum:ruinedwalls/walls/threeway1",
+        "processors": "atum:legacy_jigsaw",
+        "projection": "terrain_matching"
+      }
+    },
+    {
+      "weight": 2,
+      "element": {
+        "element_type": "minecraft:legacy_single_pool_element",
+        "location": "atum:ruinedwalls/walls/tower1",
+        "processors": "atum:legacy_jigsaw",
+        "projection": "terrain_matching"
+      }
+    },
+    {
+      "weight": 2,
+      "element": {
+        "element_type": "minecraft:legacy_single_pool_element",
+        "location": "atum:ruinedwalls/walls/tower2",
+        "processors": "atum:legacy_jigsaw",
+        "projection": "terrain_matching"
+      }
+    }
+  ]
+}

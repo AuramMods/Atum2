@@ -1,0 +1,7 @@
+{
+  "processors": [
+    {
+      "processor_type": "atum:hanging_entity_anchor"
+    }
+  ]
+}
