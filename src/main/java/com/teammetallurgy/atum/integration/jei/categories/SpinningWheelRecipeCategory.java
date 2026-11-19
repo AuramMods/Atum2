@@ -23,7 +23,8 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 
 import javax.annotation.Nonnull;
-import java.awt.*;
+import java.awt.Color;
+import java.util.Arrays;
 
 public class SpinningWheelRecipeCategory implements IRecipeCategory<SpinningWheelRecipe> {
     public static final ResourceLocation SPINNING_WHEEL_GUI = new ResourceLocation(Atum.MOD_ID, "textures/gui/spinning_wheel.png");
@@ -61,11 +62,12 @@ public class SpinningWheelRecipeCategory implements IRecipeCategory<SpinningWhee
 
     @Override
     public void setRecipe(@Nonnull IRecipeLayoutBuilder builder, @Nonnull SpinningWheelRecipe recipe, @Nonnull IFocusGroup focuses) {
-        builder.addSlot(RecipeIngredientRole.INPUT, 1, 11).addIngredients(recipe.getIngredients().get(0)); // Input
+        builder.addSlot(RecipeIngredientRole.INPUT, 1, 11).addItemStacks(Arrays.stream(recipe.getIngredients().get(0).getItems())
+                .map(stack -> stack.copyWithCount(recipe.getInputCount(stack))).toList());
 
         ClientLevel clientLevel = Minecraft.getInstance().level;
         if (clientLevel != null) {
-            builder.addSlot(RecipeIngredientRole.INPUT, 47, 11).addItemStack(recipe.getResultItem(clientLevel.registryAccess())).addTooltipCallback((recipeSlotView, tooltip) -> { // Output
+            builder.addSlot(RecipeIngredientRole.OUTPUT, 47, 11).addItemStack(recipe.getResultItem(clientLevel.registryAccess())).addTooltipCallback((recipeSlotView, tooltip) -> { // Output
                 boolean showAdvanced = Minecraft.getInstance().options.advancedItemTooltips || Screen.hasShiftDown();
                 if (showAdvanced) {
                     tooltip.add(Component.translatable("jei.tooltip.recipe.id", recipe.getId()).withStyle(ChatFormatting.DARK_GRAY));

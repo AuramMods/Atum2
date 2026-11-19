@@ -77,11 +77,11 @@ public class QuernTileEntity extends InventoryBaseTileEntity implements WorldlyC
     private void outputItems(@Nonnull ItemStack stack, Level level, BlockPos pos) {
         Direction facing = level.getBlockState(pos).getValue(QuernBlock.FACING).getOpposite();
         BlockEntity tileEntity = level.getBlockEntity(pos.relative(facing));
-        if (tileEntity instanceof WorldlyContainer && ((WorldlyContainer) tileEntity).getSlotsForFace(facing).length > 0 || tileEntity instanceof Container && ((Container) tileEntity).getContainerSize() > 0) {
-            Container inventory = ((Container) tileEntity);
-            stack = HopperBlockEntity.addItem(this, inventory, stack, facing);
+        Direction receivingSide = facing.getOpposite();
+        if (tileEntity instanceof Container inventory && inventory.getContainerSize() > 0) {
+            stack = HopperBlockEntity.addItem(this, inventory, stack, receivingSide);
         } else if (tileEntity != null) {
-            LazyOptional<IItemHandler> capability = tileEntity.getCapability(ForgeCapabilities.ITEM_HANDLER, facing);
+            LazyOptional<IItemHandler> capability = tileEntity.getCapability(ForgeCapabilities.ITEM_HANDLER, receivingSide);
             if (capability.isPresent()) {
                 IItemHandler itemHandler = capability.orElse(null);
                 if (itemHandler != null) {

@@ -27,6 +27,7 @@ import javax.annotation.Nullable;
 public class SpinningWheelTileEntity extends InventoryBaseTileEntity implements WorldlyContainer {
     public CompoundTag input = new CompoundTag();
     public int rotations;
+    public int completedInputs;
 
     public SpinningWheelTileEntity(BlockPos pos, BlockState state) {
         super(AtumTileEntities.SPINNING_WHEEL.get(), pos, state, 2);
@@ -116,6 +117,7 @@ public class SpinningWheelTileEntity extends InventoryBaseTileEntity implements 
     public void load(@Nonnull CompoundTag tag) {
         super.load(tag);
         this.rotations = tag.getInt("rotations");
+        this.completedInputs = tag.contains("completedInputs") ? tag.getInt("completedInputs") : -1;
         this.input = tag.getCompound("input");
     }
 
@@ -123,6 +125,7 @@ public class SpinningWheelTileEntity extends InventoryBaseTileEntity implements 
     protected void saveAdditional(CompoundTag tag) {
         super.saveAdditional(tag);
         tag.putInt("rotations", this.rotations);
+        tag.putInt("completedInputs", this.completedInputs);
         if (this.input != null) {
             tag.put("input", this.input);
         }

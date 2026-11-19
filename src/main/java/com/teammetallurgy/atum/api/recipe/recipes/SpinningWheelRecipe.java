@@ -28,6 +28,10 @@ public class SpinningWheelRecipe extends RotationRecipe<SpinningWheelTileEntity>
         super(AtumRecipeTypes.SPINNING_WHEEL.get(), id, input, output, rotations);
     }
 
+    public SpinningWheelRecipe(ResourceLocation id, Ingredient input, ItemStack output, int rotations, int inputCount) {
+        super(AtumRecipeTypes.SPINNING_WHEEL.get(), id, input, output, rotations, inputCount);
+    }
+
     @Override
     @Nonnull
     public RecipeSerializer<?> getSerializer() {

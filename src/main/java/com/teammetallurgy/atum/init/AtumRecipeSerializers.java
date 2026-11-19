@@ -18,7 +18,7 @@ public class AtumRecipeSerializers {
     public static final RegistryObject<RecipeSerializer<MapExtendingScrollRecipe>> MAP_EXTENDING_SCROLL = register("map_extending_scroll", new SimpleCraftingRecipeSerializer<>(MapExtendingScrollRecipe::new));
     public static final RegistryObject<KilnRecipe.Serializer<KilnRecipe>> KILN = register("kiln", new KilnRecipe.Serializer<>(KilnRecipe::new, 75));
     public static final RegistryObject<RotationRecipe.Serializer<QuernRecipe>> QUERN = register("quern", new RotationRecipe.Serializer<>(QuernRecipe::new, false));
-    public static final RegistryObject<RotationRecipe.Serializer<SpinningWheelRecipe>> SPINNING_WHEEL = register("spinning_wheel", new RotationRecipe.Serializer<>(SpinningWheelRecipe::new, true));
+    public static final RegistryObject<RotationRecipe.Serializer<SpinningWheelRecipe>> SPINNING_WHEEL = register("spinning_wheel", new RotationRecipe.Serializer<>(SpinningWheelRecipe::new));
 
     private static <S extends RecipeSerializer<T>, T extends Recipe<?>> RegistryObject<S> register(String name, S recipeSerializer) {
         return RECIPE_SERIALIZER_DEFERRED.register(name, () -> recipeSerializer);

@@ -68,6 +68,7 @@ public class SpinningWheelBlock extends BaseEntityBlock {
                 spinningWheel.removeItem(1, spinningWheel.getMaxStackSize());
                 spinningWheel.input = new CompoundTag();
                 spinningWheel.rotations = 0;
+                spinningWheel.completedInputs = 0;
                 level.setBlock(pos, level.getBlockState(pos).setValue(SPOOL, 0).setValue(WHEEL, false), 2);
                 spinningWheel.setChanged();
             }
@@ -92,6 +93,7 @@ public class SpinningWheelBlock extends BaseEntityBlock {
 
                         if (spinningWheel.input.isEmpty()) {
                             spinningWheel.input = copyStack.save(new CompoundTag());
+                            spinningWheel.completedInputs = 0;
                         }
                         ItemStack inputStack = ItemStack.of(spinningWheel.input);
                         if (StackHelper.areStacksEqualIgnoreSize(inputStack, heldStack)) {
@@ -126,13 +128,16 @@ public class SpinningWheelBlock extends BaseEntityBlock {
                                                 if (spinningWheelRecipe.getRotations() == spinningWheel.rotations) {
                                                     spinningWheel.removeItem(0, 1);
                                                     spinningWheel.rotations = 0;
-                                                    int count = ingredientStack.getCount();
-                                                    float precentage = (float) 3 / count;
-                                                    int spoolSize = state.getValue(SPOOL) + Math.round(precentage);
-                                                    level.setBlock(pos, state.setValue(SPOOL, Math.min(3, spoolSize)).setValue(WHEEL, false), 2);
-                                                    if (spoolSize >= 3) {
-                                                        isSpoolFull = true;
+                                                    int count = spinningWheelRecipe.getInputCount(ingredientStack);
+                                                    if (spinningWheel.completedInputs < 0) {
+                                                        int legacyStep = Math.max(1, Math.round(3.0F / count));
+                                                        spinningWheel.completedInputs = state.getValue(SPOOL) / legacyStep;
                                                     }
+                                                    spinningWheel.completedInputs++;
+                                                    isSpoolFull = spinningWheel.completedInputs >= count;
+                                                    int spoolSize = isSpoolFull ? 3
+                                                            : Math.min(2, (int) Math.ceil(3.0 * spinningWheel.completedInputs / count));
+                                                    level.setBlock(pos, state.setValue(SPOOL, spoolSize).setValue(WHEEL, false), 2);
                                                 } else if (!state.getValue(WHEEL)) {
                                                     spinningWheel.rotations += 1;
                                                     if (level.isClientSide) {
@@ -142,10 +147,9 @@ public class SpinningWheelBlock extends BaseEntityBlock {
                                             }
                                         }
                                         if (isSpoolFull) {
-                                            ItemStack copyOutput = spinningWheelRecipe.assemble(spinningWheel, level.registryAccess());
-                                            ItemStack output = new ItemStack(copyOutput.getItem(), copyOutput.getCount());
-                                            spinningWheel.setItem(1, output);
+                                            spinningWheel.setItem(1, spinningWheelRecipe.assemble(spinningWheel, level.registryAccess()));
                                             spinningWheel.input = new CompoundTag();
+                                            spinningWheel.completedInputs = 0;
                                         }
                                     }
                                 }
@@ -167,6 +171,7 @@ public class SpinningWheelBlock extends BaseEntityBlock {
                 spinningWheel.removeItem(1, spinningWheel.getMaxStackSize());
             }
             spinningWheel.input = new CompoundTag();
+            spinningWheel.completedInputs = 0;
             level.setBlock(pos, state.cycle(SPOOL).setValue(WHEEL, false), 2);
             spinningWheel.setChanged();
         }
