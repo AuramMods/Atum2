@@ -1411,7 +1411,6 @@
 
   "config.jade.plugin_atum": "Atum 2",
   "config.jade.plugin_atum.hide_limestone_doors": "Hide Limestone Doors",
-  "config.jade.plugin_atum.date_growth": "Date Growth",
 
   "_comment": "Just Tips support",
   "atum.tip.title": "Atum Tip",
