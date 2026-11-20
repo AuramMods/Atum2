@@ -1,0 +1,20 @@
+{
+  "name": "Pyramids",
+  "icon": "atum:limestone_brick_large",
+  "category": "atum:exploration",
+  "sortnum": 1,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "Look for large stepped limestone silhouettes in the plains, dunes, woods, or dead oases. A $(l:atum:people/villagers)Cartographer$(/l) can help you find one with a Pyramid Explorer Map. Entering earns Pyramid Scheme."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Before its guardian is defeated, a pyramid protects its blocks and restricts what you can place inside. Bring torches, food, a shield, and healing. Mark branches, watch for spawners, and treat unlit corridors as dangerous."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Look for matching carved blocks and torch sockets. $(l:atum:exploration/traps)Traps and Hidden Doors$(/l) explains the mechanisms. Ready for the central chamber? Open $(l:atum:divine/pharaoh_ritual)the optional ritual walkthrough$(/l)."
+    }
+  ]
+}

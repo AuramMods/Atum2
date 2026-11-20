@@ -1,0 +1,26 @@
+{
+  "name": "The Quern",
+  "icon": "atum:quern",
+  "category": "atum:workshop",
+  "sortnum": 0,
+  "pages": [
+    {
+      "type": "patchouli:crafting",
+      "recipe": "atum:quern",
+      "text": "Make the hand mill from limestone, slabs, and a stick."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Use the quern while holding a valid ingredient to load it. Then use the quern with an empty hand to turn it. Keep turning until the recipe completes. Emmer takes two full turns, and a blaze rod takes four."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Put a chest or hopper against the side you placed the quern from. The mill sends the finished item into that neighbor if it can accept it. The quern takes input by hand."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "A single Emmer ear becomes flour. A blaze rod or Efreet Heart makes three Blaze Powder. Sugar cane makes two Sugar. The quern also mills compatible flowers and plants into dye.",
+      "title": "Useful Grinds"
+    }
+  ]
+}

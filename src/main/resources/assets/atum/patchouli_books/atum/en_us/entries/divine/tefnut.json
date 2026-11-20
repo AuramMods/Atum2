@@ -1,0 +1,22 @@
+{
+  "name": "Tefnut",
+  "icon": "atum:tefnuts_rain",
+  "category": "atum:divine",
+  "sortnum": 24,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "These artifacts are in the Tefnut Pharaoh’s loot pool. Use four matching Torches of Tefnut to target it. An untuned ritual can also drop them."
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "atum:tefnuts_rain",
+      "text": "Draw this bow fully to split the arrow into a shower of smaller arrows. Use it with room for the spread."
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "atum:tefnuts_call",
+      "text": "A spear for melee and throwing. Hold Use for a little over a second, then release. In survival the thrown spear leaves your hand, so retrieve it after the attack."
+    }
+  ]
+}

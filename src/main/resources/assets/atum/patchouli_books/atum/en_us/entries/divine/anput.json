@@ -1,0 +1,22 @@
+{
+  "name": "Anput",
+  "icon": "atum:anputs_grounding",
+  "category": "atum:divine",
+  "sortnum": 10,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "These artifacts are in the Anput Pharaoh’s loot pool. Use four matching Torches of Anput to target it. An untuned ritual can also drop them."
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "atum:anputs_grounding",
+      "text": "A bow that fires slowing arrows. Use it to limit a pursuing target’s movement."
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "atum:anputs_hunger",
+      "text": "Hold this dagger in your main hand. Striking a living enemy restores a little food and inflicts brief nausea. Holding it without fighting periodically drains food."
+    }
+  ]
+}

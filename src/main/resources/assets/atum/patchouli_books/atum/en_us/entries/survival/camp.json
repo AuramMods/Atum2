@@ -1,0 +1,26 @@
+{
+  "name": "Set Up Camp",
+  "icon": "minecraft:campfire",
+  "category": "atum:survival",
+  "sortnum": 0,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "Build near your arrival portal or an oasis. Chart your portal and landmarks with coordinates or a map. Carry extra pickaxes, food, blocks, water, torches, and a shield. Leave spare supplies under cover."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Sandstorms thicken terrain fog and may leave sand layers. Use torches or tall markers to retrace your steps. An oasis has thinner fog, water, wood, and fewer hostile spawns. Travel with short, visible waypoints.",
+      "title": "When the Sand Rises"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Oases have the clearest air. In this version, wearing a Wanderer, Desert, Atem, or Ra helmet makes terrain fog denser. A Mummy Helmet adds a first-person veil. For scouting, use clear weather and a marked route.",
+      "title": "Visibility Gear"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Check $(l:atum:expedition/arrival)Cross and Return$(/l) before leaving your portal behind. Set up a steady supply of bread and bandages before committing to a $(l:atum:exploration/pyramid)pyramid$(/l)."
+    }
+  ]
+}

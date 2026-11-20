@@ -1,0 +1,20 @@
+{
+  "name": "Atum Wildlife",
+  "icon": "atum:quail_egg",
+  "category": "atum:people",
+  "sortnum": 6,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "Quail lay eggs and can be fed Emmer or several common seeds. Eggs can hatch quail when thrown. Desert rabbits can be led with flax and provide rabbit meat and hide."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Hold a Skeletal Fish and let a Serval approach. Feed it fish to tame it, and feed two tamed Servals fish to breed them. A tamed Serval may bring a gift in the morning. Fish at an oasis for Skeletal Fish."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "See $(l:atum:people/camels)Camels & Cargo$(/l) and $(l:atum:people/wolves)Desert Wolves$(/l) for the rideable animals. Desert Hunter, A Hump in the Road, and Sandy Boi are useful advancement milestones."
+    }
+  ]
+}

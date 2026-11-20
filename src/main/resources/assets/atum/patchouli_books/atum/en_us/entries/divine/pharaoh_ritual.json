@@ -1,0 +1,37 @@
+{
+  "name": "Sarcophagus Ritual",
+  "icon": "atum:sarcophagus",
+  "category": "atum:divine",
+  "sortnum": 0,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)Pyramid spoilers.$() The main chamber holds a locked two-block sarcophagus. Prepare with armor, a shield, healing, and a way back. Switch away from Peaceful before attempting the ritual."
+    },
+    {
+      "type": "patchouli:image",
+      "images": [
+        "atum:textures/gui/guide/sarcophagus_plan.png"
+      ]
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Look down on the coffin with its front toward you. Use the four marked sockets at the same height as the coffin. The rear row is one block behind it and the front row two blocks ahead. Each torch column sits two blocks beyond its nearer half.",
+      "title": "Place the Torches"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Place a lit Nebu Torch in each socket. Use the closed sarcophagus once all four are lit. Ordinary torches and unlit Nebu Torches cannot start the ritual."
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "atum:nebu_torch",
+      "text": "Coal or charcoal over a Nebu Drop makes four Nebu Torches."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Four Torches of the same named god select that god’s Pharaoh and artifact pool. Plain torches or a mix use the general pool. Once you are set, turn to $(l:atum:divine/pharaoh_fight)The Pharaoh Fight$(/l).",
+      "title": "Choose a God"
+    }
+  ]
+}

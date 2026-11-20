@@ -1,0 +1,25 @@
+{
+  "name": "Seeds & Soil",
+  "icon": "atum:emmer_seeds",
+  "category": "atum:survival",
+  "sortnum": 1,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "Break grass around an oasis to look for Emmer and Flax Seeds. Plant both crops on tilled soil. Hoe Fertile Soil near water. Ordinary farmland works where available. Harvest mature plants and save seed for the next planting."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Fertile Soil is common around living oases. Without Silk Touch it drops piles, which can be crafted back into a block. Hoe the block near water so it stays hydrated."
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "atum:fertile_soil",
+      "text": "Turn four Fertile Soil Piles back into a block."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Emmer gives food through the $(l:atum:workshop/quern)quern$(/l). Flax becomes thread at the $(l:atum:workshop/spinning_wheel)spinning wheel$(/l). You can check the Agriculture advancement for planting both crops."
+    }
+  ]
+}

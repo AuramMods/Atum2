@@ -1,0 +1,25 @@
+{
+  "name": "Villager Trades",
+  "icon": "atum:coin_gold",
+  "category": "atum:people",
+  "sortnum": 2,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "Find Atum villagers in $(l:atum:exploration/gatehouses)villages$(/l). Their market uses Atum gold coins. Sell surplus materials, then return as the villager levels up. Offers depend on their profession and level."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "A Cartographer can offer a Pyramid Explorer Map when a suitable pyramid is available. Visit a Curator with washed relics. A Curator uses a Curio Display and a Glassblower uses a Glassblower Furnace.",
+      "title": "Routes and Relics"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "For supplies, Farmers trade crops, Butchers trade meat, Alchemists offer brewing materials, and Librarians trade books. Fletchers deal in arrows and related materials."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Armorers sell desert armor, Hunters sell gear and can offer saddles, and Tailors work with linen. Masons trade stonework, Toolsmiths trade tools, and Weaponsmiths trade arms. An unemployed villager can take a job, while a nitwit stays unassigned."
+    }
+  ]
+}

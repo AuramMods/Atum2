@@ -1,0 +1,22 @@
+{
+  "name": "Horus",
+  "icon": "atum:horus_soaring",
+  "category": "atum:divine",
+  "sortnum": 14,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "These artifacts are in the Horus Pharaoh’s loot pool. Use four matching Torches of Horus to target it. An untuned ritual can also drop them."
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "atum:horus_soaring",
+      "text": "Draw this bow fully to make its arrows fly straight. This is useful across long open sight lines."
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "atum:horus_ascension",
+      "text": "A melee gauntlet that launches susceptible foes into the air. Stone constructs resist the launch."
+    }
+  ]
+}

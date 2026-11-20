@@ -1,0 +1,20 @@
+{
+  "name": "Traps & Hidden Doors",
+  "icon": "atum:arrow_trap",
+  "category": "atum:exploration",
+  "sortnum": 2,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "Watch the direction a trap faces. Avoid the firing line of arrow traps and step around floor hazards. Poison, burning, smoke, and tar traps are different blocks. Carry a suitable pickaxe and use it to disable a pyramid trap."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "A Quandary Block lights up when a lit Nebu Torch is placed against its active face. At paired switches, light both sides. The matching limestone wall between them can turn into a hidden double door."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Player-owned traps can be opened to add fuel and disabled with a redstone signal. Pyramid traps already have power and block normal inventory access."
+    }
+  ]
+}

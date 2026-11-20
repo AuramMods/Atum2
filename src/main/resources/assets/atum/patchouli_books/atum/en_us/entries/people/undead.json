@@ -1,0 +1,25 @@
+{
+  "name": "Undead & Constructs",
+  "icon": "atum:mummy_spawn_egg",
+  "category": "atum:people",
+  "sortnum": 5,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "Mummies fight in melee and may leave Cloth Scraps for your first wheel. Forsaken leave Dusty Bones. Bonestorms hover and throw bones. Use cover to close distance or answer from range."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Wraiths drop Ectoplasm. Tarantulas leave Mandibles. Scarabs can emerge from Deadwood. If you need a fresh portal, see $(l:atum:expedition/arrival)More Scarabs$(/l) for uses of their drops."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Stoneguards and hulking Stonewardens can drop Khnumite. They are fire-immune. Keep room to back away from heavy strikes. You can also build friendly constructs using Khnumite Face blocks.",
+      "title": "Stone Guardians"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Try Stonecarver and Un-undead for combat milestones. A Pharaoh is a separate boss. Read $(l:atum:divine/pharaoh_fight)The Pharaoh Fight$(/l) when you’re ready for spoilers."
+    }
+  ]
+}

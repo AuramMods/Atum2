@@ -1,0 +1,22 @@
+{
+  "name": "Seth",
+  "icon": "atum:seths_sting",
+  "category": "atum:divine",
+  "sortnum": 22,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "These artifacts are in the Seth Pharaoh’s loot pool. Use four matching Torches of Seth to target it. An untuned ritual can also drop them."
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "atum:seths_sting",
+      "text": "A dagger that can poison targets in melee. Use it against foes susceptible to poison."
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "atum:seths_venom",
+      "text": "A bow that fires poisonous arrows. Poison-immune foes resist its special effect."
+    }
+  ]
+}

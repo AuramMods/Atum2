@@ -1,0 +1,35 @@
+{
+  "name": "Food & Medicine",
+  "icon": "atum:emmer_bread",
+  "category": "atum:survival",
+  "sortnum": 2,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "Use a $(l:atum:workshop/quern)quern$(/l) to turn Emmer into flour. Use the flour on a water source or a water-filled cauldron to make dough. A cauldron loses one level per use. Bake dough in a furnace or on a campfire."
+    },
+    {
+      "type": "patchouli:smelting",
+      "recipe": "atum:emmer_bread",
+      "text": "Bake Emmer Dough in a furnace."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Use a fully red Date cluster hanging under palm leaves to harvest it. The cluster stays in place and regrows. Eat Dates as trail food or combine them with gold for stronger food."
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "atum:golden_date",
+      "text": "Make Golden Dates for expeditions or to tame a camel."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Cook raw quail or rabbit for portable food. A fishing rod in Atum can catch Skeletal Fish, which attract servals. Use a Linen Bandage for healing and eligible negative effects."
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "atum:linen_bandage",
+      "text": "Combine Linen Cloth and a Potion of Healing."
+    }
+  ]
+}

@@ -1,0 +1,30 @@
+{
+  "name": "Hunting Artifacts",
+  "icon": "atum:ra_godshard",
+  "category": "atum:divine",
+  "sortnum": 2,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "Use the $(l:atum:divine/pharaoh_ritual)torch ritual$(/l) to target a god’s artifacts. The named loot pools and their contents are listed in this chapter. A named torch recipe combines a corresponding Godshard with four Nebu Torches."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Artifacts can be weapons, tools, armor, rings, or amulets. Equip rings in a Curios ring slot and amulets in a necklace slot. Wear armor in the usual four equipment slots and use hand-held artifacts as listed."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Save useful pieces and turn duplicates into matching shards with the $(l:atum:workshop/godforge)Godforge$(/l). The forge consumes each artifact. Some gear accepts Nebu Ingots for repairs. Inspect the individual item when combining or enchanting it."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "To find a power, jump to $(l:atum:divine/anput)Anput$(/l), $(l:atum:divine/anubis)Anubis$(/l), $(l:atum:divine/atem)Atem$(/l), $(l:atum:divine/geb)Geb$(/l), $(l:atum:divine/horus)Horus$(/l), $(l:atum:divine/isis)Isis$(/l), $(l:atum:divine/montu)Montu$(/l), $(l:atum:divine/nepthys)Nepthys$(/l).",
+      "title": "Gods A–N"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Continue with $(l:atum:divine/nuit)Nuit$(/l), $(l:atum:divine/osiris)Osiris$(/l), $(l:atum:divine/ptah)Ptah$(/l), $(l:atum:divine/ra)Ra$(/l), $(l:atum:divine/seth)Seth$(/l), $(l:atum:divine/shu)Shu$(/l), $(l:atum:divine/tefnut)Tefnut$(/l).",
+      "title": "Gods N–T"
+    }
+  ]
+}

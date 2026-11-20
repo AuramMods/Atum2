@@ -1,0 +1,27 @@
+{
+  "name": "Shu",
+  "icon": "atum:shus_breath",
+  "category": "atum:divine",
+  "sortnum": 23,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "These artifacts are in the Shu Pharaoh’s loot pool. Use four matching Torches of Shu to target it. An untuned ritual can also drop them."
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "atum:shus_breath",
+      "text": "A quickdraw bow that charges faster than a normal bow. Useful while moving between shots."
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "atum:shus_exile",
+      "text": "This battleaxe delivers strong knockback with a fully charged hit. Leave a gap between swings to recharge the attack."
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "atum:shus_swiftness",
+      "text": "Wear this amulet in a Curios necklace slot. It speeds up forward ground movement or sprinting. It does not apply while airborne."
+    }
+  ]
+}

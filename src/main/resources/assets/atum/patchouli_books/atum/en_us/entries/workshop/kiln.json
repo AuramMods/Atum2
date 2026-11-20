@@ -1,0 +1,32 @@
+{
+  "name": "Building a Kiln",
+  "icon": "atum:kiln",
+  "category": "atum:workshop",
+  "sortnum": 2,
+  "pages": [
+    {
+      "type": "patchouli:crafting",
+      "recipe": "atum:kiln",
+      "text": "Craft two kiln blocks from Limestone Furnaces and Small Limestone Bricks."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Build a solid 2 × 2 bottom layer of Small Limestone Bricks. Place two more of those bricks on the back row above it. Put two kiln blocks side by side in the open front row, facing toward you. The structure forms when you place the last kiln block."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "The complete kiln is a 2 × 2 × 2 cube. Its menu has four input and four output slots. Use furnace fuel and valid materials such as Marl. Ordinary ore smelting and food belong in a regular furnace."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Supply materials with hoppers above, fuel from the side, and pull output from below. Use the full assembled kiln, including its brick sections, for these connections.",
+      "title": "Hopper Connections"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "atum:marl",
+      "text": "Fire Marl in the kiln to get White Ceramic. Dye and shape ceramic into blocks, tiles, stairs, slabs, and walls. The stonecutter provides many of the shaping recipes.",
+      "title": "Marl into Ceramic"
+    }
+  ]
+}

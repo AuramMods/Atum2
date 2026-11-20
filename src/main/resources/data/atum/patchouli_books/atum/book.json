@@ -15,5 +15,9 @@
   "link_hover_color": "953f1f",
   "show_progress": false,
   "show_toasts": false,
-  "text_overflow_mode": "resize"
+  "text_overflow_mode": "resize",
+  "macros": {
+    "$(item)": "$(#744322)",
+    "$(thing)": "$(#65401e)"
+  }
 }

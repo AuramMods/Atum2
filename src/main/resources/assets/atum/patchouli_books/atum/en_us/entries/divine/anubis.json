@@ -1,0 +1,17 @@
+{
+  "name": "Anubis",
+  "icon": "atum:anubis_wrath",
+  "category": "atum:divine",
+  "sortnum": 11,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "These artifacts are in the Anubis Pharaoh’s loot pool. Use four matching Torches of Anubis to target it. An untuned ritual can also drop them."
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "atum:anubis_wrath",
+      "text": "A sword that gains souls from kills and unlocks tiers at 50, 150, and 500 souls. Hold Shift over it to inspect progress. At 500 souls a full-strength strike can deal double damage to foes that are neither undead nor made of stone. Death halves the stored souls."
+    }
+  ]
+}

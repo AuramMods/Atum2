@@ -1,0 +1,16 @@
+{
+  "name": "Gatehouses & Villages",
+  "icon": "minecraft:bell",
+  "category": "atum:exploration",
+  "sortnum": 5,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "Gatehouses are ruined walled entrances and sections of fortification. Search around the opening and walls as you pass through. A gatehouse can stand alone, so follow visible landmarks to find a settlement."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Generic villages form around town centers and stretch into houses and paths. They contain Atum villagers, job blocks, and sometimes crates. Villages are a place to trade and resupply. See $(l:atum:people/villagers)Villager Trades$(/l)."
+    }
+  ]
+}

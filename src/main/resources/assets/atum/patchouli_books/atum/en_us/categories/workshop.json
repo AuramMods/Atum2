@@ -1,0 +1,6 @@
+{
+  "name": "Workshop",
+  "description": "Process crops and stone, build machines, and automate their inventories.",
+  "icon": "atum:quern",
+  "sortnum": 3
+}

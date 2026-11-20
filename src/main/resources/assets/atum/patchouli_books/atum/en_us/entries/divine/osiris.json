@@ -1,0 +1,22 @@
+{
+  "name": "Osiris",
+  "icon": "atum:osiris_blessing",
+  "category": "atum:divine",
+  "sortnum": 19,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "These artifacts are in the Osiris Pharaoh’s loot pool. Use four matching Torches of Osiris to target it. An untuned ritual can also drop them."
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "atum:osiris_blessing",
+      "text": "Use this hoe on Fertile Soil to bless the tilled ground. Blessed soil improves crop growth."
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "atum:osiris_mercy",
+      "text": "Wear this amulet in a Curios necklace slot. It preserves inventory and Curios through death at the cost of some of the amulet’s durability. You still die and respawn."
+    }
+  ]
+}

@@ -1,0 +1,22 @@
+{
+  "name": "Montu",
+  "icon": "atum:montus_blast",
+  "category": "atum:divine",
+  "sortnum": 16,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "These artifacts are in the Montu Pharaoh’s loot pool. Use four matching Torches of Montu to target it. An untuned ritual can also drop them."
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "atum:montus_blast",
+      "text": "A bow that fires explosive arrows. Give explosions room and be careful around allies and buildings."
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "atum:montus_strike",
+      "text": "A battleaxe that hits nearby enemies when a fully charged attack lands. The follow-up sweep deals damage and knocks back nearby targets."
+    }
+  ]
+}

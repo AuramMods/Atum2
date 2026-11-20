@@ -1,0 +1,22 @@
+{
+  "name": "Nepthys",
+  "icon": "atum:nepthys_banishing",
+  "category": "atum:divine",
+  "sortnum": 17,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "These artifacts are in the Nepthys Pharaoh’s loot pool. Use four matching Torches of Nepthys to target it. An untuned ritual can also drop them."
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "atum:nepthys_banishing",
+      "text": "A sword whose fully charged attacks deal double damage to undead targets."
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "atum:nepthys_guard",
+      "text": "Wear this in a Curios ring slot to halve damage from undead sources. It also applies to attacks they deliver indirectly."
+    }
+  ]
+}

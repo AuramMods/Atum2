@@ -1,0 +1,21 @@
+{
+  "name": "Tombs",
+  "icon": "atum:relic_dirty_idol",
+  "category": "atum:exploration",
+  "sortnum": 3,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "Tombs are smaller underground limestone chambers. Look for brickwork when caving or mining. Bring light, check the room for hazards, and search crates and the tomb chest for supplies, coins, and dirty relics."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Girafi’s Tomb is a separate rare structure generated at the surface. Look for a sarcophagus and the Idol of Labor. Use the idol to read a random message from the mod team.",
+      "title": "Girafi’s Tomb"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Set aside dirty relics for $(l:atum:people/relics)cleaning and trade$(/l). Follow $(l:atum:divine/pharaoh_ritual)the ritual walkthrough$(/l) once you are ready for a locked sarcophagus."
+    }
+  ]
+}

@@ -1,0 +1,30 @@
+{
+  "name": "Spinning Wheel",
+  "icon": "atum:spinning_wheel",
+  "category": "atum:workshop",
+  "sortnum": 1,
+  "pages": [
+    {
+      "type": "patchouli:crafting",
+      "recipe": "atum:spinning_wheel",
+      "text": "A Cloth Scrap, a repeater, sticks, and planks build the wheel."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Use the top with flax to load one, then use the top with an empty hand to spin. After that input is processed, insert the next piece of flax and keep spinning. The flax recipe needs two inputs, three rotations each, and gives four Linen Thread."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Use the front to take the finished thread. A hopper underneath can pull the output. Feed the wheel by hand. Sneak and left-click to clear it and take back any remaining input."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Turn thread into Linen Cloth, then make fabric, armor, and $(l:atum:survival/food)bandages$(/l). Dyes and linen blocks give you colored decorations."
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "atum:linen_cloth",
+      "text": "Three threads make a piece of cloth."
+    }
+  ]
+}

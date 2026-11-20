@@ -1,0 +1,33 @@
+{
+  "name": "The Ten Biomes",
+  "icon": "atum:sand",
+  "category": "atum:exploration",
+  "sortnum": 0,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "$(thing)Sand Plains$() are broad flats with scattered Deadwood. $(thing)Sand Hills$() roll upward and can have desert wolves. $(thing)Sand Dunes$() have higher banks and hollows. Plains and dunes can have camels.",
+      "title": "The Open Sands"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(thing)Sparse Woods$() have widely spaced Deadwood. $(thing)Dense Woods$() have thicker trees and ground cover. Look for Anput’s Fingers in either woodland. Keep a trail through dense stands.",
+      "title": "Deadwood Country"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(thing)Limestone Crags$() expose irregular rock and limestone spires. $(thing)Limestone Mountains$() are taller and steeper. Both can have wolves and emerald ore. Carry blocks for steep crossings.",
+      "title": "The Limestone Heights"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(thing)Dried River$() is a dry low route instead of a dependable water source. $(thing)Oasis$() has pools, grass, papyrus, palms and acacia. Camels and quail are found here. Set up camp near usable water.",
+      "title": "Water and Old Rivers"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(thing)Dead Oasis$() has withered palms and dry ground. It lacks the living oasis’s reliable water and has hostile spawns. Visit all ten biomes for A Journey.",
+      "title": "The Dead Oasis"
+    }
+  ]
+}

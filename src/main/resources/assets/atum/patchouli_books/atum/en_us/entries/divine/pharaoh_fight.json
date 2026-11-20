@@ -1,0 +1,24 @@
+{
+  "name": "The Pharaoh Fight",
+  "icon": "atum:pharaoh_spawn_egg",
+  "category": "atum:divine",
+  "sortnum": 1,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)Boss spoilers.$() The Pharaoh rises with guards. Clear the immediate area so you can move. Keep a shield and a retreat route, eliminate guards as needed, and move around cover to avoid the boss’s projectiles."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "The Pharaoh uses a scepter and god-themed orbs. It summons more guards as its health falls. The Pharaoh is immune to fire, so rely on direct damage and bring healing."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Killing it earns Kingslayer and leaves the slayer Marked for Death. Collect the dropped divine reward and open the unlocked sarcophagus. In a pyramid, the defeat removes block protection, disables traps, and clears spawners."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "A matching named ritual uses a single god’s loot pool, with one roll. A plain or mixed ritual draws from the gods at random. More pieces of a set require more encounters. See $(l:atum:divine/artifact_hunting)Hunting Artifacts$(/l)."
+    }
+  ]
+}

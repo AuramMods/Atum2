@@ -1,0 +1,30 @@
+{
+  "name": "The Godforge",
+  "icon": "atum:godforge",
+  "category": "atum:workshop",
+  "sortnum": 4,
+  "pages": [
+    {
+      "type": "patchouli:crafting",
+      "recipe": "atum:godforge",
+      "text": "Build it with a furnace and eight Nebu Ingots."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Put a divine artifact in the input and a Lava Bucket in the fuel slot. The forge consumes the artifact and yields four Godshards of its god. The empty bucket stays in the fuel slot. Keep enough room in the output."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Automation uses the top for artifacts, the side for fuel, and the bottom for shards. Take empty buckets out by hand before supplying fresh lava. Keep your useful artifacts and smelt duplicates."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Use shards for matching god torches or Godforged blocks. See $(l:atum:divine/artifact_hunting)Hunting Artifacts$(/l) before melting a rare piece."
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "atum:torch_of_ra",
+      "text": "Four Nebu Torches and a Ra Godshard yield four Torches of Ra. Other gods use their own shards."
+    }
+  ]
+}

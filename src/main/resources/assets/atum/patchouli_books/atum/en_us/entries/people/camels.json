@@ -1,0 +1,29 @@
+{
+  "name": "Camels & Cargo",
+  "icon": "atum:camel_spawn_egg",
+  "category": "atum:people",
+  "sortnum": 0,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "Find camels in living or dead oases, the plains, or dunes. Repeated empty-hand rides can tame one. A Golden Apple, Golden Date, or Enchanted Golden Date tames immediately. Feed a regular Date to breed tamed adults."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Sneak and use a tamed camel to open the equipment screen. Add a saddle to steer it. Equip approved camel armor and a carpet if desired. The two crate slots expand the storage inventory."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Use Palm or Deadwood Crates for cargo. Fit the left crate first, then the right. Both stores are accessible from the camel’s equipment screen. Tamed adult camels can be milked with a bucket."
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "atum:palm_crate",
+      "text": "Bring a crate to turn your mount into a supply carrier."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Keep mounts clear of a portal before you step in. Atum portals are for unmounted players. See $(l:atum:expedition/arrival)Cross and Return$(/l) for the cooldown."
+    }
+  ]
+}

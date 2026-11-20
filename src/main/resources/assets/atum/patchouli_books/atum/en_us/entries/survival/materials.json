@@ -1,0 +1,34 @@
+{
+  "name": "Stone, Wood & Ore",
+  "icon": "atum:nebu_ingot",
+  "category": "atum:survival",
+  "sortnum": 3,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "Limestone is the main stone under Atum’s surface. It makes tools, furnaces, bricks, and a quern. Look below the surface for veins and pockets of gravel, sand, Marl, Alabaster, and Porphyry."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Mine iron, coal, gold, redstone, lapis, and diamonds in the limestone. Crags and mountains also generate emerald ore. Look for dusty bone, Relic Ore, Khnumite, and Nebu while exploring caves."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Nebu Drops can become ingots. Save some Nebu for divine crafting and torchwork. Khnumite also comes from stone constructs. $(l:atum:people/relics)Wash dirty relics$(/l) before taking them to a Curator."
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "atum:nebu_ingot_from_drops",
+      "text": "Combine Nebu Drops into a Nebu Ingot."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Deadwood is widespread and thickest in the woods. Palms and acacia grow near living oases. Bring back saplings and wood for planks and crates. Cut Papyrus near water for crafting Scrolls."
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "atum:scroll",
+      "text": "Scrolls fill many paper recipes, including the regular book."
+    }
+  ]
+}

@@ -1,0 +1,26 @@
+{
+  "name": "Glassblower Furnace",
+  "icon": "atum:glassblower_furnace",
+  "category": "atum:workshop",
+  "sortnum": 3,
+  "pages": [
+    {
+      "type": "patchouli:crafting",
+      "recipe": "atum:glassblower_furnace",
+      "text": "Surround a Limestone Furnace with Crystal Glass."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "A Glassblower Furnace has a regular input, fuel, and output. It processes ordinary smelting recipes and is faster for results recognized as glass. Use input from above, fuel from the side, and a hopper or chest-and-hopper below."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Smelt Strange Sand into Crystal Glass. Use panes and frames for construction, or take glass to a $(l:atum:people/villagers)Glassblower$(/l) and check their offers."
+    },
+    {
+      "type": "patchouli:smelting",
+      "recipe": "minecraft:crystal_glass",
+      "text": "Smelt Strange Sand into Crystal Glass."
+    }
+  ]
+}

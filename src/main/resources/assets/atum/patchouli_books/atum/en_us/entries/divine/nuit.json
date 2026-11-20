@@ -1,0 +1,27 @@
+{
+  "name": "Nuit",
+  "icon": "atum:nuits_vanishing",
+  "category": "atum:divine",
+  "sortnum": 18,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "These artifacts are in the Nuit Pharaoh’s loot pool. Use four matching Torches of Nuit to target it. An untuned ritual can also drop them."
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "atum:nuits_vanishing",
+      "text": "A Curios necklace that hides you while standing still. Movement cancels the effect. Attacking reveals you and delays the next vanishing."
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "atum:nuits_ire",
+      "text": "A khopesh that can inflict Wither. In the off hand, it can block like a shield. Pair it with Nuit’s Quarter to strengthen the status effect."
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "atum:nuits_quarter",
+      "text": "A khopesh that can inflict Weakness. In the off hand, it can block like a shield. Pair it with Nuit’s Ire to strengthen the status effect."
+    }
+  ]
+}

@@ -1,0 +1,20 @@
+{
+  "name": "Desert Wolves",
+  "icon": "atum:desert_wolf_spawn_egg",
+  "category": "atum:people",
+  "sortnum": 1,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "Look in Sand Hills, Limestone Crags, or Limestone Mountains. Offer bones, raw rabbit, or cooked rabbit until a wolf accepts you. Regular tamed wolves can sit and follow. The larger alpha can be ridden."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Sneak and use a tamed alpha to open its inventory. Add a saddle and optional Desert Wolf Armor. While riding, open your inventory to reach the wolf’s equipment. It has equipment slots for saddle and armor."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "A wounded tamed wolf can be fed meat. Dye the collar to tell your companions apart. Watch out around wild wolves and keep camels clear when the pack is hostile."
+    }
+  ]
+}

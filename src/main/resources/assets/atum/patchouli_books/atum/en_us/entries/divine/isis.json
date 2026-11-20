@@ -1,0 +1,22 @@
+{
+  "name": "Isis",
+  "icon": "atum:isis_healing",
+  "category": "atum:divine",
+  "sortnum": 15,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "These artifacts are in the Isis Pharaoh’s loot pool. Use four matching Torches of Isis to target it. An untuned ritual can also drop them."
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "atum:isis_healing",
+      "text": "Wear this amulet in a Curios necklace slot. While you are below full health, it heals one health point at intervals of roughly nine seconds."
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "atum:isis_division",
+      "text": "A bow that splits the shot into two arrows. Charge it before shooting to improve the volley."
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "name": "Ptah",
+  "icon": "atum:ptahs_decadence",
+  "category": "atum:divine",
+  "sortnum": 20,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "These artifacts are in the Ptah Pharaoh’s loot pool. Use four matching Torches of Ptah to target it. An untuned ritual can also drop them."
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "atum:ptahs_decadence",
+      "text": "A pickaxe that sometimes turns Raw Iron drops into Raw Gold as you mine. Use it when gold is more valuable to you than iron."
+    }
+  ]
+}

@@ -1,0 +1,27 @@
+{
+  "name": "Geb",
+  "icon": "atum:gebs_might",
+  "category": "atum:divine",
+  "sortnum": 13,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "These artifacts are in the Geb Pharaoh’s loot pool. Use four matching Torches of Geb to target it. An untuned ritual can also drop them."
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "atum:gebs_might",
+      "text": "A hammer that can stun an enemy. Use charged melee attacks to make the most of its control."
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "atum:gebs_toil",
+      "text": "A shovel that reduces exhaustion when digging and can drop a little experience from broken blocks."
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "atum:gebs_undoing",
+      "text": "A pickaxe for mining and chopping. Fully charged attacks with it are especially effective against stone constructs."
+    }
+  ]
+}

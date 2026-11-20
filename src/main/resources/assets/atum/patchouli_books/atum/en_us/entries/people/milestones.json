@@ -1,0 +1,20 @@
+{
+  "name": "Expedition Milestones",
+  "icon": "minecraft:experience_bottle",
+  "category": "atum:people",
+  "sortnum": 7,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "Open the Atum advancement tab after obtaining a Scarab. Enter the dimension for Journey Into The Sands. Visit a living oasis for A Hope and a dead oasis for A Mirage. Survey all ten for A Journey."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Grow crops for Agriculture, tame your companions, then explore a ruin for Ruined It or enter a pyramid for Pyramid Scheme. Wash relics for Just Like New and Powerwasher."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Defeating a Pharaoh earns Kingslayer. Collect divine pieces for It Belongs In A Museum and the larger collection goal, The Full Museum. Use the guide’s chapters to plan your next expedition."
+    }
+  ]
+}

@@ -1,0 +1,42 @@
+{
+  "name": "Ra",
+  "icon": "atum:halo_of_ra",
+  "category": "atum:divine",
+  "sortnum": 21,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "These artifacts are in the Ra Pharaoh’s loot pool. Use four matching Torches of Ra to target it. An untuned ritual can also drop them."
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "atum:halo_of_ra",
+      "text": "Helmet of Ra. Equip it together with the Body, Legs, and Feet to activate the set bonus."
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "atum:body_of_ra",
+      "text": "Chestplate of Ra. Complete the set for Fire Resistance."
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "atum:legs_of_ra",
+      "text": "Leggings of Ra. The Fire Resistance effect requires all four pieces."
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "atum:feet_of_ra",
+      "text": "Boots of Ra. The complete set grants Fire Resistance and completes Ra-dy for Action."
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "atum:ras_fury",
+      "text": "A bow that fires burning arrows. It is most useful against foes that are vulnerable to fire."
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "atum:ras_step",
+      "text": "Equip this ring in Curios. When walking on solid ground near source lava, it can briefly turn nearby lava into Ra Stone. Keep moving before the temporary stepping stones melt."
+    }
+  ]
+}

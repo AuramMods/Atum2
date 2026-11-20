@@ -1,0 +1,21 @@
+{
+  "name": "Wash & Trade Relics",
+  "icon": "atum:relic_dirty_bracelet",
+  "category": "atum:people",
+  "sortnum": 3,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "Look for dirty relics in crates, tombs, and Relic Ore. Types include rings, necklaces, brooches, bracelets, and idols. Drop them into water or a filled cauldron and pick up the cleaned items. Some relics break during washing."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Clean relics have different qualities. Offer them to a Curator or place them on a Curio Display. A relic is a trade or display find. The $(l:atum:divine/artifact_hunting)divine artifacts$(/l) have their own effects and sources."
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "atum:palm_curio_display",
+      "text": "A Curio Display can exhibit your finds or serve as a Curator workstation."
+    }
+  ]
+}

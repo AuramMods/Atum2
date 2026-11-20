@@ -6,7 +6,7 @@
   "pages": [
     {
       "type": "patchouli:text",
-      "text": "The portal finds a nearby partner or builds one on the far side. Walk off the arrival portal before you explore. Mark the coordinates or build a visible landmark next to it. Dismount before entering, and plan separate travel for your animals."
+      "text": "The portal finds a nearby partner or builds one on the far side. Walk off the arrival portal, mark its coordinates, and $(l:atum:survival/camp)set up camp$(/l). Dismount before entering a portal."
     },
     {
       "type": "patchouli:text",

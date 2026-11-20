@@ -1,0 +1,20 @@
+{
+  "name": "Mineshafts",
+  "icon": "minecraft:rail",
+  "category": "atum:exploration",
+  "sortnum": 6,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "Atum has four mineshaft variants. Look for Deadwood supports and timber passages in the $(thing)Deadwood Mineshaft$(), or limestone supports in the $(thing)Limestone Mineshaft$(). Both have underground variants."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "In Limestone Mountains, the $(thing)Surface Deadwood Mineshaft$() and $(thing)Surface Limestone Mineshaft$() begin nearer the surface. Search for exposed openings and descended corridors. Mine the surrounding limestone while you explore."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Expect branching corridors, crossings, rooms, and stairs. Mark junctions and carry backup light. Rails can guide you between workings. Leave space to retreat from narrow passages."
+    }
+  ]
+}

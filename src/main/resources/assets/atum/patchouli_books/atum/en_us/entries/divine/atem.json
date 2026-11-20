@@ -1,0 +1,52 @@
+{
+  "name": "Atem",
+  "icon": "atum:eyes_of_atem",
+  "category": "atum:divine",
+  "sortnum": 12,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "These artifacts are in the Atem Pharaoh’s loot pool. Use four matching Torches of Atem to target it. An untuned ritual can also drop them."
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "atum:eyes_of_atem",
+      "text": "Helmet of the Atem set. Equip it with the Body, Legs, and Feet for the full set’s emergency recall."
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "atum:body_of_atem",
+      "text": "Chestplate of the Atem set. Equip all four pieces to activate the set bonus."
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "atum:legs_of_atem",
+      "text": "Leggings of the Atem set. The recall requires the Eyes, Body, Legs, and Feet together."
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "atum:feet_of_atem",
+      "text": "Boots of the Atem set. At full set, a lethal hit can heal and recall you to your spawn. The effect has a 20-minute cooldown."
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "atum:atems_will",
+      "text": "A sword with a chance on a successful hit to grant the wielder brief Resistance."
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "atum:atems_protection",
+      "text": "A shield that may grant a short period of damage immunity when a living attacker strikes while you block."
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "atum:atems_bounty",
+      "text": "A fishing rod with its own fishing loot pool in Atum. Use it at a water source as you would a normal rod."
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "atum:atems_homecoming",
+      "text": "Use this portable recall to teleport to your valid spawnpoint. If your bed is missing, it falls back to the applicable world spawn. Each successful use costs durability."
+    }
+  ]
+}

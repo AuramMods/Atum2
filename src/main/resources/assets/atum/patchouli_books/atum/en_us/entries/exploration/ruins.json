@@ -1,0 +1,16 @@
+{
+  "name": "Ruins & Dungeons",
+  "icon": "atum:palm_crate",
+  "category": "atum:exploration",
+  "sortnum": 4,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "Look for low broken masonry and scattered structures above ground. Ruins come in different shapes and many hide crates. Check corners and below exposed broken stone. Entering a ruin earns Ruined It."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Underground limestone dungeons can have a mob spawner and supply crates. Light the approaches and control the spawns before opening containers. Fossils are deposits of dusty bone blocks and are worth collecting on a mining trip."
+    }
+  ]
+}

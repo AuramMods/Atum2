@@ -1,0 +1,20 @@
+{
+  "name": "Bandit Patrols",
+  "icon": "atum:brigand_spawn_egg",
+  "category": "atum:people",
+  "sortnum": 4,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "Bandits travel in patrols and can gather around you after you’re marked. Bring a shield and keep sight lines clear. Brigands fight with shields, Nomads shoot, and Barbarians are melee fighters."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Assassins are dangerous at close range. Watch for Sergeants and the Bandit Warlord. Defeating a Sergeant can leave you Marked for Death. Fall back to a lit camp if more patrols converge."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Bandits can drop dirty coins. Toss them into water or a filled cauldron to wash them into gold coins. Some break in the wash. Bandits can also drop useful gear. Find and fight all the bandit types listed by the Lawbringer advancement."
+    }
+  ]
+}
