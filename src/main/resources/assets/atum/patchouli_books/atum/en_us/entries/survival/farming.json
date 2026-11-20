@@ -15,7 +15,7 @@
     {
       "type": "patchouli:crafting",
       "recipe": "atum:fertile_soil",
-      "text": "Turn four Fertile Soil Piles back into a block."
+      "text": "Turn nine Fertile Soil Piles back into a block."
     },
     {
       "type": "patchouli:text",

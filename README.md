@@ -10,7 +10,9 @@ Optional integrations include JEI, CraftTweaker, The One Probe, Jade, and Tips. 
 
 ## Field Guide to Atum
 
-With Patchouli installed, craft the guide by combining a vanilla book and sandstone in any arrangement. The recipe is `atum:guide_book`. Its output is the item `patchouli:guide_book` with the string tag `"patchouli:book":"atum:atum"`.
+With Patchouli installed, craft the guide by combining a vanilla book and sandstone in any arrangement. Picking up a vanilla book unlocks the recipe in Minecraft’s recipe book. The recipe is `atum:guide_book`. Its output is the item `patchouli:guide_book` with the string tag `"patchouli:book":"atum:atum"`.
+
+The guide covers the first portal, survival, biomes and structures, workshops, mounts, villagers, and the Pharaohs and their artifacts. The Pharaoh chapter contains the ritual diagram and endgame spoilers.
 
 ## Upgrade a 1.16.5 Atum world
 
