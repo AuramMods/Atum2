@@ -1,0 +1,22 @@
+{
+  "name": "Before You Leave",
+  "icon": "atum:scarab",
+  "category": "atum:expedition",
+  "sortnum": 0,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "Craft this guide before you leave the Overworld. Then make a $(thing)Scarab$() and gather $(thing)49 sandstone blocks$() to $(l:atum:expedition/portal)build the smallest portal$(/l). Pack food, a water bucket, torches, a pickaxe, a shield, and spare blocks."
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "atum:guide_book",
+      "text": "Craft the field guide with a book and sandstone in any arrangement."
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "atum:scarab",
+      "text": "Three gold ingots and a diamond make the portal Scarab."
+    }
+  ]
+}

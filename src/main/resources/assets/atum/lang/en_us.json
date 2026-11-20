@@ -1234,6 +1234,8 @@
 
   "_comment": "Creative Tab",
   "tabs.atum.tab": "Atum",
+  "book.atum.name": "Field Guide to Atum",
+  "book.atum.landing": "A traveler’s handbook to the land of sand. Start with $(l:atum:expedition/first_steps)First Expedition$(/l), then return for directions, recipes, and the secrets of the old kingdoms.",
 
   "_comment": "Chat",
   "chat.atum.disabled": "Scarab portal creation is disabled",

@@ -88,6 +88,7 @@ dependencies {
     compileOnly fg.deobf("com.blamejared.crafttweaker:CraftTweaker-forge-${minecraft_version}:${ct_version}")
     compileOnly fg.deobf("curse.maven:the-one-probe-245211:${top_file}")
     compileOnly fg.deobf("curse.maven:jade-324717:${jade_file}")
+    runtimeOnly fg.deobf("curse.maven:patchouli-306770:${patchouli_file}")
     compileOnly fg.deobf("top.theillusivec4.curios:curios-forge:${curios_version}:api")
     runtimeOnly fg.deobf("top.theillusivec4.curios:curios-forge:${curios_version}")
 }

@@ -8,6 +8,10 @@ Use Java 17, Forge 47.x, and Curios for Forge 1.20.1. Run `./gradlew build` to p
 
 Optional integrations include JEI, CraftTweaker, The One Probe, Jade, and Tips. Jade carries forward the limestone-door disguise and date-growth tooltips from the original Waila integration.
 
+## Field Guide to Atum
+
+With Patchouli installed, craft the guide by combining a vanilla book and sandstone in any arrangement. The recipe is `atum:guide_book`. Its output is the item `patchouli:guide_book` with the string tag `"patchouli:book":"atum:atum"`.
+
 ## Upgrade a 1.16.5 Atum world
 
 Close the world in Minecraft 1.16.5 and keep a backup. From a checkout of this port with Java 17 installed, run the migration task with the original save directory followed by a new destination in an existing directory.

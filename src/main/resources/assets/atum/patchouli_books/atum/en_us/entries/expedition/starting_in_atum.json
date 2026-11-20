@@ -1,0 +1,17 @@
+{
+  "name": "Start in Atum",
+  "icon": "atum:palm_sapling",
+  "category": "atum:expedition",
+  "sortnum": 3,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "Servers and singleplayer worlds can enable $(thing)Start in Atum$() in $(item)atum-common.toml$(). New players then start in the dimension. The default starter structure is a small tent. The separate $(thing)Create Atum Portal$() option supplies an exit pool."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Shelter and Respawn",
+      "text": "With Start in Atum enabled, death without a usable personal spawn returns you to a safe surface near Atum’s shared spawn. A valid personal spawn still works. With default settings, use a bed to set your own spawn and keep track of your portal."
+    }
+  ]
+}

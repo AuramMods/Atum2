@@ -1,0 +1,34 @@
+{
+  "name": "Build the Portal",
+  "icon": "minecraft:sandstone",
+  "category": "atum:expedition",
+  "sortnum": 1,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "Lay a solid $(thing)5 × 5$() floor. Add a one-block-high rim around its edge, leaving a $(thing)3 × 3$() basin. Put two more blocks on top of each corner of the rim. Leave the space above the water open."
+    },
+    {
+      "type": "patchouli:image",
+      "images": [
+        "atum:textures/gui/guide/portal_plan.png"
+      ],
+      "text": "Top views of the base and the layer just above it. Raise each marked corner by two blocks."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Activate the Pool",
+      "text": "Use sandstone from the Forge sandstone tag or Atum limestone bricks. Ordinary sand is unsuitable. Fill the basin with water and drop a $(item)Scarab$() into it with your drop key. The water becomes a portal and the Scarab is consumed. Step into the pool to cross."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "If It Stays Water",
+      "text": "If nothing happens, check the solid floor, the whole rim, all four pillars, and that the dropped item is sitting in water. Servers can disable survival activation with $(thing)Atum Portal$() in the common config."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Larger Portals",
+      "text": "An interior can be 3–9 blocks wide and 3–9 blocks long. The rim adds one block on each side. The smallest design uses 49 frame blocks. Start with the 5 × 5 plan so the water is easy to fill."
+    }
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "name": "book.atum.name",
+  "landing_text": "book.atum.landing",
+  "model": "atum:book",
+  "version": 1,
+  "creative_tab": "atum:tab",
+  "use_resource_pack": true,
+  "book_texture": "atum:textures/gui/book.png",
+  "filler_texture": "atum:textures/gui/page_filler.png",
+  "crafting_texture": "atum:textures/gui/crafting.png",
+  "text_color": "332719",
+  "header_color": "653b20",
+  "nameplate_color": "ebcfa4",
+  "link_color": "753c1c",
+  "link_hover_color": "953f1f",
+  "show_progress": false,
+  "show_toasts": false,
+  "text_overflow_mode": "resize"
+}

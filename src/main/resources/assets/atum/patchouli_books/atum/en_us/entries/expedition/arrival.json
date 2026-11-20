@@ -1,0 +1,26 @@
+{
+  "name": "Cross and Return",
+  "icon": "minecraft:compass",
+  "category": "atum:expedition",
+  "sortnum": 2,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "The portal finds a nearby partner or builds one on the far side. Walk off the arrival portal before you explore. Mark the coordinates or build a visible landmark next to it. Dismount before entering, and plan separate travel for your animals."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "When you want to leave, wait off the portal for at least 15 seconds after using it, then step back in. Standing in the pool keeps the cooldown active. You do not need a second Scarab for an active portal."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "More Scarabs",
+      "text": "The first Scarab is easiest to craft in the Overworld. In Atum, some Deadwood logs release Scarabs when broken. Catch up with the beetle for its drops. Crunchy Scarabs also have recipes that turn them into portal Scarabs."
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "atum:scarab_from_crunchy_scarab",
+      "recipe2": "atum:scarab_from_crunchy_golden_scarab"
+    }
+  ]
+}
