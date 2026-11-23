@@ -1251,8 +1251,6 @@
   "atum.config.sandstormenabled": "Permitir tempestades de areia",
   "atum.configGui.sandstormsandrarity": "Frequência de camadas de areia geradas durante tempestades de areia",
   "atum.config.sandstormfog": "Névoa das tempestades de areia",
-  "atum.config.sandbrightness": "Luminosidade das tempestades de areia",
-  "atum.config.sandalpha": "Transparência das tempestades de areia",
   "atum.config.eyesalpha": "Transparência do capacete durante tempestades de areia",
   "atum.config.sandstormtransition": "Período de transição das tempestades de areia",
   "atum.config.oaseschances": "Frequência de biomas de oásis",

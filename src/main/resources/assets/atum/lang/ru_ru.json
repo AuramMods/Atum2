@@ -1251,8 +1251,6 @@
   "atum.config.sandstormenabled": "Пустынная буря включена",
   "atum.configGui.sandstormsandrarity": "Редкость слоёв песка",
   "atum.config.sandstormfog": "Туман песчаной бури",
-  "atum.config.sandbrightness": "Яркость песчаной бури",
-  "atum.config.sandalpha": "Прозрачность песчаной бури",
   "atum.config.eyesalpha": "Прозрачность шлема песчаной бури",
   "atum.config.sandstormtransition": "Время перехода песчаной бури ",
   "atum.config.oaseschances": "Шанс оазиса",

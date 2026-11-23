@@ -1251,8 +1251,6 @@
   "atum.config.sandstormenabled": "모래폭풍 활성화",
   "atum.configGui.sandstormsandrarity": "모래폭풍 모래층 희귀성",
   "atum.config.sandstormfog": "모래폭풍 안개",
-  "atum.config.sandbrightness": "모래폭풍 광채",
-  "atum.config.sandalpha": "모래폭풍 투명도",
   "atum.config.eyesalpha": "모래폭풍 투구 투명도",
   "atum.config.sandstormtransition": "모래폭풍 전환 시간",
   "atum.config.oaseschances": "오아시스 기회",

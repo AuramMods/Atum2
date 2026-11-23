@@ -1251,8 +1251,6 @@
   "atum.config.sandstormenabled": "启用沙尘暴",
   "atum.configGui.sandstormsandrarity": "沙尘暴沙层生成稀有度",
   "atum.config.sandstormfog": "沙尘暴迷雾",
-  "atum.config.sandbrightness": "沙尘暴亮度",
-  "atum.config.sandalpha": "沙尘暴可见度",
   "atum.config.eyesalpha": "沙尘暴头盔可见度",
   "atum.config.sandstormtransition": "沙尘暴变迁时间",
   "atum.config.oaseschances": "绿洲出现几率",

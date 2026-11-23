@@ -55,9 +55,6 @@ public class AtumConfig {
         public final ForgeConfigSpec.BooleanValue sandstormEnabled;
         public final ForgeConfigSpec.IntValue sandstormSandLayerChance;
         public final ForgeConfigSpec.IntValue sandstormFog;
-        public final ForgeConfigSpec.IntValue sandDarkness;
-        public final ForgeConfigSpec.IntValue sandAlpha;
-        public final ForgeConfigSpec.IntValue sandEyesAlpha;
         public final ForgeConfigSpec.IntValue sandstormTransitionTime;
 
         Sandstorm(ForgeConfigSpec.Builder builder) {
@@ -71,15 +68,6 @@ public class AtumConfig {
             this.sandstormFog = builder.comment("Multiplier to fog during sandstorms")
                     .translation("atum.config.sandstormfog")
                     .defineInRange("Sandstorm Fog", 2, 0, 100);
-            this.sandDarkness = builder.comment("How light the sand particles are")
-                    .translation("atum.config.sandbrightness")
-                    .defineInRange("Sandstorm Brightness", 75, 0, 100);
-            this.sandAlpha = builder.comment("Base transparency for sand particles")
-                    .translation("atum.config.sandalpha")
-                    .defineInRange("Sandstorm Base Transparency", 10, 0, 100);
-            this.sandEyesAlpha = builder.comment("Sand particle transparency while wearing Sandstorm reducing helmets")
-                    .translation("atum.config.sandalpha")
-                    .defineInRange("Sandstorm Helmet Transparency", 40, 0, 100);
             this.sandstormTransitionTime = builder.comment("Seconds it takes to transition from clear to sandstorm")
                     .translation("atum.config.sandstormtransition")
                     .defineInRange("Sandstorm Transition Time", 25, 0, 100);
