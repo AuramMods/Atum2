@@ -6,6 +6,8 @@ Download on [CurseForge](https://minecraft.curseforge.com/projects/atum)
 
 Use Java 17, Forge 47.x, and Curios for Forge 1.20.1. Run `./gradlew build` to produce the mod JAR in `build/libs/`. Install the same Atum and Curios versions on the client and dedicated server.
 
+Build and verify all JARs locally using the machine’s Gradle cache. Keep GitHub Actions out of the build and release workflow.
+
 Optional integrations include JEI, CraftTweaker, The One Probe, Jade, and Tips. Jade carries forward the limestone-door disguise and date-growth tooltips from the original Waila integration.
 
 ## Field Guide to Atum
