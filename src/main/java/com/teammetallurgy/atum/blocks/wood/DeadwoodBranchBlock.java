@@ -88,23 +88,31 @@ public class DeadwoodBranchBlock extends Block implements SimpleWaterloggedBlock
 
     @Override
     public void tick(@Nonnull BlockState state, @Nonnull ServerLevel level, @Nonnull BlockPos pos, @Nonnull RandomSource rand) {
-        if (!this.canSurviveAt(level, pos)) {
+        if (this.hasLostSupport(state, level, pos)) {
             level.destroyBlock(pos, true);
         }
     }
 
     @Override
     public void neighborChanged(@Nonnull BlockState state, @Nonnull Level level, @Nonnull BlockPos pos, @Nonnull Block block, @Nonnull BlockPos fromPos, boolean isMoving) {
-        if (!this.canSurviveAt(level, pos)) {
+        if (this.hasLostSupport(state, level, pos)) {
             level.scheduleTick(pos, this, 1);
         }
     }
 
-    private boolean canSurviveAt(Level level, BlockPos pos) {
-        BlockState state = level.getBlockState(pos);
+    private boolean hasLostSupport(BlockState state, Level level, BlockPos pos) {
         Direction facing = state.getValue(FACING);
-        BlockState neighbor = level.getBlockState(pos.offset(facing.getNormal()));
-        return neighbor.is(BlockTags.LOGS) || neighbor.is(BlockTags.PLANKS);
+        BlockPos supportPos = pos.relative(facing);
+        if (!level.hasChunkAt(supportPos)) {
+            return false;
+        }
+
+        BlockState support = level.getBlockState(supportPos);
+        if (support.is(this)) {
+            // Generated branches can grow from other branches, whose own support points inward.
+            return support.getValue(FACING) == facing.getOpposite();
+        }
+        return !support.is(BlockTags.LOGS) && !support.is(BlockTags.PLANKS);
     }
 
     @Override
